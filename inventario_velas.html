@@ -390,22 +390,25 @@ async function registrarVenta() {
   btn.disabled = true;
   btn.textContent = 'Registrando...';
   try {
-    await fetch(API_URL, {
+    var res = await fetch(API_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ producto: producto, cantidad: cantidad, nota: nota, nombre: nombre, telefono: telefono, tipoEntrega: tipoEntrega, direccion: direccion })
     });
-    document.getElementById('input-cantidad').value = 1;
-    document.getElementById('select-producto').value = '';
-    document.getElementById('input-nota').value = '';
-    document.getElementById('input-nombre').value = '';
-    document.getElementById('input-telefono').value = '';
-    document.getElementById('input-direccion').value = '';
-    setEntrega('recogida');
-    mostrarExito(producto, cantidad, '...');
-    sessionStorage.removeItem('inventario_cache');
-    await cargarInventario();
+    var data = await res.json();
+    if (data.ok) {
+      document.getElementById('input-cantidad').value = 1;
+      document.getElementById('select-producto').value = '';
+      document.getElementById('input-nota').value = '';
+      document.getElementById('input-nombre').value = '';
+      document.getElementById('input-telefono').value = '';
+      document.getElementById('input-direccion').value = '';
+      setEntrega('recogida');
+      mostrarExito(producto, cantidad, data.nuevoStock);
+      sessionStorage.removeItem('inventario_cache');
+      await cargarInventario();
+    } else {
+      mostrarToast(data.error || 'Error al registrar', 'error');
+    }
   } catch(e) {
     mostrarToast('Error de conexión', 'error');
   }
