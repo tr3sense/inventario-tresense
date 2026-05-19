@@ -234,6 +234,10 @@
     <div class="form-group"><label class="form-label">Nombre del cliente</label><input type="text" id="input-nombre" placeholder="Ej: María García"></div>
     <div class="form-group"><label class="form-label">Teléfono</label><input type="tel" id="input-telefono" placeholder="Ej: 300 123 4567"></div>
     <div class="form-group">
+      <label class="form-label">Fecha de entrega</label>
+      <input type="date" id="input-fecha-entrega">
+    </div>
+    <div class="form-group">
       <label class="form-label">Tipo de entrega</label>
       <div class="toggle-group">
         <div class="toggle-btn active" id="btn-recogida" onclick="setEntrega('recogida')">🏪 Recogida</div>
@@ -460,7 +464,7 @@ function renderHistorial() {
   var ventas = [];
   for (var i = 1; i < datosGlobal.length; i++) {
     if (!datosGlobal[i][0] || !datosGlobal[i][3] || !datosGlobal[i][4]) continue;
-    ventas.push({ producto: datosGlobal[i][0], cantidad: datosGlobal[i][4], fecha: datosGlobal[i][3], cliente: datosGlobal[i][5] || '', telefono: datosGlobal[i][6] || '', entrega: datosGlobal[i][7] || '', direccion: datosGlobal[i][8] || '', precio: datosGlobal[i][9] || 0, costoDom: datosGlobal[i][10] || 0 });
+    ventas.push({ producto: datosGlobal[i][0], cantidad: datosGlobal[i][4], fecha: datosGlobal[i][3], cliente: datosGlobal[i][5] || '', telefono: datosGlobal[i][6] || '', entrega: datosGlobal[i][7] || '', direccion: datosGlobal[i][8] || '', precio: datosGlobal[i][9] || 0, costoDom: datosGlobal[i][10] || 0, zona: datosGlobal[i][11] || '', fechaEntrega: datosGlobal[i][12] || '' });
   }
   if (!ventas.length) { document.getElementById('lista-historial').innerHTML = '<div class="loading">Sin ventas registradas aún.</div>'; return; }
   ventas.sort(function(a, b) { return new Date(b.fecha) - new Date(a.fecha); });
@@ -472,7 +476,12 @@ function renderHistorial() {
     html += '<div class="historial-item">';
     html += '<div class="historial-top"><span class="historial-producto">' + v.producto + '</span><span class="historial-cantidad">-' + v.cantidad + ' uds</span></div>';
     html += '<div class="historial-bottom"><span class="historial-cliente">' + (v.cliente ? '👤 ' + v.cliente : '') + (v.telefono ? ' · ' + v.telefono : '') + '</span><span class="historial-fecha">' + fecha + '</span></div>';
-    if (v.entrega) html += '<span class="historial-entrega ' + (v.entrega === 'domicilio' ? 'domicilio' : '') + '">' + (v.entrega === 'domicilio' ? '🚚 Domicilio' : '🏪 Recogida') + '</span>';
+    if (v.entrega) {
+    var etiquetaText = v.entrega === 'domicilio' ? '🚚 Domicilio' : '🏪 Recogida';
+    if (v.entrega === 'domicilio' && v.zona) etiquetaText += ' · ' + v.zona;
+    if (v.fechaEntrega) etiquetaText += ' · ' + v.fechaEntrega;
+    html += '<span class="historial-entrega ' + (v.entrega === 'domicilio' ? 'domicilio' : '') + '">' + etiquetaText + '</span>';
+  }
     if (v.direccion) html += '<div style="font-size:12px;color:#888;margin-top:4px;">📍 ' + v.direccion + '</div>';
     if (v.precio > 0) {
       html += '<div class="historial-financiero">';
@@ -569,7 +578,7 @@ window.registrarVenta = async function() {
   var btn = document.getElementById('btn-registrar');
   btn.disabled = true; btn.textContent = 'Registrando...';
   try {
-    var res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto, cantidad, nota, nombre, telefono, tipoEntrega, direccion, costoDomicilio, zonaEntrega }) });
+    var res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto, cantidad, nota, nombre, telefono, tipoEntrega, direccion, costoDomicilio, zonaEntrega, fechaEntrega: document.getElementById('input-fecha-entrega').value }) });
     var data = await res.json();
     if (data.ok) {
       var precio = preciosGlobal[producto] || 0;
@@ -582,6 +591,7 @@ window.registrarVenta = async function() {
       document.getElementById('input-telefono').value = '';
       document.getElementById('input-direccion').value = '';
       document.getElementById('select-zona').value = '';
+      document.getElementById('input-fecha-entrega').value = '';
       document.getElementById('resumen-venta').style.display = 'none';
       setEntrega('recogida');
       mostrarExito(producto, cantidad, data.nuevoStock, total);
