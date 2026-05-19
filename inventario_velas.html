@@ -4,13 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inventario Tr3sense</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tr3sense">
+<meta name="theme-color" content="#5c6d5d">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f6e7; min-height: 100vh; padding: 16px; }
+
+  /* PIN SCREEN */
+  .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f9f6e7; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  .pin-logo { width: 200px; max-width: 80%; margin-bottom: 32px; }
+  .pin-title { font-size: 16px; color: #5c6d5d; font-weight: 500; margin-bottom: 24px; }
+  .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
+  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #5c6d5d; background: transparent; transition: background 0.2s; }
+  .pin-dot.filled { background: #5c6d5d; }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 280px; }
+  .pin-key { background: #fff; border: 1.5px solid #dbe3e2; border-radius: 14px; padding: 18px; font-size: 22px; font-weight: 500; color: #333; cursor: pointer; text-align: center; transition: all 0.15s; user-select: none; }
+  .pin-key:active { background: #5c6d5d; color: #f9f6e7; transform: scale(0.95); }
+  .pin-key.delete { font-size: 16px; color: #5c6d5d; }
+  .pin-key.empty { background: transparent; border-color: transparent; cursor: default; }
+  .pin-error { font-size: 13px; color: #c9908a; margin-top: 16px; min-height: 20px; }
+
+  /* APP */
+  .app { display: none; }
   .header { background: #5c6d5d; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
-  .header-top { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .refresh-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
-  .logo-img { width: 180px; max-width: 80%; filter: brightness(0) invert(1); margin: 0 auto; display: block; }
+  .lock-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
+  .logo-img { width: 180px; max-width: 80%; margin: 0 auto; display: block; }
   .card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #dbe3e2; }
   .card-title { font-size: 12px; font-weight: 600; color: #5c6d5d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
   .card-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: #f1d688; border-radius: 2px; }
@@ -47,41 +71,116 @@
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <button class="refresh-btn" onclick="cargarInventario()">↻ actualizar</button>
+<!-- PIN SCREEN -->
+<div class="pin-screen" id="pin-screen">
+  <img src="logo.png" alt="Tr3sense" class="pin-logo">
+  <p class="pin-title">Ingresa tu PIN</p>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="dot-0"></div>
+    <div class="pin-dot" id="dot-1"></div>
+    <div class="pin-dot" id="dot-2"></div>
+    <div class="pin-dot" id="dot-3"></div>
   </div>
-  <img src="logo.png" alt="Tr3sense" class="logo-img">
+  <div class="pin-keypad">
+    <div class="pin-key" onclick="pinPress('1')">1</div>
+    <div class="pin-key" onclick="pinPress('2')">2</div>
+    <div class="pin-key" onclick="pinPress('3')">3</div>
+    <div class="pin-key" onclick="pinPress('4')">4</div>
+    <div class="pin-key" onclick="pinPress('5')">5</div>
+    <div class="pin-key" onclick="pinPress('6')">6</div>
+    <div class="pin-key" onclick="pinPress('7')">7</div>
+    <div class="pin-key" onclick="pinPress('8')">8</div>
+    <div class="pin-key" onclick="pinPress('9')">9</div>
+    <div class="pin-key empty"></div>
+    <div class="pin-key" onclick="pinPress('0')">0</div>
+    <div class="pin-key delete" onclick="pinDelete()">⌫</div>
+  </div>
+  <p class="pin-error" id="pin-error"></p>
 </div>
 
-<div class="card">
-  <div class="card-title">Stock actual</div>
-  <div id="lista-productos">
-    <div class="loading"><div class="spinner"></div>Cargando inventario...</div>
+<!-- APP -->
+<div class="app" id="app">
+  <div class="header">
+    <div class="header-top">
+      <button class="lock-btn" onclick="cerrarSesion()">⬠ salir</button>
+      <button class="refresh-btn" onclick="cargarInventario()">↻ actualizar</button>
+    </div>
+    <img src="logo.png" alt="Tr3sense" class="logo-img">
   </div>
-  <p class="ultimo-update" id="ultimo-update"></p>
-</div>
 
-<div class="card">
-  <div class="card-title">Registrar venta</div>
-  <div class="form-group">
-    <label class="form-label">Producto</label>
-    <select id="select-producto">
-      <option value="">Selecciona un producto...</option>
-    </select>
+  <div class="card">
+    <div class="card-title">Stock actual</div>
+    <div id="lista-productos">
+      <div class="loading"><div class="spinner"></div>Cargando inventario...</div>
+    </div>
+    <p class="ultimo-update" id="ultimo-update"></p>
   </div>
-  <div class="form-group">
-    <label class="form-label">Cantidad vendida</label>
-    <input type="number" id="input-cantidad" min="1" value="1">
+
+  <div class="card">
+    <div class="card-title">Registrar venta</div>
+    <div class="form-group">
+      <label class="form-label">Producto</label>
+      <select id="select-producto">
+        <option value="">Selecciona un producto...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cantidad vendida</label>
+      <input type="number" id="input-cantidad" min="1" value="1">
+    </div>
+    <button class="btn btn-primary" id="btn-registrar" onclick="registrarVenta()">Registrar venta</button>
+    <button class="btn btn-secondary" onclick="cargarInventario()">Actualizar inventario</button>
   </div>
-  <button class="btn btn-primary" id="btn-registrar" onclick="registrarVenta()">Registrar venta</button>
-  <button class="btn btn-secondary" onclick="cargarInventario()">Actualizar inventario</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxCV6Rx5HFkaFcxsilL1juz-JoWusyPhKjb4kURSNyU1wD4meej5mzhEAFlSSE8mON7/exec";
+const PIN_CORRECTO = "0825";
+let pinActual = "";
+
+function pinPress(num) {
+  if (pinActual.length >= 4) return;
+  pinActual += num;
+  actualizarDots();
+  if (pinActual.length === 4) {
+    setTimeout(verificarPin, 200);
+  }
+}
+
+function pinDelete() {
+  pinActual = pinActual.slice(0, -1);
+  actualizarDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function actualizarDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.toggle('filled', i < pinActual.length);
+  }
+}
+
+function verificarPin() {
+  if (pinActual === PIN_CORRECTO) {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    cargarInventario();
+  } else {
+    document.getElementById('pin-error').textContent = 'PIN incorrecto. Intenta de nuevo.';
+    pinActual = '';
+    actualizarDots();
+  }
+}
+
+function cerrarSesion() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pin-screen').style.display = 'flex';
+  pinActual = '';
+  actualizarDots();
+  document.getElementById('pin-error').textContent = '';
+}
 
 async function cargarInventario() {
   document.getElementById('lista-productos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
@@ -150,8 +249,6 @@ function mostrarToast(msg, tipo) {
   toast.className = 'toast show ' + (tipo || '');
   setTimeout(() => toast.className = 'toast', 3000);
 }
-
-cargarInventario();
 </script>
 </body>
 </html>
