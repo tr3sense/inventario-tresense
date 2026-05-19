@@ -14,9 +14,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f6e7; min-height: 100vh; padding: 16px; }
 
-  /* PIN SCREEN */
   .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f9f6e7; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
   .pin-logo { width: 200px; max-width: 80%; margin-bottom: 32px; }
+  .pin-logo-header { width: 180px; max-width: 80%; margin: 0 auto; display: block; filter: brightness(0) invert(1); }
   .pin-title { font-size: 16px; color: #5c6d5d; font-weight: 500; margin-bottom: 24px; }
   .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
   .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #5c6d5d; background: transparent; transition: background 0.2s; }
@@ -28,13 +28,11 @@
   .pin-key.empty { background: transparent; border-color: transparent; cursor: default; }
   .pin-error { font-size: 13px; color: #c9908a; margin-top: 16px; min-height: 20px; }
 
-  /* APP */
   .app { display: none; }
   .header { background: #5c6d5d; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .refresh-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
   .lock-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
-  .logo-img { width: 180px; max-width: 80%; margin: 0 auto; display: block; }
   .card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #dbe3e2; }
   .card-title { font-size: 12px; font-weight: 600; color: #5c6d5d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
   .card-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: #f1d688; border-radius: 2px; }
@@ -71,7 +69,6 @@
 </head>
 <body>
 
-<!-- PIN SCREEN -->
 <div class="pin-screen" id="pin-screen">
   <img src="logo.png" alt="Tr3sense" class="pin-logo">
   <p class="pin-title">Ingresa tu PIN</p>
@@ -98,14 +95,13 @@
   <p class="pin-error" id="pin-error"></p>
 </div>
 
-<!-- APP -->
 <div class="app" id="app">
   <div class="header">
     <div class="header-top">
       <button class="lock-btn" onclick="cerrarSesion()">⬠ salir</button>
       <button class="refresh-btn" onclick="cargarInventario()">↻ actualizar</button>
     </div>
-    <img src="logo.png" alt="Tr3sense" class="logo-img">
+    <img src="logo.png" alt="Tr3sense" class="pin-logo-header">
   </div>
 
   <div class="card">
@@ -144,9 +140,7 @@ function pinPress(num) {
   if (pinActual.length >= 4) return;
   pinActual += num;
   actualizarDots();
-  if (pinActual.length === 4) {
-    setTimeout(verificarPin, 200);
-  }
+  if (pinActual.length === 4) setTimeout(verificarPin, 200);
 }
 
 function pinDelete() {
@@ -157,8 +151,7 @@ function pinDelete() {
 
 function actualizarDots() {
   for (let i = 0; i < 4; i++) {
-    const dot = document.getElementById('dot-' + i);
-    dot.classList.toggle('filled', i < pinActual.length);
+    document.getElementById('dot-' + i).classList.toggle('filled', i < pinActual.length);
   }
 }
 
