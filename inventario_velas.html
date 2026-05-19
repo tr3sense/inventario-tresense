@@ -24,7 +24,7 @@
 
   /* SPLASH */
   .splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .splash-logo { width: 200px; max-width: 80%; animation: pulse 1.2s ease-in-out infinite; }
+  .splash-logo { width: 200px; max-width: 80%; animation: pulse 0.8s ease-in-out 1; }
   .splash-text { font-size: 13px; color: var(--text3); margin-top: 24px; }
   @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.97); } }
 
@@ -220,7 +220,7 @@ let timerInactividad = null;
 setTimeout(() => {
   document.getElementById('splash').style.display = 'none';
   document.getElementById('pin-screen').style.display = 'flex';
-}, 1800);
+}, 800);
 
 function pinPress(num) {
   if (bloqueado || pinActual.length >= 4) return;
