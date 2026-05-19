@@ -40,7 +40,10 @@
   #app { display: none; max-width: 1080px; margin: 0 auto; width: 100%; }
   .header { background: #5c6d5d; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .header-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 16px; font-weight: 500; }
+  .header-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 17px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+  .header-btn:hover { text-decoration: underline; text-underline-offset: 3px; color: #fff; }
+  .header-btn img { height: 24px; }
+  .header-btn:hover { text-decoration: underline; text-underline-offset: 3px; }
   .logo-header { width: 180px; max-width: 80%; margin: 0 auto; display: block; filter: brightness(0) invert(1); }
   .card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #dbe3e2; }
   .card-title { font-size: 12px; font-weight: 600; color: #5c6d5d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
@@ -146,8 +149,8 @@
 <div id="app">
   <div class="header">
     <div class="header-top">
-      <button class="header-btn" onclick="cerrarSesion()"><img src="icono-salir.svg" style="height:18px;vertical-align:middle;margin-right:5px;" alt=""> salir</button>
-      <button class="header-btn" onclick="cargarInventario()"><img src="icono-actualizar.svg" style="height:18px;vertical-align:middle;margin-right:5px;" alt=""> actualizar</button>
+      <button class="header-btn" onclick="cerrarSesion()"><img src="icono-salir.svg"  alt=""> salir</button>
+      <button class="header-btn" onclick="cargarInventario()"><img src="icono-actualizar.svg"  alt=""> actualizar</button>
     </div>
     <img src="logo.png" alt="Tr3sense" class="logo-header">
   </div>
