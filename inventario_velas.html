@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventario Tr3sense</title>
+<title>Tr3sense</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,11 +18,16 @@
   #splash img { width: 200px; max-width: 80%; animation: aparecer 1s ease forwards; }
   @keyframes aparecer { 0%{opacity:0;transform:scale(0.85)} 100%{opacity:1;transform:scale(1)} }
 
+  /* ACCESO */
+  #acceso-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e8e4d4; z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+  .acceso-logo { width: 200px; max-width: 80%; margin-bottom: 28px; }
+  .acceso-tabs { display: flex; gap: 4px; background: #fff; border-radius: 14px; padding: 4px; margin-bottom: 24px; width: 100%; max-width: 320px; }
+  .acceso-tab { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #888; transition: all 0.2s; }
+  .acceso-tab.active { background: #5c6d5d; color: #fff; }
+
   /* PIN */
-  #pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e8e4d4; z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-  .pin-logo { width: 200px; max-width: 80%; margin-bottom: 32px; }
-  .pin-title { font-size: 16px; color: #5c6d5d; font-weight: 500; margin-bottom: 24px; }
-  .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
+  .pin-title { font-size: 16px; color: #5c6d5d; font-weight: 500; margin-bottom: 20px; }
+  .pin-dots { display: flex; gap: 14px; margin-bottom: 28px; }
   .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #5c6d5d; background: transparent; transition: background 0.2s; }
   .pin-dot.filled { background: #5c6d5d; }
   .pin-dot.error { border-color: #c9908a; background: #c9908a; animation: shake 0.4s ease; }
@@ -32,24 +37,50 @@
   .pin-key:active { background: #5c6d5d; color: #f9f6e7; transform: scale(0.95); }
   .pin-key.delete { font-size: 16px; color: #5c6d5d; }
   .pin-key.empty { background: transparent; border-color: transparent; cursor: default; }
-  .pin-error { font-size: 13px; color: #c9908a; margin-top: 16px; min-height: 20px; text-align: center; }
+  .pin-error { font-size: 13px; color: #c9908a; margin-top: 12px; min-height: 20px; text-align: center; }
   .pin-blocked { font-size: 13px; color: #c9908a; margin-top: 8px; font-weight: 500; text-align: center; }
 
-  /* APP */
-  #app { display: none; max-width: 1080px; margin: 0 auto; width: 100%; }
+  /* LOGIN CONTABILIDAD */
+  .login-card { background: #fff; border-radius: 20px; padding: 24px; width: 100%; max-width: 320px; border: 1px solid #dbe3e2; }
+  .login-group { margin-bottom: 14px; }
+  .login-label { font-size: 13px; font-weight: 500; color: #5c6d5d; margin-bottom: 6px; display: block; }
+  .login-input { width: 100%; padding: 13px 14px; border: 1.5px solid #dbe3e2; border-radius: 12px; font-size: 15px; color: #333; background: #f9f6e7; outline: none; font-family: inherit; }
+  .login-input:focus { border-color: #5c6d5d; background: #fff; }
+  .login-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: #f1d688; color: #5c6d5d; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+  .login-btn:hover { background: #e8ca6a; }
+  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .login-error { font-size: 13px; color: #c9908a; text-align: center; margin-top: 10px; min-height: 20px; }
+
+  /* FOOTER ACCESO */
+  .acceso-footer { text-align: center; margin-top: 28px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .acceso-footer img { height: 24px; opacity: 0.5; }
+  .acceso-footer a { font-size: 11px; color: #bbb; text-decoration: underline; text-underline-offset: 2px; }
+  .acceso-footer p { font-size: 10px; color: #ccc; }
+
+  /* APP INVENTARIO */
+  #app-inventario { display: none; max-width: 1080px; margin: 0 auto; width: 100%; }
+
+  /* APP CONTABILIDAD */
+  #app-contabilidad { display: none; max-width: 1080px; margin: 0 auto; width: 100%; }
+  .conta-coming { background: #fff; border-radius: 20px; padding: 40px 24px; text-align: center; border: 1px solid #dbe3e2; margin-top: 16px; }
+  .conta-coming-icon { font-size: 48px; margin-bottom: 16px; }
+  .conta-coming-title { font-size: 18px; font-weight: 600; color: #5c6d5d; margin-bottom: 8px; }
+  .conta-coming-sub { font-size: 14px; color: #888; }
+
   .header { background: #5c6d5d; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
+  .header-conta { background: #f1d688; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .header-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 17px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
   .header-btn:hover { text-decoration: underline; text-underline-offset: 3px; }
   .header-btn img { height: 24px; }
+  .header-btn-dark { color: #5c6d5d; }
   .logo-header { width: 180px; max-width: 80%; margin: 0 auto; display: block; filter: brightness(0) invert(1); }
-  .card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #dbe3e2; }
+  .logo-header-dark { width: 180px; max-width: 80%; margin: 0 auto; display: block; }
 
-  /* PESTAÑAS */
+  .card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #dbe3e2; }
   .tabs { display: flex; gap: 4px; margin-bottom: 16px; background: #f9f6e7; border-radius: 12px; padding: 4px; }
   .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #888; transition: all 0.2s; }
   .tab-btn.active { background: #fff; color: #5c6d5d; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-
   .alerta-banner { background: #fdf0ee; border: 1px solid #dbc0bd; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: #c9908a; display: none; }
   .producto-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f9f6e7; }
   .producto-item:last-child { border-bottom: none; }
@@ -62,16 +93,12 @@
   .stock-ok { font-size: 22px; font-weight: 700; color: #5c6d5d; }
   .stock-bajo { font-size: 22px; font-weight: 700; color: #c9908a; }
   .stock-label { font-size: 10px; color: #bbb; }
-
-  /* REPONER */
   .reponer-btn { background: none; border: 1px solid #dbe3e2; border-radius: 8px; padding: 4px 10px; font-size: 12px; color: #5c6d5d; cursor: pointer; margin-left: 8px; }
   .reponer-btn:hover { background: #edf2ed; }
   .reponer-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 700; display: none; align-items: center; justify-content: center; padding: 24px; }
   .reponer-card { background: #fff; border-radius: 20px; padding: 24px; width: 100%; max-width: 360px; }
   .reponer-title { font-size: 16px; font-weight: 600; color: #5c6d5d; margin-bottom: 16px; }
   .reponer-product { font-size: 14px; color: #888; margin-bottom: 16px; }
-
-  /* HISTORIAL */
   .historial-item { padding: 12px 0; border-bottom: 1px solid #f9f6e7; }
   .historial-item:last-child { border-bottom: none; }
   .historial-top { display: flex; justify-content: space-between; align-items: center; }
@@ -82,10 +109,9 @@
   .historial-fecha { font-size: 12px; color: #bbb; }
   .historial-entrega { font-size: 11px; color: #fff; background: #5c6d5d; padding: 2px 8px; border-radius: 20px; margin-top: 4px; display: inline-block; }
   .historial-entrega.domicilio { background: #dbc0bd; }
-
   .form-group { margin-bottom: 14px; }
   .form-label { font-size: 13px; font-weight: 500; color: #5c6d5d; margin-bottom: 6px; display: block; }
-  select, input[type=number], input[type=text], input[type=tel], textarea { width: 100%; padding: 13px 14px; border: 1.5px solid #dbe3e2; border-radius: 12px; font-size: 15px; color: #333; background: #f9f6e7; outline: none; appearance: none; font-family: inherit; }
+  select, input[type=number], input[type=text], input[type=tel], input[type=email], input[type=password], textarea { width: 100%; padding: 13px 14px; border: 1.5px solid #dbe3e2; border-radius: 12px; font-size: 15px; color: #333; background: #f9f6e7; outline: none; appearance: none; font-family: inherit; }
   textarea { resize: none; height: 80px; font-size: 14px; }
   select:focus, input:focus, textarea:focus { border-color: #5c6d5d; background: #fff; }
   .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
@@ -98,14 +124,11 @@
   .toggle-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1.5px solid #dbe3e2; background: #f9f6e7; color: #888; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.2s; }
   .toggle-btn.active { background: #5c6d5d; color: #f9f6e7; border-color: #5c6d5d; }
   #campo-direccion { display: none; }
-
-  /* SUCCESS */
   #success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92,109,93,0.92); z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; }
   .success-icon { font-size: 72px; animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
   .success-msg { color: #f9f6e7; font-size: 20px; font-weight: 600; margin-top: 16px; }
   .success-sub { color: #cdd8b0; font-size: 14px; margin-top: 8px; }
   @keyframes popIn { 0%{transform:scale(0)} 100%{transform:scale(1)} }
-
   .footer { text-align: center; padding: 20px 0 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .footer-logo { height: 28px; opacity: 0.6; }
   .footer a { font-size: 11px; color: #bbb; text-decoration: underline; text-underline-offset: 2px; }
@@ -125,47 +148,77 @@
   .skeleton-line.w40 { width: 40%; height: 10px; }
   .skeleton-circle { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(90deg, #ede9d8 25%, #e0dcc8 50%, #ede9d8 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
   @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .card-title { font-size: 12px; font-weight: 600; color: #5c6d5d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+  .card-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: #f1d688; border-radius: 2px; }
 </style>
 </head>
 <body>
 
+<!-- SPLASH -->
 <div id="splash">
   <img src="logo.png" alt="Tr3sense">
 </div>
 
-<div id="pin-screen">
-  <img src="logo.png" alt="Tr3sense" class="pin-logo">
-  <p class="pin-title">Ingresa tu PIN</p>
-  <div class="pin-dots">
-    <div class="pin-dot" id="dot-0"></div>
-    <div class="pin-dot" id="dot-1"></div>
-    <div class="pin-dot" id="dot-2"></div>
-    <div class="pin-dot" id="dot-3"></div>
+<!-- ACCESO -->
+<div id="acceso-screen">
+  <img src="logo.png" alt="Tr3sense" class="acceso-logo">
+
+  <div class="acceso-tabs">
+    <button class="acceso-tab active" id="tab-inventario-btn" onclick="mostrarAcceso('inventario')">🕯️ Inventario</button>
+    <button class="acceso-tab" id="tab-conta-btn" onclick="mostrarAcceso('contabilidad')">📊 Contabilidad</button>
   </div>
-  <div class="pin-keypad" id="pin-keypad">
-    <div class="pin-key" onclick="pinPress('1')">1</div>
-    <div class="pin-key" onclick="pinPress('2')">2</div>
-    <div class="pin-key" onclick="pinPress('3')">3</div>
-    <div class="pin-key" onclick="pinPress('4')">4</div>
-    <div class="pin-key" onclick="pinPress('5')">5</div>
-    <div class="pin-key" onclick="pinPress('6')">6</div>
-    <div class="pin-key" onclick="pinPress('7')">7</div>
-    <div class="pin-key" onclick="pinPress('8')">8</div>
-    <div class="pin-key" onclick="pinPress('9')">9</div>
-    <div class="pin-key empty"></div>
-    <div class="pin-key" onclick="pinPress('0')">0</div>
-    <div class="pin-key delete" onclick="pinDelete()">⌫</div>
+
+  <!-- Panel PIN -->
+  <div id="panel-pin">
+    <p class="pin-title">Ingresa tu PIN</p>
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot-0"></div>
+      <div class="pin-dot" id="dot-1"></div>
+      <div class="pin-dot" id="dot-2"></div>
+      <div class="pin-dot" id="dot-3"></div>
+    </div>
+    <div class="pin-keypad" id="pin-keypad">
+      <div class="pin-key" onclick="pinPress('1')">1</div>
+      <div class="pin-key" onclick="pinPress('2')">2</div>
+      <div class="pin-key" onclick="pinPress('3')">3</div>
+      <div class="pin-key" onclick="pinPress('4')">4</div>
+      <div class="pin-key" onclick="pinPress('5')">5</div>
+      <div class="pin-key" onclick="pinPress('6')">6</div>
+      <div class="pin-key" onclick="pinPress('7')">7</div>
+      <div class="pin-key" onclick="pinPress('8')">8</div>
+      <div class="pin-key" onclick="pinPress('9')">9</div>
+      <div class="pin-key empty"></div>
+      <div class="pin-key" onclick="pinPress('0')">0</div>
+      <div class="pin-key delete" onclick="pinDelete()">⌫</div>
+    </div>
+    <p class="pin-error" id="pin-error"></p>
+    <p class="pin-blocked" id="pin-blocked"></p>
   </div>
-  <p class="pin-error" id="pin-error"></p>
-  <p class="pin-blocked" id="pin-blocked"></p>
-  <div class="footer">
-    <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
+
+  <!-- Panel Login Contabilidad -->
+  <div id="panel-login" style="display:none; width:100%; max-width:320px;">
+    <div class="login-card">
+      <div class="login-group">
+        <label class="login-label">Correo</label>
+        <input type="email" id="login-email" class="login-input" placeholder="correo@ejemplo.com">
+      </div>
+      <div class="login-group">
+        <label class="login-label">Contraseña</label>
+        <input type="password" id="login-password" class="login-input" placeholder="••••••••">
+      </div>
+      <button class="login-btn" id="login-btn" onclick="iniciarSesionConta()">Entrar</button>
+      <p class="login-error" id="login-error"></p>
+    </div>
+  </div>
+
+  <div class="acceso-footer">
+    <img src="ntnatavergara_footer.png" alt="nt:natavergara">
     <a href="terminos.html" target="_blank">Términos y condiciones de uso</a>
     <p>Desarrollado por nt:natavergara</p>
   </div>
 </div>
 
+<!-- SUCCESS -->
 <div id="success-overlay">
   <div class="success-icon">✓</div>
   <div class="success-msg" id="success-msg"></div>
@@ -186,10 +239,11 @@
   </div>
 </div>
 
-<div id="app">
+<!-- APP INVENTARIO -->
+<div id="app-inventario">
   <div class="header">
     <div class="header-top">
-      <button class="header-btn" onclick="cerrarSesion()"><img src="icono-salir.svg" style="height:24px;" alt=""> salir</button>
+      <button class="header-btn" onclick="cerrarInventario()"><img src="icono-salir.svg" style="height:24px;" alt=""> salir</button>
       <button class="header-btn" onclick="cargarInventario()">actualizar <img src="icono-actualizar.svg" style="height:24px;" alt=""></button>
     </div>
     <img src="logo.png" alt="Tr3sense" class="logo-header">
@@ -200,29 +254,21 @@
       <button class="tab-btn active" id="tab-stock" onclick="mostrarTab('stock')">📦 Stock actual</button>
       <button class="tab-btn" id="tab-historial" onclick="mostrarTab('historial')">🕓 Historial</button>
     </div>
-
     <div id="panel-stock">
       <div id="alerta-banner" class="alerta-banner"></div>
-      <div id="lista-productos">
-        <div class="loading">Cargando...</div>
-      </div>
+      <div id="lista-productos"><div class="loading">Cargando...</div></div>
       <p class="ultimo-update" id="ultimo-update"></p>
     </div>
-
     <div id="panel-historial" style="display:none;">
-      <div id="lista-historial">
-        <div class="loading">Cargando historial...</div>
-      </div>
+      <div id="lista-historial"><div class="loading">Cargando historial...</div></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title" style="margin-bottom:16px;">Registrar venta</div>
+    <div class="card-title">Registrar venta</div>
     <div class="form-group">
       <label class="form-label">Producto</label>
-      <select id="select-producto">
-        <option value="">Selecciona un producto...</option>
-      </select>
+      <select id="select-producto"><option value="">Selecciona un producto...</option></select>
     </div>
     <div class="form-group">
       <label class="form-label">Cantidad vendida</label>
@@ -262,9 +308,48 @@
   </div>
 </div>
 
+<!-- APP CONTABILIDAD -->
+<div id="app-contabilidad">
+  <div class="header-conta">
+    <div class="header-top">
+      <button class="header-btn header-btn-dark" onclick="cerrarContabilidad()"><img src="icono-salir.svg" style="height:24px;filter:invert(30%) sepia(50%) saturate(400%) hue-rotate(90deg);" alt=""> salir</button>
+      <span style="font-size:13px;color:#5c6d5d;font-weight:500;" id="conta-user"></span>
+    </div>
+    <img src="logo.png" alt="Tr3sense" class="logo-header-dark">
+  </div>
+
+  <div class="conta-coming">
+    <div class="conta-coming-icon">📊</div>
+    <div class="conta-coming-title">Módulo de Contabilidad</div>
+    <div class="conta-coming-sub">Aquí estarán los costos de materias primas, costos directos, indirectos y la tabla totalizada.<br><br>Próximamente disponible.</div>
+  </div>
+
+  <div class="footer">
+    <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
+    <a href="terminos.html" target="_blank">Términos y condiciones de uso</a>
+    <p>Desarrollado por nt:natavergara</p>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDh_-2o-91WkkYvUUTPbD3AvXMMyQRYjhA",
+  authDomain: "inventario-tresense.firebaseapp.com",
+  projectId: "inventario-tresense",
+  storageBucket: "inventario-tresense.firebasestorage.app",
+  messagingSenderId: "895266379383",
+  appId: "1:895266379383:web:c400da1606752a593d9872"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+
 const API_URL = "https://script.google.com/macros/s/AKfycbxCV6Rx5HFkaFcxsilL1juz-JoWusyPhKjb4kURSNyU1wD4meej5mzhEAFlSSE8mON7/exec";
 const PIN_CORRECTO = "0825";
 const MAX_INTENTOS = 3;
@@ -277,27 +362,47 @@ let tipoEntrega = 'recogida';
 let productoReponer = '';
 let datosGlobal = [];
 
+// SPLASH
 window.onload = function() {
   setTimeout(function() {
     document.getElementById('splash').style.display = 'none';
-    document.getElementById('pin-screen').style.display = 'flex';
+    document.getElementById('acceso-screen').style.display = 'flex';
   }, 1500);
 };
 
+// Firebase auth state
+onAuthStateChanged(auth, function(user) {
+  if (user) {
+    document.getElementById('acceso-screen').style.display = 'none';
+    document.getElementById('app-contabilidad').style.display = 'block';
+    document.getElementById('conta-user').textContent = user.email;
+  }
+});
+
+// PESTAÑAS ACCESO
+window.mostrarAcceso = function(tipo) {
+  document.getElementById('tab-inventario-btn').classList.toggle('active', tipo === 'inventario');
+  document.getElementById('tab-conta-btn').classList.toggle('active', tipo === 'contabilidad');
+  document.getElementById('panel-pin').style.display = tipo === 'inventario' ? 'flex' : 'none';
+  document.getElementById('panel-pin').style.flexDirection = 'column';
+  document.getElementById('panel-pin').style.alignItems = 'center';
+  document.getElementById('panel-login').style.display = tipo === 'contabilidad' ? 'block' : 'none';
+};
+
 // PIN
-function pinPress(num) {
+window.pinPress = function(num) {
   if (bloqueado || pinActual.length >= 4) return;
   pinActual += num;
   actualizarDots();
   if (pinActual.length === 4) setTimeout(verificarPin, 200);
-}
+};
 
-function pinDelete() {
+window.pinDelete = function() {
   if (bloqueado) return;
   pinActual = pinActual.slice(0, -1);
   actualizarDots();
   document.getElementById('pin-error').textContent = '';
-}
+};
 
 function actualizarDots() {
   for (var i = 0; i < 4; i++) {
@@ -308,19 +413,15 @@ function actualizarDots() {
 function verificarPin() {
   if (pinActual === PIN_CORRECTO) {
     intentos = 0;
-    document.getElementById('pin-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+    document.getElementById('acceso-screen').style.display = 'none';
+    document.getElementById('app-inventario').style.display = 'block';
     cargarInventario();
     resetInactividad();
   } else {
     intentos++;
-    for (var i = 0; i < 4; i++) {
-      document.getElementById('dot-' + i).classList.add('error');
-    }
+    for (var i = 0; i < 4; i++) document.getElementById('dot-' + i).classList.add('error');
     setTimeout(function() {
-      for (var i = 0; i < 4; i++) {
-        document.getElementById('dot-' + i).classList.remove('error', 'filled');
-      }
+      for (var i = 0; i < 4; i++) document.getElementById('dot-' + i).classList.remove('error', 'filled');
     }, 500);
     pinActual = '';
     if (intentos >= MAX_INTENTOS) {
@@ -330,8 +431,7 @@ function verificarPin() {
       document.getElementById('pin-keypad').style.opacity = '0.4';
       document.getElementById('pin-keypad').style.pointerEvents = 'none';
       setTimeout(function() {
-        bloqueado = false;
-        intentos = 0;
+        bloqueado = false; intentos = 0;
         document.getElementById('pin-blocked').textContent = '';
         document.getElementById('pin-keypad').style.opacity = '1';
         document.getElementById('pin-keypad').style.pointerEvents = 'auto';
@@ -342,20 +442,44 @@ function verificarPin() {
   }
 }
 
-function cerrarSesion() {
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('pin-screen').style.display = 'flex';
-  pinActual = '';
-  intentos = 0;
-  actualizarDots();
+window.cerrarInventario = function() {
+  document.getElementById('app-inventario').style.display = 'none';
+  document.getElementById('acceso-screen').style.display = 'flex';
+  pinActual = ''; intentos = 0; actualizarDots();
   document.getElementById('pin-error').textContent = '';
   clearTimeout(timerInactividad);
-}
+};
+
+// LOGIN CONTABILIDAD
+window.iniciarSesionConta = async function() {
+  var email = document.getElementById('login-email').value.trim();
+  var password = document.getElementById('login-password').value;
+  var btn = document.getElementById('login-btn');
+  var errorEl = document.getElementById('login-error');
+  if (!email || !password) { errorEl.textContent = 'Escribe tu correo y contraseña.'; return; }
+  btn.disabled = true; btn.textContent = 'Entrando...'; errorEl.textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch(e) {
+    errorEl.textContent = 'Correo o contraseña incorrectos.';
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+};
+
+window.cerrarContabilidad = async function() {
+  await signOut(auth);
+  document.getElementById('app-contabilidad').style.display = 'none';
+  document.getElementById('acceso-screen').style.display = 'flex';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').textContent = '';
+  mostrarAcceso('contabilidad');
+};
 
 function resetInactividad() {
   clearTimeout(timerInactividad);
   timerInactividad = setTimeout(function() {
-    cerrarSesion();
+    cerrarInventario();
     mostrarToast('Sesión cerrada por inactividad', 'error');
   }, INACTIVIDAD_MS);
 }
@@ -363,38 +487,29 @@ function resetInactividad() {
 document.addEventListener('touchstart', resetInactividad);
 document.addEventListener('click', resetInactividad);
 
-// PESTAÑAS
-function mostrarTab(tab) {
+// PESTAÑAS INVENTARIO
+window.mostrarTab = function(tab) {
   document.getElementById('tab-stock').classList.toggle('active', tab === 'stock');
   document.getElementById('tab-historial').classList.toggle('active', tab === 'historial');
   document.getElementById('panel-stock').style.display = tab === 'stock' ? 'block' : 'none';
   document.getElementById('panel-historial').style.display = tab === 'historial' ? 'block' : 'none';
   if (tab === 'historial') renderHistorial();
-}
+};
 
-// INVENTARIO
 function renderProductos(datos) {
   datosGlobal = datos;
   var select = document.getElementById('select-producto');
   select.innerHTML = '<option value="">Selecciona un producto...</option>';
-  var html = '';
-  var alertas = [];
+  var html = ''; var alertas = [];
   for (var i = 1; i < datos.length; i++) {
     if (!datos[i][0]) continue;
-    var nombre = datos[i][0];
-    var stock = datos[i][1];
-    var minimo = datos[i][2] || 3;
-    var bajo = stock <= minimo;
+    var nombre = datos[i][0], stock = datos[i][1], minimo = datos[i][2] || 3, bajo = stock <= minimo;
     if (bajo) alertas.push(nombre);
-    html += '<div class="producto-item">';
-    html += '<div><div class="producto-nombre">' + nombre + '</div>';
+    html += '<div class="producto-item"><div><div class="producto-nombre">' + nombre + '</div>';
     html += bajo ? '<span class="badge-bajo">Reponer pronto</span>' : '<div class="producto-sub">En stock</div>';
-    html += '</div>';
-    html += '<div style="display:flex;align-items:center;gap:8px;">';
+    html += '</div><div style="display:flex;align-items:center;gap:8px;">';
     html += '<button class="reponer-btn" onclick="abrirReponer(\'' + nombre + '\')">+ Reponer</button>';
-    html += '<div class="stock-ring ' + (bajo ? 'stock-ring-bajo' : 'stock-ring-ok') + '">';
-    html += '<div class="' + (bajo ? 'stock-bajo' : 'stock-ok') + '">' + stock + '</div>';
-    html += '<div class="stock-label">uds</div></div></div></div>';
+    html += '<div class="stock-ring ' + (bajo ? 'stock-ring-bajo' : 'stock-ring-ok') + '"><div class="' + (bajo ? 'stock-bajo' : 'stock-ok') + '">' + stock + '</div><div class="stock-label">uds</div></div></div></div>';
     select.innerHTML += '<option value="' + nombre + '">' + nombre + ' (' + stock + ' uds)</option>';
   }
   document.getElementById('lista-productos').innerHTML = html;
@@ -413,23 +528,14 @@ function renderHistorial() {
   var ventas = [];
   for (var i = 1; i < datosGlobal.length; i++) {
     if (!datosGlobal[i][0] || !datosGlobal[i][3] || !datosGlobal[i][4]) continue;
-    ventas.push({
-      producto: datosGlobal[i][0],
-      cantidad: datosGlobal[i][4],
-      fecha: datosGlobal[i][3],
-      cliente: datosGlobal[i][5] || '',
-      telefono: datosGlobal[i][6] || '',
-      entrega: datosGlobal[i][7] || '',
-      direccion: datosGlobal[i][8] || ''
-    });
+    ventas.push({ producto: datosGlobal[i][0], cantidad: datosGlobal[i][4], fecha: datosGlobal[i][3], cliente: datosGlobal[i][5] || '', telefono: datosGlobal[i][6] || '', entrega: datosGlobal[i][7] || '', direccion: datosGlobal[i][8] || '' });
   }
   if (!ventas.length) { document.getElementById('lista-historial').innerHTML = '<div class="loading">Sin ventas registradas aún.</div>'; return; }
   ventas.sort(function(a, b) { return new Date(b.fecha) - new Date(a.fecha); });
   var html = '';
   ventas.forEach(function(v) {
     var fecha = new Date(v.fecha).toLocaleDateString('es-CO', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
-    html += '<div class="historial-item">';
-    html += '<div class="historial-top"><span class="historial-producto">' + v.producto + '</span><span class="historial-cantidad">-' + v.cantidad + ' uds</span></div>';
+    html += '<div class="historial-item"><div class="historial-top"><span class="historial-producto">' + v.producto + '</span><span class="historial-cantidad">-' + v.cantidad + ' uds</span></div>';
     html += '<div class="historial-bottom"><span class="historial-cliente">' + (v.cliente ? '👤 ' + v.cliente : '') + (v.telefono ? ' · ' + v.telefono : '') + '</span><span class="historial-fecha">' + fecha + '</span></div>';
     if (v.entrega) html += '<span class="historial-entrega ' + v.entrega + '">' + (v.entrega === 'domicilio' ? '🚚 Domicilio' : '🏪 Recogida') + '</span>';
     if (v.direccion) html += '<div style="font-size:12px;color:#888;margin-top:4px;">📍 ' + v.direccion + '</div>';
@@ -440,13 +546,11 @@ function renderHistorial() {
 
 function mostrarSkeleton() {
   var html = '';
-  for (var i = 0; i < 3; i++) {
-    html += '<div class="skeleton-item"><div class="skeleton-left"><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div><div class="skeleton-circle"></div></div>';
-  }
+  for (var i = 0; i < 3; i++) html += '<div class="skeleton-item"><div class="skeleton-left"><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div><div class="skeleton-circle"></div></div>';
   document.getElementById('lista-productos').innerHTML = html;
 }
 
-async function cargarInventario() {
+window.cargarInventario = async function() {
   var cache = sessionStorage.getItem('inventario_cache');
   if (cache) { renderProductos(JSON.parse(cache)); } else { mostrarSkeleton(); }
   document.getElementById('alerta-banner').style.display = 'none';
@@ -459,48 +563,40 @@ async function cargarInventario() {
     document.getElementById('lista-productos').innerHTML = '<div class="loading">Error cargando datos.</div>';
     mostrarToast('Error de conexión', 'error');
   }
-}
+};
 
-// REPONER STOCK
-function abrirReponer(nombre) {
+window.abrirReponer = function(nombre) {
   productoReponer = nombre;
   document.getElementById('reponer-nombre').textContent = nombre;
   document.getElementById('reponer-cantidad').value = 1;
   document.getElementById('reponer-modal').style.display = 'flex';
-}
+};
 
-function cerrarReponer() {
+window.cerrarReponer = function() {
   document.getElementById('reponer-modal').style.display = 'none';
   productoReponer = '';
-}
+};
 
-async function confirmarReponer() {
+window.confirmarReponer = async function() {
   var cantidad = parseInt(document.getElementById('reponer-cantidad').value);
   if (!cantidad || cantidad < 1) { mostrarToast('Escribe una cantidad válida', 'error'); return; }
   try {
-    var res = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ producto: productoReponer, cantidad: -cantidad, nota: 'Reposición de stock', nombre: 'Sistema', telefono: '', tipoEntrega: 'recogida', direccion: '', reponer: true })
-    });
-    var data = await res.json();
+    await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto: productoReponer, cantidad: -cantidad, nota: 'Reposición de stock', nombre: 'Sistema', telefono: '', tipoEntrega: 'recogida', direccion: '', reponer: true }) });
     cerrarReponer();
     sessionStorage.removeItem('inventario_cache');
     await cargarInventario();
     mostrarToast('Stock actualizado', 'success');
-  } catch(e) {
-    mostrarToast('Error al reponer', 'error');
-  }
-}
+  } catch(e) { mostrarToast('Error al reponer', 'error'); }
+};
 
-// VENTA
-function setEntrega(tipo) {
+window.setEntrega = function(tipo) {
   tipoEntrega = tipo;
   document.getElementById('btn-recogida').classList.toggle('active', tipo === 'recogida');
   document.getElementById('btn-domicilio').classList.toggle('active', tipo === 'domicilio');
   document.getElementById('campo-direccion').style.display = tipo === 'domicilio' ? 'block' : 'none';
-}
+};
 
-async function registrarVenta() {
+window.registrarVenta = async function() {
   var producto = document.getElementById('select-producto').value;
   var cantidad = parseInt(document.getElementById('input-cantidad').value);
   var nota = document.getElementById('input-nota').value.trim();
@@ -513,10 +609,9 @@ async function registrarVenta() {
   if (!telefono) { mostrarToast('Escribe el teléfono del cliente', 'error'); return; }
   if (tipoEntrega === 'domicilio' && !direccion) { mostrarToast('Escribe la dirección de entrega', 'error'); return; }
   var btn = document.getElementById('btn-registrar');
-  btn.disabled = true;
-  btn.textContent = 'Registrando...';
+  btn.disabled = true; btn.textContent = 'Registrando...';
   try {
-    var res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto: producto, cantidad: cantidad, nota: nota, nombre: nombre, telefono: telefono, tipoEntrega: tipoEntrega, direccion: direccion }) });
+    var res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto, cantidad, nota, nombre, telefono, tipoEntrega, direccion }) });
     var data = await res.json();
     if (data.ok) {
       document.getElementById('input-cantidad').value = 1;
@@ -529,15 +624,10 @@ async function registrarVenta() {
       mostrarExito(producto, cantidad, data.nuevoStock);
       sessionStorage.removeItem('inventario_cache');
       await cargarInventario();
-    } else {
-      mostrarToast(data.error || 'Error al registrar', 'error');
-    }
-  } catch(e) {
-    mostrarToast('Error de conexión', 'error');
-  }
-  btn.disabled = false;
-  btn.textContent = 'Registrar venta';
-}
+    } else { mostrarToast(data.error || 'Error al registrar', 'error'); }
+  } catch(e) { mostrarToast('Error de conexión', 'error'); }
+  btn.disabled = false; btn.textContent = 'Registrar venta';
+};
 
 function mostrarExito(producto, cantidad, stock) {
   var overlay = document.getElementById('success-overlay');
@@ -547,12 +637,14 @@ function mostrarExito(producto, cantidad, stock) {
   setTimeout(function() { overlay.style.display = 'none'; }, 2200);
 }
 
-function mostrarToast(msg, tipo) {
+window.mostrarToast = function(msg, tipo) {
   var toast = document.getElementById('toast');
   toast.textContent = msg;
   toast.className = 'toast show ' + (tipo || '');
   setTimeout(function() { toast.className = 'toast'; }, 3000);
-}
+};
+
+function mostrarToast(msg, tipo) { window.mostrarToast(msg, tipo); }
 </script>
 </body>
 </html>
