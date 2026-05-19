@@ -16,7 +16,6 @@
 
   .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f9f6e7; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
   .pin-logo { width: 200px; max-width: 80%; margin-bottom: 32px; }
-  .pin-logo-header { width: 180px; max-width: 80%; margin: 0 auto; display: block; filter: brightness(0) invert(1); }
   .pin-title { font-size: 16px; color: #5c6d5d; font-weight: 500; margin-bottom: 24px; }
   .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
   .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #5c6d5d; background: transparent; transition: background 0.2s; }
@@ -28,11 +27,18 @@
   .pin-key.empty { background: transparent; border-color: transparent; cursor: default; }
   .pin-error { font-size: 13px; color: #c9908a; margin-top: 16px; min-height: 20px; }
 
+  .footer { text-align: center; padding: 20px 0 8px; }
+  .footer-logo { height: 28px; opacity: 0.6; margin-bottom: 6px; }
+  .footer a { font-size: 11px; color: #aaa; text-decoration: none; border-bottom: 1px solid #dbe3e2; padding-bottom: 1px; display: block; margin-bottom: 4px; }
+  .footer a:hover { color: #5c6d5d; }
+  .footer p { font-size: 10px; color: #ccc; }
+
   .app { display: none; }
   .header { background: #5c6d5d; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .refresh-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
   .lock-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
+  .pin-logo-header { width: 180px; max-width: 80%; margin: 0 auto; display: block; filter: brightness(0) invert(1); }
   .card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #dbe3e2; }
   .card-title { font-size: 12px; font-weight: 600; color: #5c6d5d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
   .card-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: #f1d688; border-radius: 2px; }
@@ -93,6 +99,11 @@
     <div class="pin-key delete" onclick="pinDelete()">⌫</div>
   </div>
   <p class="pin-error" id="pin-error"></p>
+  <div class="footer">
+    <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
+    <a href="Terminos_Condiciones_ntnatavergara.docx" target="_blank">Términos y condiciones de uso</a>
+    <p>Desarrollado por nt:natavergara</p>
+  </div>
 </div>
 
 <div class="app" id="app">
@@ -126,6 +137,12 @@
     </div>
     <button class="btn btn-primary" id="btn-registrar" onclick="registrarVenta()">Registrar venta</button>
     <button class="btn btn-secondary" onclick="cargarInventario()">Actualizar inventario</button>
+  </div>
+
+  <div class="footer">
+    <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
+    <a href="Terminos_Condiciones_ntnatavergara.docx" target="_blank">Términos y condiciones de uso</a>
+    <p>Desarrollado por nt:natavergara</p>
   </div>
 </div>
 
