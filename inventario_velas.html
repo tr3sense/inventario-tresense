@@ -11,15 +11,16 @@
 <meta name="theme-color" content="#5c6d5d">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f6e7; min-height: 100vh; padding: 16px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #e8e4d4; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
+  .wrapper { width: 100%; max-width: 480px; }
 
   /* SPLASH */
-  #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f9f6e7; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e8e4d4; z-index: 1000; display: flex; align-items: center; justify-content: center; }
   #splash img { width: 200px; max-width: 80%; animation: aparecer 1s ease forwards; }
   @keyframes aparecer { 0%{opacity:0;transform:scale(0.85)} 100%{opacity:1;transform:scale(1)} }
 
   /* PIN */
-  #pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f9f6e7; z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  #pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e8e4d4; z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
   .pin-logo { width: 200px; max-width: 80%; margin-bottom: 32px; }
   .pin-title { font-size: 16px; color: #5c6d5d; font-weight: 500; margin-bottom: 24px; }
   .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
@@ -36,7 +37,7 @@
   .pin-blocked { font-size: 13px; color: #c9908a; margin-top: 8px; font-weight: 500; text-align: center; }
 
   /* APP */
-  #app { display: none; }
+  #app { display: none; max-width: 480px; margin: 0 auto; width: 100%; }
   .header { background: #5c6d5d; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .header-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
@@ -123,7 +124,7 @@
   <p class="pin-blocked" id="pin-blocked"></p>
   <div class="footer">
     <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
-    <a href="Terminos_Condiciones_ntnatavergara.docx" target="_blank">Términos y condiciones de uso</a>
+    <a href="terminos.html" target="_blank">Términos y condiciones de uso</a>
     <p>Desarrollado por nt:natavergara</p>
   </div>
 </div>
@@ -174,7 +175,7 @@
 
   <div class="footer">
     <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
-    <a href="Terminos_Condiciones_ntnatavergara.docx" target="_blank">Términos y condiciones de uso</a>
+    <a href="terminos.html" target="_blank">Términos y condiciones de uso</a>
     <p>Desarrollado por nt:natavergara</p>
   </div>
 </div>
