@@ -3,67 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventario Tresense</title>
+<title>Inventario Tr3sense</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; min-height: 100vh; padding: 16px; }
-  .header { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid #e8e8e4; display: flex; align-items: center; gap: 12px; }
-  .logo { width: 44px; height: 44px; background: #fef3e2; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .header-text h1 { font-size: 18px; font-weight: 600; color: #1a1a1a; }
-  .header-text p { font-size: 13px; color: #888; margin-top: 2px; }
-  .card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid #e8e8e4; }
-  .card-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
-  .producto-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0ec; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f6e7; min-height: 100vh; padding: 16px; }
+  .header { background: #5c6d5d; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
+  .header-top { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+  .refresh-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
+  .logo-img { width: 180px; max-width: 80%; filter: brightness(0) invert(1); margin: 0 auto; display: block; }
+  .card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #dbe3e2; }
+  .card-title { font-size: 12px; font-weight: 600; color: #5c6d5d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+  .card-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: #f1d688; border-radius: 2px; }
+  .producto-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f9f6e7; }
   .producto-item:last-child { border-bottom: none; }
-  .producto-nombre { font-size: 15px; font-weight: 500; color: #1a1a1a; }
-  .producto-stock { display: flex; align-items: center; gap: 8px; }
-  .stock-num { font-size: 22px; font-weight: 700; }
-  .stock-ok { color: #22c55e; }
-  .stock-bajo { color: #ef4444; }
-  .stock-label { font-size: 11px; color: #aaa; }
-  .badge-bajo { background: #fef2f2; color: #dc2626; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .producto-nombre { font-size: 15px; font-weight: 500; color: #333333; }
+  .producto-sub { font-size: 12px; color: #bbb; margin-top: 2px; }
+  .badge-bajo { display: inline-block; background: #fdf0ee; color: #c9908a; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; margin-top: 3px; }
+  .stock-ring { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  .stock-ring-ok { background: #edf2ed; }
+  .stock-ring-bajo { background: #fdf0ee; }
+  .stock-ok { font-size: 22px; font-weight: 700; color: #5c6d5d; }
+  .stock-bajo { font-size: 22px; font-weight: 700; color: #dbc0bd; }
+  .stock-label { font-size: 10px; color: #bbb; }
   .form-group { margin-bottom: 14px; }
-  .form-label { font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; display: block; }
-  select, input[type=number] { width: 100%; padding: 12px 14px; border: 1px solid #e0e0db; border-radius: 10px; font-size: 15px; color: #1a1a1a; background: #fafaf8; appearance: none; outline: none; }
-  select:focus, input:focus { border-color: #d4a855; background: #fff; }
-  .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  .btn-primary { background: #d4a855; color: #fff; }
-  .btn-primary:hover { background: #c49840; }
+  .form-label { font-size: 13px; font-weight: 500; color: #5c6d5d; margin-bottom: 6px; display: block; }
+  select, input[type=number] { width: 100%; padding: 13px 14px; border: 1.5px solid #dbe3e2; border-radius: 12px; font-size: 15px; color: #333; background: #f9f6e7; outline: none; appearance: none; }
+  select:focus, input:focus { border-color: #5c6d5d; background: #fff; }
+  .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+  .btn-primary { background: #5c6d5d; color: #f9f6e7; }
+  .btn-primary:hover { background: #4a5a4b; }
   .btn-primary:active { transform: scale(0.98); }
-  .btn-primary:disabled { background: #e0c98a; cursor: not-allowed; }
-  .btn-secondary { background: #f0f0ec; color: #555; margin-top: 8px; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 100; }
+  .btn-primary:disabled { background: #9aab9b; cursor: not-allowed; }
+  .btn-secondary { background: #f9f6e7; color: #5c6d5d; border: 1.5px solid #dbe3e2; margin-top: 8px; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 100; }
   .toast.show { opacity: 1; }
-  .toast.error { background: #ef4444; }
-  .toast.success { background: #22c55e; }
+  .toast.error { background: #dbc0bd; color: #6b3f3a; }
+  .toast.success { background: #5c6d5d; color: #f9f6e7; }
   .loading { text-align: center; padding: 24px; color: #aaa; font-size: 14px; }
-  .spinner { width: 24px; height: 24px; border: 2px solid #e0e0db; border-top-color: #d4a855; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 8px; }
+  .spinner { width: 28px; height: 28px; border: 2px solid #dbe3e2; border-top-color: #5c6d5d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .refresh-btn { background: none; border: none; cursor: pointer; color: #d4a855; font-size: 13px; font-weight: 500; padding: 0; }
-  .header-right { margin-left: auto; }
-  .ultimo-update { font-size: 11px; color: #bbb; text-align: center; margin-top: 8px; }
+  .ultimo-update { font-size: 11px; color: #bbb; text-align: center; margin-top: 10px; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo">🕯️</div>
-  <div class="header-text">
-    <h1>Inventario Tresense</h1>
-    <p>Control de stock en tiempo real</p>
+  <div class="header-top">
+    <button class="refresh-btn" onclick="cargarInventario()">↻ actualizar</button>
   </div>
-  <div class="header-right">
-    <button class="refresh-btn" onclick="cargarInventario()">↻ Actualizar</button>
-  </div>
+  <img src="logo.png" alt="Tr3sense" class="logo-img">
 </div>
 
 <div class="card">
   <div class="card-title">Stock actual</div>
   <div id="lista-productos">
-    <div class="loading">
-      <div class="spinner"></div>
-      Cargando inventario...
-    </div>
+    <div class="loading"><div class="spinner"></div>Cargando inventario...</div>
   </div>
   <p class="ultimo-update" id="ultimo-update"></p>
 </div>
@@ -78,33 +72,24 @@
   </div>
   <div class="form-group">
     <label class="form-label">Cantidad vendida</label>
-    <input type="number" id="input-cantidad" min="1" value="1" placeholder="Cantidad">
+    <input type="number" id="input-cantidad" min="1" value="1">
   </div>
-  <button class="btn btn-primary" id="btn-registrar" onclick="registrarVenta()">
-    Registrar venta
-  </button>
-  <button class="btn btn-secondary" onclick="cargarInventario()">
-    Actualizar inventario
-  </button>
+  <button class="btn btn-primary" id="btn-registrar" onclick="registrarVenta()">Registrar venta</button>
+  <button class="btn btn-secondary" onclick="cargarInventario()">Actualizar inventario</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxCV6Rx5HFkaFcxsilL1juz-JoWusyPhKjb4kURSNyU1wD4meej5mzhEAFlSSE8mON7/exec";
-let productos = [];
 
 async function cargarInventario() {
   document.getElementById('lista-productos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
-  
   try {
     const res = await fetch(API_URL);
     const datos = await res.json();
-    
-    productos = [];
     const select = document.getElementById('select-producto');
     select.innerHTML = '<option value="">Selecciona un producto...</option>';
-    
     let html = '';
     for (let i = 1; i < datos.length; i++) {
       if (!datos[i][0]) continue;
@@ -112,31 +97,23 @@ async function cargarInventario() {
       const stock = datos[i][1];
       const minimo = datos[i][2] || 3;
       const bajo = stock <= minimo;
-      
-      productos.push({ nombre, stock, minimo });
-      
       html += `<div class="producto-item">
         <div>
           <div class="producto-nombre">${nombre}</div>
-          ${bajo ? '<span class="badge-bajo">Stock bajo</span>' : ''}
+          ${bajo ? '<span class="badge-bajo">Reponer pronto</span>' : '<div class="producto-sub">En stock</div>'}
         </div>
-        <div class="producto-stock">
-          <div>
-            <div class="stock-num ${bajo ? 'stock-bajo' : 'stock-ok'}">${stock}</div>
-            <div class="stock-label">unidades</div>
-          </div>
+        <div class="stock-ring ${bajo ? 'stock-ring-bajo' : 'stock-ring-ok'}">
+          <div class="${bajo ? 'stock-bajo' : 'stock-ok'}">${stock}</div>
+          <div class="stock-label">uds</div>
         </div>
       </div>`;
-      
       select.innerHTML += `<option value="${nombre}">${nombre} (${stock} uds)</option>`;
     }
-    
     document.getElementById('lista-productos').innerHTML = html;
     const ahora = new Date();
-    document.getElementById('ultimo-update').textContent = 'Actualizado: ' + ahora.toLocaleTimeString('es-CO', {hour: '2-digit', minute: '2-digit'});
-    
+    document.getElementById('ultimo-update').textContent = 'Actualizado: ' + ahora.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
   } catch(e) {
-    document.getElementById('lista-productos').innerHTML = '<div class="loading">Error cargando datos. Verifica tu conexión.</div>';
+    document.getElementById('lista-productos').innerHTML = '<div class="loading">Error cargando datos.</div>';
     mostrarToast('Error de conexión', 'error');
   }
 }
@@ -144,21 +121,14 @@ async function cargarInventario() {
 async function registrarVenta() {
   const producto = document.getElementById('select-producto').value;
   const cantidad = parseInt(document.getElementById('input-cantidad').value);
-  
   if (!producto) { mostrarToast('Selecciona un producto', 'error'); return; }
   if (!cantidad || cantidad < 1) { mostrarToast('Escribe una cantidad válida', 'error'); return; }
-  
   const btn = document.getElementById('btn-registrar');
   btn.disabled = true;
   btn.textContent = 'Registrando...';
-  
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ producto, cantidad })
-    });
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto, cantidad }) });
     const data = await res.json();
-    
     if (data.ok) {
       mostrarToast('Venta registrada. Stock: ' + data.nuevoStock, 'success');
       document.getElementById('input-cantidad').value = 1;
@@ -170,7 +140,6 @@ async function registrarVenta() {
   } catch(e) {
     mostrarToast('Error de conexión', 'error');
   }
-  
   btn.disabled = false;
   btn.textContent = 'Registrar venta';
 }
