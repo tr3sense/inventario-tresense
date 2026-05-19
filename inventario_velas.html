@@ -7,115 +7,99 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Tr3sense">
 <meta name="theme-color" content="#5c6d5d">
 <style>
-  :root {
-    --bg: #f9f6e7; --bg2: #fff; --card: #fff;
-    --border: #dbe3e2; --border2: #e8e4d0;
-    --text: #333333; --text2: #888; --text3: #bbb;
-    --green: #5c6d5d; --green2: #4a5a4b; --green3: #edf2ed;
-    --pink: #dbc0bd; --pink2: #fdf0ee; --pink3: #c9908a;
-    --yellow: #f1d688; --spinner: #5c6d5d;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f6e7; min-height: 100vh; padding: 16px; }
 
   /* SPLASH */
-  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.97); } }
+  #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f9f6e7; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  #splash img { width: 200px; max-width: 80%; animation: aparecer 1s ease forwards; }
+  @keyframes aparecer { 0%{opacity:0;transform:scale(0.85)} 100%{opacity:1;transform:scale(1)} }
 
   /* PIN */
-  .splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .splash-logo { width: 200px; max-width: 80%; animation: pulse 1s ease-in-out 1 forwards; }
-  @keyframes pulse { 0%{opacity:0;transform:scale(0.9)} 50%{opacity:1;transform:scale(1.03)} 100%{opacity:1;transform:scale(1)} }
-  .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  #pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f9f6e7; z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
   .pin-logo { width: 200px; max-width: 80%; margin-bottom: 32px; }
-  .pin-title { font-size: 16px; color: var(--green); font-weight: 500; margin-bottom: 24px; }
+  .pin-title { font-size: 16px; color: #5c6d5d; font-weight: 500; margin-bottom: 24px; }
   .pin-dots { display: flex; gap: 14px; margin-bottom: 32px; }
-  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--green); background: transparent; transition: background 0.2s; }
-  .pin-dot.filled { background: var(--green); }
-  .pin-dot.error { border-color: var(--pink3); background: var(--pink3); animation: shake 0.4s ease; }
+  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #5c6d5d; background: transparent; transition: background 0.2s; }
+  .pin-dot.filled { background: #5c6d5d; }
+  .pin-dot.error { border-color: #c9908a; background: #c9908a; animation: shake 0.4s ease; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 280px; }
-  .pin-key { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 18px; font-size: 22px; font-weight: 500; color: var(--text); cursor: pointer; text-align: center; transition: all 0.15s; user-select: none; }
-  .pin-key:active { background: var(--green); color: var(--bg); transform: scale(0.95); }
-  .pin-key.delete { font-size: 16px; color: var(--green); }
+  .pin-key { background: #fff; border: 1.5px solid #dbe3e2; border-radius: 14px; padding: 18px; font-size: 22px; font-weight: 500; color: #333; cursor: pointer; text-align: center; user-select: none; }
+  .pin-key:active { background: #5c6d5d; color: #f9f6e7; transform: scale(0.95); }
+  .pin-key.delete { font-size: 16px; color: #5c6d5d; }
   .pin-key.empty { background: transparent; border-color: transparent; cursor: default; }
-  .pin-error { font-size: 13px; color: var(--pink3); margin-top: 16px; min-height: 20px; }
-  .pin-blocked { font-size: 13px; color: var(--pink3); margin-top: 8px; font-weight: 500; }
-
-  /* DARK TOGGLE */
+  .pin-error { font-size: 13px; color: #c9908a; margin-top: 16px; min-height: 20px; text-align: center; }
+  .pin-blocked { font-size: 13px; color: #c9908a; margin-top: 8px; font-weight: 500; text-align: center; }
 
   /* APP */
-  .app { display: none; }
-  .header { background: var(--green); border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
+  #app { display: none; }
+  .header { background: #5c6d5d; border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
   .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .header-btn { background: none; border: none; cursor: pointer; color: #cdd8b0; font-size: 13px; }
   .logo-header { width: 180px; max-width: 80%; margin: 0 auto; display: block; filter: brightness(0) invert(1); }
-  .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); }
-  .card-title { font-size: 12px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
-  .card-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--yellow); border-radius: 2px; }
-  .producto-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--bg); }
+  .card { background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #dbe3e2; }
+  .card-title { font-size: 12px; font-weight: 600; color: #5c6d5d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+  .card-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: #f1d688; border-radius: 2px; }
+  .alerta-banner { background: #fdf0ee; border: 1px solid #dbc0bd; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: #c9908a; display: none; }
+  .producto-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f9f6e7; }
   .producto-item:last-child { border-bottom: none; }
-  .producto-nombre { font-size: 15px; font-weight: 500; color: var(--text); }
-  .producto-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
-  .badge-bajo { display: inline-flex; align-items: center; gap: 4px; background: var(--pink2); color: var(--pink3); font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; margin-top: 3px; }
-  .badge-bajo::before { content: '⚠'; font-size: 10px; }
+  .producto-nombre { font-size: 15px; font-weight: 500; color: #333; }
+  .producto-sub { font-size: 12px; color: #bbb; margin-top: 2px; }
+  .badge-bajo { display: inline-flex; align-items: center; gap: 4px; background: #fdf0ee; color: #c9908a; font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; margin-top: 3px; }
   .stock-ring { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-  .stock-ring-ok { background: var(--green3); }
-  .stock-ring-bajo { background: var(--pink2); }
-  .stock-ok { font-size: 22px; font-weight: 700; color: var(--green); }
-  .stock-bajo { font-size: 22px; font-weight: 700; color: var(--pink3); }
-  .stock-label { font-size: 10px; color: var(--text3); }
-  .alerta-banner { background: var(--pink2); border: 1px solid var(--pink); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: var(--pink3); display: none; }
+  .stock-ring-ok { background: #edf2ed; }
+  .stock-ring-bajo { background: #fdf0ee; }
+  .stock-ok { font-size: 22px; font-weight: 700; color: #5c6d5d; }
+  .stock-bajo { font-size: 22px; font-weight: 700; color: #c9908a; }
+  .stock-label { font-size: 10px; color: #bbb; }
   .form-group { margin-bottom: 14px; }
-  .form-label { font-size: 13px; font-weight: 500; color: var(--green); margin-bottom: 6px; display: block; }
-  select, input[type=number], textarea { width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 15px; color: var(--text); background: var(--bg); outline: none; appearance: none; font-family: inherit; }
+  .form-label { font-size: 13px; font-weight: 500; color: #5c6d5d; margin-bottom: 6px; display: block; }
+  select, input[type=number], textarea { width: 100%; padding: 13px 14px; border: 1.5px solid #dbe3e2; border-radius: 12px; font-size: 15px; color: #333; background: #f9f6e7; outline: none; appearance: none; font-family: inherit; }
   textarea { resize: none; height: 80px; font-size: 14px; }
-  select:focus, input:focus, textarea:focus { border-color: var(--green); background: var(--card); }
+  select:focus, input:focus, textarea:focus { border-color: #5c6d5d; background: #fff; }
   .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
-  .btn-primary { background: var(--green); color: #f9f6e7; }
-  .btn-primary:hover { background: var(--green2); }
+  .btn-primary { background: #5c6d5d; color: #f9f6e7; }
+  .btn-primary:hover { background: #4a5a4b; }
   .btn-primary:active { transform: scale(0.98); }
   .btn-primary:disabled { background: #9aab9b; cursor: not-allowed; }
-  .btn-secondary { background: var(--bg); color: var(--green); border: 1.5px solid var(--border); margin-top: 8px; }
+  .btn-secondary { background: #f9f6e7; color: #5c6d5d; border: 1.5px solid #dbe3e2; margin-top: 8px; }
 
-  /* SUCCESS ANIMATION */
-  .success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92,109,93,0.92); z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; }
-  .success-icon { font-size: 72px; animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275); }
-  .success-msg { color: #f9f6e7; font-size: 20px; font-weight: 600; margin-top: 16px; animation: fadeUp 0.5s ease 0.2s both; }
-  .success-sub { color: #cdd8b0; font-size: 14px; margin-top: 8px; animation: fadeUp 0.5s ease 0.3s both; }
+  /* SUCCESS */
+  #success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92,109,93,0.92); z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; }
+  .success-icon { font-size: 72px; animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+  .success-msg { color: #f9f6e7; font-size: 20px; font-weight: 600; margin-top: 16px; }
+  .success-sub { color: #cdd8b0; font-size: 14px; margin-top: 8px; }
   @keyframes popIn { 0%{transform:scale(0)} 100%{transform:scale(1)} }
-  @keyframes fadeUp { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
 
   .footer { text-align: center; padding: 20px 0 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .footer-logo { height: 28px; opacity: 0.6; }
-  .footer a { font-size: 11px; color: var(--text3); text-decoration: underline; text-underline-offset: 2px; }
-  .footer a:hover { color: var(--green); }
-  .footer p { font-size: 10px; color: var(--text3); }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 100; }
+  .footer a { font-size: 11px; color: #bbb; text-decoration: underline; text-underline-offset: 2px; }
+  .footer a:hover { color: #5c6d5d; }
+  .footer p { font-size: 10px; color: #ccc; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 600; }
   .toast.show { opacity: 1; }
-  .toast.error { background: var(--pink); color: #6b3f3a; }
-  .toast.success { background: var(--green); color: #f9f6e7; }
-  .loading { text-align: center; padding: 24px; color: var(--text3); font-size: 14px; }
-  .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--spinner); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+  .toast.error { background: #dbc0bd; color: #6b3f3a; }
+  .toast.success { background: #5c6d5d; color: #f9f6e7; }
+  .loading { text-align: center; padding: 24px; color: #bbb; font-size: 14px; }
+  .spinner { width: 28px; height: 28px; border: 2px solid #dbe3e2; border-top-color: #5c6d5d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .ultimo-update { font-size: 11px; color: var(--text3); text-align: center; margin-top: 10px; }
-  .inactividad-msg { font-size: 11px; color: var(--text3); text-align: center; margin-top: 4px; }
+  .ultimo-update { font-size: 11px; color: #bbb; text-align: center; margin-top: 10px; }
 </style>
 </head>
 <body>
 
-<div class="splash" id="splash">
-  <img src="logo.png" alt="Tr3sense" class="splash-logo">
+<div id="splash">
+  <img src="logo.png" alt="Tr3sense">
 </div>
 
-<!-- PIN -->
-<div class="pin-screen" id="pin-screen">
+<div id="pin-screen">
   <img src="logo.png" alt="Tr3sense" class="pin-logo">
   <p class="pin-title">Ingresa tu PIN</p>
-  <div class="pin-dots" id="pin-dots">
+  <div class="pin-dots">
     <div class="pin-dot" id="dot-0"></div>
     <div class="pin-dot" id="dot-1"></div>
     <div class="pin-dot" id="dot-2"></div>
@@ -144,19 +128,17 @@
   </div>
 </div>
 
-<!-- SUCCESS OVERLAY -->
-<div class="success-overlay" id="success-overlay">
+<div id="success-overlay">
   <div class="success-icon">✓</div>
-  <div class="success-msg" id="success-msg">Venta registrada</div>
+  <div class="success-msg" id="success-msg"></div>
   <div class="success-sub" id="success-sub"></div>
 </div>
 
-<!-- APP -->
-<div class="app" id="app">
+<div id="app">
   <div class="header">
     <div class="header-top">
       <button class="header-btn" onclick="cerrarSesion()">⬠ salir</button>
-      <button class="header-btn" onclick="cargarInventario()">↻</button>
+      <button class="header-btn" onclick="cargarInventario()">↻ actualizar</button>
     </div>
     <img src="logo.png" alt="Tr3sense" class="logo-header">
   </div>
@@ -165,10 +147,9 @@
     <div class="card-title">Stock actual</div>
     <div id="alerta-banner" class="alerta-banner"></div>
     <div id="lista-productos">
-      <div class="loading"><div class="spinner"></div>Cargando inventario...</div>
+      <div class="loading"><div class="spinner"></div>Cargando...</div>
     </div>
     <p class="ultimo-update" id="ultimo-update"></p>
-    <p class="inactividad-msg" id="inactividad-msg"></p>
   </div>
 
   <div class="card">
@@ -185,7 +166,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Nota (opcional)</label>
-      <textarea id="input-nota" placeholder="Ej: venta feria artesanal, cliente mayorista..."></textarea>
+      <textarea id="input-nota" placeholder="Ej: venta feria artesanal..."></textarea>
     </div>
     <button class="btn btn-primary" id="btn-registrar" onclick="registrarVenta()">Registrar venta</button>
     <button class="btn btn-secondary" onclick="cargarInventario()">Actualizar inventario</button>
@@ -203,26 +184,19 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxCV6Rx5HFkaFcxsilL1juz-JoWusyPhKjb4kURSNyU1wD4meej5mzhEAFlSSE8mON7/exec";
 const PIN_CORRECTO = "0825";
-
-setTimeout(() => {
-  document.getElementById('splash').style.display = 'none';
-  document.getElementById('pin-screen').style.display = 'flex';
-}, 1200);
 const MAX_INTENTOS = 3;
-const INACTIVIDAD_MS = 5 * 60 * 1000; // 5 minutos
-
+const INACTIVIDAD_MS = 5 * 60 * 1000;
 let pinActual = "";
 let intentos = 0;
 let bloqueado = false;
 let timerInactividad = null;
 
-
-}
-
-// SPLASH
-setTimeout(() => {
-  document.getElementById('pin-screen').style.display = 'flex';
-}, 800);
+window.onload = function() {
+  setTimeout(function() {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'flex';
+  }, 1500);
+};
 
 function pinPress(num) {
   if (bloqueado || pinActual.length >= 4) return;
@@ -239,7 +213,7 @@ function pinDelete() {
 }
 
 function actualizarDots() {
-  for (let i = 0; i < 4; i++) {
+  for (var i = 0; i < 4; i++) {
     document.getElementById('dot-' + i).classList.toggle('filled', i < pinActual.length);
   }
 }
@@ -253,11 +227,11 @@ function verificarPin() {
     resetInactividad();
   } else {
     intentos++;
-    for (let i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       document.getElementById('dot-' + i).classList.add('error');
     }
-    setTimeout(() => {
-      for (let i = 0; i < 4; i++) {
+    setTimeout(function() {
+      for (var i = 0; i < 4; i++) {
         document.getElementById('dot-' + i).classList.remove('error', 'filled');
       }
     }, 500);
@@ -268,7 +242,7 @@ function verificarPin() {
       document.getElementById('pin-blocked').textContent = 'Demasiados intentos. Espera 30 segundos.';
       document.getElementById('pin-keypad').style.opacity = '0.4';
       document.getElementById('pin-keypad').style.pointerEvents = 'none';
-      setTimeout(() => {
+      setTimeout(function() {
         bloqueado = false;
         intentos = 0;
         document.getElementById('pin-blocked').textContent = '';
@@ -276,7 +250,7 @@ function verificarPin() {
         document.getElementById('pin-keypad').style.pointerEvents = 'auto';
       }, 30000);
     } else {
-      document.getElementById('pin-error').textContent = `PIN incorrecto. ${MAX_INTENTOS - intentos} intento(s) restante(s).`;
+      document.getElementById('pin-error').textContent = 'PIN incorrecto. ' + (MAX_INTENTOS - intentos) + ' intento(s) restante(s).';
     }
   }
 }
@@ -293,11 +267,10 @@ function cerrarSesion() {
 
 function resetInactividad() {
   clearTimeout(timerInactividad);
-  timerInactividad = setTimeout(() => {
+  timerInactividad = setTimeout(function() {
     cerrarSesion();
     mostrarToast('Sesión cerrada por inactividad', 'error');
   }, INACTIVIDAD_MS);
-  document.getElementById('inactividad-msg').textContent = '';
 }
 
 document.addEventListener('touchstart', resetInactividad);
@@ -307,38 +280,33 @@ async function cargarInventario() {
   document.getElementById('lista-productos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
   document.getElementById('alerta-banner').style.display = 'none';
   try {
-    const res = await fetch(API_URL);
-    const datos = await res.json();
-    const select = document.getElementById('select-producto');
+    var res = await fetch(API_URL);
+    var datos = await res.json();
+    var select = document.getElementById('select-producto');
     select.innerHTML = '<option value="">Selecciona un producto...</option>';
-    let html = '';
-    let alertas = [];
-    for (let i = 1; i < datos.length; i++) {
+    var html = '';
+    var alertas = [];
+    for (var i = 1; i < datos.length; i++) {
       if (!datos[i][0]) continue;
-      const nombre = datos[i][0];
-      const stock = datos[i][1];
-      const minimo = datos[i][2] || 3;
-      const bajo = stock <= minimo;
+      var nombre = datos[i][0];
+      var stock = datos[i][1];
+      var minimo = datos[i][2] || 3;
+      var bajo = stock <= minimo;
       if (bajo) alertas.push(nombre);
-      html += `<div class="producto-item">
-        <div>
-          <div class="producto-nombre">${nombre}</div>
-          ${bajo ? '<span class="badge-bajo">Reponer pronto</span>' : '<div class="producto-sub">En stock</div>'}
-        </div>
-        <div class="stock-ring ${bajo ? 'stock-ring-bajo' : 'stock-ring-ok'}">
-          <div class="${bajo ? 'stock-bajo' : 'stock-ok'}">${stock}</div>
-          <div class="stock-label">uds</div>
-        </div>
-      </div>`;
-      select.innerHTML += `<option value="${nombre}">${nombre} (${stock} uds)</option>`;
+      html += '<div class="producto-item"><div><div class="producto-nombre">' + nombre + '</div>';
+      html += bajo ? '<span class="badge-bajo">Reponer pronto</span>' : '<div class="producto-sub">En stock</div>';
+      html += '</div><div class="stock-ring ' + (bajo ? 'stock-ring-bajo' : 'stock-ring-ok') + '">';
+      html += '<div class="' + (bajo ? 'stock-bajo' : 'stock-ok') + '">' + stock + '</div>';
+      html += '<div class="stock-label">uds</div></div></div>';
+      select.innerHTML += '<option value="' + nombre + '">' + nombre + ' (' + stock + ' uds)</option>';
     }
     document.getElementById('lista-productos').innerHTML = html;
     if (alertas.length > 0) {
-      const banner = document.getElementById('alerta-banner');
+      var banner = document.getElementById('alerta-banner');
       banner.textContent = '⚠ Stock bajo: ' + alertas.join(', ');
       banner.style.display = 'block';
     }
-    const ahora = new Date();
+    var ahora = new Date();
     document.getElementById('ultimo-update').textContent = 'Actualizado: ' + ahora.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
   } catch(e) {
     document.getElementById('lista-productos').innerHTML = '<div class="loading">Error cargando datos.</div>';
@@ -347,17 +315,17 @@ async function cargarInventario() {
 }
 
 async function registrarVenta() {
-  const producto = document.getElementById('select-producto').value;
-  const cantidad = parseInt(document.getElementById('input-cantidad').value);
-  const nota = document.getElementById('input-nota').value.trim();
+  var producto = document.getElementById('select-producto').value;
+  var cantidad = parseInt(document.getElementById('input-cantidad').value);
+  var nota = document.getElementById('input-nota').value.trim();
   if (!producto) { mostrarToast('Selecciona un producto', 'error'); return; }
   if (!cantidad || cantidad < 1) { mostrarToast('Escribe una cantidad válida', 'error'); return; }
-  const btn = document.getElementById('btn-registrar');
+  var btn = document.getElementById('btn-registrar');
   btn.disabled = true;
   btn.textContent = 'Registrando...';
   try {
-    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto, cantidad, nota }) });
-    const data = await res.json();
+    var res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto: producto, cantidad: cantidad, nota: nota }) });
+    var data = await res.json();
     if (data.ok) {
       document.getElementById('input-cantidad').value = 1;
       document.getElementById('select-producto').value = '';
@@ -375,18 +343,18 @@ async function registrarVenta() {
 }
 
 function mostrarExito(producto, cantidad, stock) {
-  const overlay = document.getElementById('success-overlay');
+  var overlay = document.getElementById('success-overlay');
   document.getElementById('success-msg').textContent = producto;
   document.getElementById('success-sub').textContent = cantidad + ' unidad(es) vendida(s) · Stock: ' + stock;
   overlay.style.display = 'flex';
-  setTimeout(() => { overlay.style.display = 'none'; }, 2200);
+  setTimeout(function() { overlay.style.display = 'none'; }, 2200);
 }
 
 function mostrarToast(msg, tipo) {
-  const toast = document.getElementById('toast');
+  var toast = document.getElementById('toast');
   toast.textContent = msg;
   toast.className = 'toast show ' + (tipo || '');
-  setTimeout(() => toast.className = 'toast', 3000);
+  setTimeout(function() { toast.className = 'toast'; }, 3000);
 }
 </script>
 </body>
