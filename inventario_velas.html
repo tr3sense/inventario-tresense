@@ -89,6 +89,14 @@
   .spinner { width: 28px; height: 28px; border: 2px solid #dbe3e2; border-top-color: #5c6d5d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .ultimo-update { font-size: 11px; color: #bbb; text-align: center; margin-top: 10px; }
+  .skeleton-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f9f6e7; }
+  .skeleton-item:last-child { border-bottom: none; }
+  .skeleton-left { flex: 1; }
+  .skeleton-line { height: 14px; border-radius: 6px; background: linear-gradient(90deg, #ede9d8 25%, #e0dcc8 50%, #ede9d8 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; margin-bottom: 8px; }
+  .skeleton-line.w80 { width: 80%; }
+  .skeleton-line.w40 { width: 40%; height: 10px; }
+  .skeleton-circle { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(90deg, #ede9d8 25%, #e0dcc8 50%, #ede9d8 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 </style>
 </head>
 <body>
@@ -277,38 +285,57 @@ function resetInactividad() {
 document.addEventListener('touchstart', resetInactividad);
 document.addEventListener('click', resetInactividad);
 
+function renderProductos(datos) {
+  var select = document.getElementById('select-producto');
+  select.innerHTML = '<option value="">Selecciona un producto...</option>';
+  var html = '';
+  var alertas = [];
+  for (var i = 1; i < datos.length; i++) {
+    if (!datos[i][0]) continue;
+    var nombre = datos[i][0];
+    var stock = datos[i][1];
+    var minimo = datos[i][2] || 3;
+    var bajo = stock <= minimo;
+    if (bajo) alertas.push(nombre);
+    html += '<div class="producto-item"><div><div class="producto-nombre">' + nombre + '</div>';
+    html += bajo ? '<span class="badge-bajo">Reponer pronto</span>' : '<div class="producto-sub">En stock</div>';
+    html += '</div><div class="stock-ring ' + (bajo ? 'stock-ring-bajo' : 'stock-ring-ok') + '">';
+    html += '<div class="' + (bajo ? 'stock-bajo' : 'stock-ok') + '">' + stock + '</div>';
+    html += '<div class="stock-label">uds</div></div></div>';
+    select.innerHTML += '<option value="' + nombre + '">' + nombre + ' (' + stock + ' uds)</option>';
+  }
+  document.getElementById('lista-productos').innerHTML = html;
+  document.getElementById('alerta-banner').style.display = 'none';
+  if (alertas.length > 0) {
+    var banner = document.getElementById('alerta-banner');
+    banner.textContent = '⚠ Stock bajo: ' + alertas.join(', ');
+    banner.style.display = 'block';
+  }
+  var ahora = new Date();
+  document.getElementById('ultimo-update').textContent = 'Actualizado: ' + ahora.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
+}
+
+function mostrarSkeleton() {
+  var html = '';
+  for (var i = 0; i < 3; i++) {
+    html += '<div class="skeleton-item"><div class="skeleton-left"><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div><div class="skeleton-circle"></div></div>';
+  }
+  document.getElementById('lista-productos').innerHTML = html;
+}
+
 async function cargarInventario() {
-  document.getElementById('lista-productos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
+  var cache = sessionStorage.getItem('inventario_cache');
+  if (cache) {
+    renderProductos(JSON.parse(cache));
+  } else {
+    mostrarSkeleton();
+  }
   document.getElementById('alerta-banner').style.display = 'none';
   try {
     var res = await fetch(API_URL);
     var datos = await res.json();
-    var select = document.getElementById('select-producto');
-    select.innerHTML = '<option value="">Selecciona un producto...</option>';
-    var html = '';
-    var alertas = [];
-    for (var i = 1; i < datos.length; i++) {
-      if (!datos[i][0]) continue;
-      var nombre = datos[i][0];
-      var stock = datos[i][1];
-      var minimo = datos[i][2] || 3;
-      var bajo = stock <= minimo;
-      if (bajo) alertas.push(nombre);
-      html += '<div class="producto-item"><div><div class="producto-nombre">' + nombre + '</div>';
-      html += bajo ? '<span class="badge-bajo">Reponer pronto</span>' : '<div class="producto-sub">En stock</div>';
-      html += '</div><div class="stock-ring ' + (bajo ? 'stock-ring-bajo' : 'stock-ring-ok') + '">';
-      html += '<div class="' + (bajo ? 'stock-bajo' : 'stock-ok') + '">' + stock + '</div>';
-      html += '<div class="stock-label">uds</div></div></div>';
-      select.innerHTML += '<option value="' + nombre + '">' + nombre + ' (' + stock + ' uds)</option>';
-    }
-    document.getElementById('lista-productos').innerHTML = html;
-    if (alertas.length > 0) {
-      var banner = document.getElementById('alerta-banner');
-      banner.textContent = '⚠ Stock bajo: ' + alertas.join(', ');
-      banner.style.display = 'block';
-    }
-    var ahora = new Date();
-    document.getElementById('ultimo-update').textContent = 'Actualizado: ' + ahora.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
+    sessionStorage.setItem('inventario_cache', JSON.stringify(datos));
+    renderProductos(datos);
   } catch(e) {
     document.getElementById('lista-productos').innerHTML = '<div class="loading">Error cargando datos.</div>';
     mostrarToast('Error de conexión', 'error');
