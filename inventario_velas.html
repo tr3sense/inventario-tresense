@@ -19,14 +19,6 @@
     --pink: #dbc0bd; --pink2: #fdf0ee; --pink3: #c9908a;
     --yellow: #f1d688; --spinner: #5c6d5d;
   }
-  .dark {
-    --bg: #1a1f1a; --bg2: #242924; --card: #2a312a;
-    --border: #3a433a; --border2: #3a433a;
-    --text: #e8f0e8; --text2: #9aaa9a; --text3: #5a6a5a;
-    --green: #7a9a7a; --green2: #6a8a6a; --green3: #2a3a2a;
-    --pink: #c9a8a5; --pink2: #3a2a2a; --pink3: #c9908a;
-    --yellow: #d4b860; --spinner: #7a9a7a;
-  }
   * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; padding: 16px; }
 
@@ -54,7 +46,6 @@
   .pin-blocked { font-size: 13px; color: var(--pink3); margin-top: 8px; font-weight: 500; }
 
   /* DARK TOGGLE */
-  .dark-toggle { position: absolute; top: 16px; right: 16px; background: none; border: 1.5px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 13px; color: var(--text2); cursor: pointer; }
 
   /* APP */
   .app { display: none; }
@@ -124,7 +115,6 @@
 
 <!-- PIN -->
 <div class="pin-screen" id="pin-screen">
-  <button class="dark-toggle" onclick="toggleDark()">🌙</button>
   <img src="logo.png" alt="Tr3sense" class="pin-logo">
   <p class="pin-title">Ingresa tu PIN</p>
   <div class="pin-dots" id="pin-dots">
@@ -168,7 +158,6 @@
   <div class="header">
     <div class="header-top">
       <button class="header-btn" onclick="cerrarSesion()">⬠ salir</button>
-      <button class="header-btn" onclick="toggleDark()">🌙</button>
       <button class="header-btn" onclick="cargarInventario()">↻</button>
     </div>
     <img src="logo.png" alt="Tr3sense" class="logo-header">
@@ -223,14 +212,8 @@ let pinActual = "";
 let intentos = 0;
 let bloqueado = false;
 let timerInactividad = null;
-let darkMode = localStorage.getItem('dark') === '1';
 
-if (darkMode) document.documentElement.classList.add('dark');
 
-function toggleDark() {
-  darkMode = !darkMode;
-  document.documentElement.classList.toggle('dark', darkMode);
-  localStorage.setItem('dark', darkMode ? '1' : '0');
 }
 
 // SPLASH
