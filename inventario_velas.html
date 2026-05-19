@@ -181,11 +181,11 @@
       <input type="number" id="input-cantidad" min="1" value="1">
     </div>
     <div class="form-group">
-      <label class="form-label">Nombre del cliente (opcional)</label>
+      <label class="form-label">Nombre del cliente</label>
       <input type="text" id="input-nombre" placeholder="Ej: María García">
     </div>
     <div class="form-group">
-      <label class="form-label">Teléfono (opcional)</label>
+      <label class="form-label">Teléfono</label>
       <input type="tel" id="input-telefono" placeholder="Ej: 300 123 4567">
     </div>
     <div class="form-group">
@@ -385,6 +385,8 @@ async function registrarVenta() {
   var direccion = tipoEntrega === 'domicilio' ? document.getElementById('input-direccion').value.trim() : '';
   if (!producto) { mostrarToast('Selecciona un producto', 'error'); return; }
   if (!cantidad || cantidad < 1) { mostrarToast('Escribe una cantidad válida', 'error'); return; }
+  if (!nombre) { mostrarToast('Escribe el nombre del cliente', 'error'); return; }
+  if (!telefono) { mostrarToast('Escribe el teléfono del cliente', 'error'); return; }
   if (tipoEntrega === 'domicilio' && !direccion) { mostrarToast('Escribe la dirección de entrega', 'error'); return; }
   var btn = document.getElementById('btn-registrar');
   btn.disabled = true;
