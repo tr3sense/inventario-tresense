@@ -92,6 +92,10 @@
   .spinner { width: 28px; height: 28px; border: 2px solid #dbe3e2; border-top-color: #5c6d5d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .ultimo-update { font-size: 11px; color: #bbb; text-align: center; margin-top: 10px; }
+  .toggle-group { display: flex; gap: 8px; margin-bottom: 14px; }
+  .toggle-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1.5px solid #dbe3e2; background: #f9f6e7; color: #888; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .toggle-btn.active { background: #5c6d5d; color: #f9f6e7; border-color: #5c6d5d; }
+  #campo-direccion { display: none; }
   .skeleton-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f9f6e7; }
   .skeleton-item:last-child { border-bottom: none; }
   .skeleton-left { flex: 1; }
@@ -177,8 +181,27 @@
       <input type="number" id="input-cantidad" min="1" value="1">
     </div>
     <div class="form-group">
+      <label class="form-label">Nombre del cliente (opcional)</label>
+      <input type="text" id="input-nombre" placeholder="Ej: María García">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Teléfono (opcional)</label>
+      <input type="tel" id="input-telefono" placeholder="Ej: 300 123 4567">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo de entrega</label>
+      <div class="toggle-group">
+        <div class="toggle-btn active" id="btn-recogida" onclick="setEntrega('recogida')">🏪 Recogida</div>
+        <div class="toggle-btn" id="btn-domicilio" onclick="setEntrega('domicilio')">🚚 Domicilio</div>
+      </div>
+    </div>
+    <div class="form-group" id="campo-direccion">
+      <label class="form-label">Dirección</label>
+      <input type="text" id="input-direccion" placeholder="Ej: Calle 10 #5-20, Medellín">
+    </div>
+    <div class="form-group">
       <label class="form-label">Nota (opcional)</label>
-      <textarea id="input-nota" placeholder="Ej: venta feria artesanal..."></textarea>
+      <textarea id="input-nota" placeholder="Ej: pago contraentrega..."></textarea>
     </div>
     <button class="btn btn-primary" id="btn-registrar" onclick="registrarVenta()">Registrar venta</button>
     <button class="btn btn-secondary" onclick="cargarInventario()">Actualizar inventario</button>
@@ -345,22 +368,38 @@ async function cargarInventario() {
   }
 }
 
+var tipoEntrega = 'recogida';
+function setEntrega(tipo) {
+  tipoEntrega = tipo;
+  document.getElementById('btn-recogida').classList.toggle('active', tipo === 'recogida');
+  document.getElementById('btn-domicilio').classList.toggle('active', tipo === 'domicilio');
+  document.getElementById('campo-direccion').style.display = tipo === 'domicilio' ? 'block' : 'none';
+}
+
 async function registrarVenta() {
   var producto = document.getElementById('select-producto').value;
   var cantidad = parseInt(document.getElementById('input-cantidad').value);
   var nota = document.getElementById('input-nota').value.trim();
+  var nombre = document.getElementById('input-nombre').value.trim();
+  var telefono = document.getElementById('input-telefono').value.trim();
+  var direccion = tipoEntrega === 'domicilio' ? document.getElementById('input-direccion').value.trim() : '';
   if (!producto) { mostrarToast('Selecciona un producto', 'error'); return; }
   if (!cantidad || cantidad < 1) { mostrarToast('Escribe una cantidad válida', 'error'); return; }
+  if (tipoEntrega === 'domicilio' && !direccion) { mostrarToast('Escribe la dirección de entrega', 'error'); return; }
   var btn = document.getElementById('btn-registrar');
   btn.disabled = true;
   btn.textContent = 'Registrando...';
   try {
-    var res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto: producto, cantidad: cantidad, nota: nota }) });
+    var res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ producto: producto, cantidad: cantidad, nota: nota, nombre: nombre, telefono: telefono, tipoEntrega: tipoEntrega, direccion: direccion }) });
     var data = await res.json();
     if (data.ok) {
       document.getElementById('input-cantidad').value = 1;
       document.getElementById('select-producto').value = '';
       document.getElementById('input-nota').value = '';
+      document.getElementById('input-nombre').value = '';
+      document.getElementById('input-telefono').value = '';
+      document.getElementById('input-direccion').value = '';
+      setEntrega('recogida');
       mostrarExito(producto, cantidad, data.nuevoStock);
       await cargarInventario();
     } else {
