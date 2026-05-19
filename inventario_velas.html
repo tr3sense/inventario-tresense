@@ -393,6 +393,7 @@ async function registrarVenta() {
     await fetch(API_URL, {
       method: 'POST',
       mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ producto: producto, cantidad: cantidad, nota: nota, nombre: nombre, telefono: telefono, tipoEntrega: tipoEntrega, direccion: direccion })
     });
     document.getElementById('input-cantidad').value = 1;
