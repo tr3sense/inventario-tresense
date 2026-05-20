@@ -402,7 +402,7 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div class="card">
     <div class="tabs">
       <button class="tab-btn active" id="tab-stock" onclick="mostrarTab('stock')">Stock actual</button>
-      <button class="tab-btn" id="tab-historial" onclick="mostrarTab('historial')">Hoy</button>
+      <button class="tab-btn" id="tab-historial" onclick="mostrarTab('historial')">Historial</button>
     </div>
     <div id="panel-stock">
       <div id="alerta-banner" class="alerta-banner"></div>
@@ -410,6 +410,14 @@ textarea { resize:none; height:70px; font-size:14px; }
       <p class="ultimo-update" id="ultimo-update"></p>
     </div>
     <div id="panel-historial" style="display:none;">
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+        <div class="toggle-group" style="margin-bottom:0;flex:1;">
+          <div class="toggle-btn active" id="filtro-hoy" onclick="setFiltroHistorial('hoy')" style="min-width:60px;padding:8px;">Hoy</div>
+          <div class="toggle-btn" id="filtro-semana" onclick="setFiltroHistorial('semana')" style="min-width:60px;padding:8px;">7 días</div>
+          <div class="toggle-btn" id="filtro-mes" onclick="setFiltroHistorial('mes')" style="min-width:60px;padding:8px;">Mes</div>
+          <div class="toggle-btn" id="filtro-todo" onclick="setFiltroHistorial('todo')" style="min-width:60px;padding:8px;">Todo</div>
+        </div>
+      </div>
       <div class="scroll-box" id="lista-historial"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
       <div id="resumen-dia"></div>
     </div>
@@ -743,20 +751,37 @@ function renderProductos(datos){
   document.getElementById('ultimo-update').textContent='Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
 }
 
+let filtroHistorial='hoy';
+
+window.setFiltroHistorial=filtro=>{
+  filtroHistorial=filtro;
+  ['hoy','semana','mes','todo'].forEach(f=>{
+    document.getElementById('filtro-'+f).classList.toggle('active',f===filtro);
+  });
+  renderHistorial();
+};
+
 function renderHistorial(){
   if(!datosInv.length){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Carga primero.</div>';return;}
-  const hoy=new Date().toDateString();
+  const ahora=new Date();
+  const hoy=ahora.toDateString();
   const ventas=[];
   for(let i=1;i<datosInv.length;i++){
     if(!datosInv[i][0]||!datosInv[i][3]||!datosInv[i][4])continue;
-    if(new Date(datosInv[i][3]).toDateString()!==hoy)continue;
+    const fv=new Date(datosInv[i][3]);
+    if(filtroHistorial==='hoy'&&fv.toDateString()!==hoy)continue;
+    if(filtroHistorial==='semana'){const diff=(ahora-fv)/(1000*60*60*24);if(diff>7)continue;}
+    if(filtroHistorial==='mes'){const diff=(ahora-fv)/(1000*60*60*24);if(diff>30)continue;}
     ventas.push({producto:datosInv[i][0],cantidad:datosInv[i][4],fecha:datosInv[i][3],cliente:datosInv[i][5]||'',telefono:datosInv[i][6]||'',entrega:datosInv[i][7]||'',direccion:datosInv[i][8]||'',precio:datosInv[i][9]||0,costoDom:datosInv[i][10]||0,zona:datosInv[i][11]||'',fechaEnt:datosInv[i][12]||''});
   }
   if(!ventas.length){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas hoy.</div>';document.getElementById('resumen-dia').innerHTML='';return;}
   ventas.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
   let html='',totV=0,totD=0;
   ventas.forEach(v=>{
-    const hora=new Date(v.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+    const fvObj=new Date(v.fecha);
+    const hora=filtroHistorial==='hoy'
+      ?fvObj.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})
+      :fvObj.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+fvObj.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
     const sub=v.precio*v.cantidad,tot=sub+(v.costoDom||0);
     totV+=sub;totD+=v.costoDom||0;
     let etq=v.entrega==='domicilio'?'🚚 Domicilio':'🏪 Recogida';
@@ -771,7 +796,8 @@ function renderHistorial(){
     </div>`;
   });
   document.getElementById('lista-historial').innerHTML=html;
-  document.getElementById('resumen-dia').innerHTML=`<div class="resumen-dia-box">💰 Ventas: ${fmt(totV)}${totD>0?' · 🚚 Domicilios: '+fmt(totD):''}<br><strong>Gran total del día: ${fmt(totV+totD)}</strong></div>`;
+  const labels={hoy:'del día',semana:'últimos 7 días',mes:'del mes',todo:'total'};
+  document.getElementById('resumen-dia').innerHTML=`<div class="resumen-dia-box">💰 Ventas ${labels[filtroHistorial]}: ${fmt(totV)}${totD>0?' · 🚚 Domicilios: '+fmt(totD):''}<br><strong>Gran total: ${fmt(totV+totD)}</strong></div>`;
 }
 
 function mostrarSkeleton(){
