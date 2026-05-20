@@ -311,7 +311,11 @@ textarea { resize:none; height:70px; font-size:14px; }
 <div class="modal-overlay" id="modal-reporte">
   <div class="modal-card">
     <div class="modal-handle"></div>
-    <div class="modal-title">📊 Reporte del mes</div>
+    <div class="modal-title">📊 Reporte de ventas</div>
+    <div class="form-group">
+      <label class="form-label">Selecciona el mes</label>
+      <select id="reporte-mes" onchange="generarReporte()"></select>
+    </div>
     <div id="reporte-contenido"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando reporte...</div></div></div>
     <button class="btn btn-verde" onclick="enviarReporteTelegram()" style="margin-top:12px;">📱 Enviar a Telegram</button>
     <button class="btn btn-crema" onclick="cerrarModal('modal-reporte')">Cerrar</button>
@@ -1386,17 +1390,28 @@ let reporteTexto='';
 
 window.mostrarReporteMes=()=>{
   abrirModal('modal-reporte');
-  document.getElementById('reporte-contenido').innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando reporte...</div></div>';
+  // Llenar selector de meses (últimos 12 meses)
+  const sel=document.getElementById('reporte-mes');
+  sel.innerHTML='';
+  const ahora=new Date();
+  for(let i=0;i<12;i++){
+    const d=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);
+    const val=d.getFullYear()+'-'+d.getMonth();
+    const label=d.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${val}">${label}</option>`;
+  }
   generarReporte();
 };
 
 async function generarReporte(){
+  document.getElementById('reporte-contenido').innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando reporte...</div></div>';
   try{
     const r=await fetch(API,{redirect:'follow'});
     const datos=await r.json();
-    const ahora=new Date();
-    const mes=ahora.getMonth();
-    const anio=ahora.getFullYear();
+    const selVal=document.getElementById('reporte-mes').value.split('-');
+    const anio=parseInt(selVal[0]);
+    const mes=parseInt(selVal[1]);
+    const refDate=new Date(anio,mes,1);
 
     // Filtrar ventas del mes
     const ventasPorProducto={};
@@ -1419,7 +1434,7 @@ async function generarReporte(){
 
     // Stock actual y margen desde desarrollo
     let stockHtml='',rankingHtml='';
-    const mesNombre=ahora.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+    const mesNombre=refDate.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
 
     ranking.forEach(([nombre,v],idx)=>{
       const emoji=idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'•';
