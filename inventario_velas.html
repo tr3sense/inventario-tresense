@@ -443,10 +443,12 @@ function renderProductos(datos) {
     var nombre = datos[i][0], stock = datos[i][1], minimo = datos[i][2] || 3, precio = datos[i][9] || 0, bajo = stock <= minimo;
     preciosGlobal[nombre] = precio;
     if (bajo) alertas.push(nombre);
-    html += '<div class="producto-item"><div><div class="producto-nombre">' + nombre + '</div>';
+    var foto = datos[i][13] || '';
+    var fotoHtml = foto ? '<img class="producto-foto" src="' + foto + '" alt="' + nombre + '">' : '<div class="producto-foto-placeholder">🕯️</div>';
+    html += '<div class="producto-item">' + fotoHtml + '<div style="flex:1;margin:0 12px;"><div class="producto-nombre">' + nombre + '</div>';
     if (precio > 0) html += '<div class="producto-precio">' + formatCOP(precio) + '</div>';
     html += bajo ? '<span class="badge-bajo">Reponer pronto</span>' : '<div class="producto-sub">En stock</div>';
-    html += '</div><div style="display:flex;align-items:center;gap:8px;">';
+    html += '</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;">';
     html += '<button class="reponer-btn" onclick="abrirReponer(\'' + nombre + '\')">+ Reponer</button>';
     html += '<div class="stock-ring ' + (bajo ? 'stock-ring-bajo' : 'stock-ring-ok') + '"><div class="' + (bajo ? 'stock-bajo' : 'stock-ok') + '">' + stock + '</div><div class="stock-label">uds</div></div></div></div>';
     select.innerHTML += '<option value="' + nombre + '">' + nombre + ' (' + stock + ' uds)</option>';
