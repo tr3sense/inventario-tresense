@@ -77,6 +77,12 @@
   .stock-label { font-size: 10px; color: #bbb; }
   .reponer-btn { background: none; border: 1px solid #dbe3e2; border-radius: 8px; padding: 4px 10px; font-size: 12px; color: #5c6d5d; cursor: pointer; margin-left: 8px; white-space: nowrap; }
   .reponer-btn:hover { background: #edf2ed; }
+  .foto-wrap { position: relative; flex-shrink: 0; }
+  .reponer-btn-mobile { display: none; position: absolute; bottom: -4px; right: -4px; width: 22px; height: 22px; border-radius: 50%; background: #5c6d5d; color: #fff; border: 2px solid #fff; font-size: 16px; line-height: 1; cursor: pointer; align-items: center; justify-content: center; font-weight: 700; }
+  @media (max-width: 600px) {
+    .reponer-btn { display: none; }
+    .reponer-btn-mobile { display: flex; }
+  }
   .reponer-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 700; display: none; align-items: center; justify-content: center; padding: 24px; }
   .reponer-card { background: #fff; border-radius: 20px; padding: 24px; width: 100%; max-width: 360px; }
   .reponer-title { font-size: 16px; font-weight: 600; color: #5c6d5d; margin-bottom: 8px; }
@@ -444,7 +450,8 @@ function renderProductos(datos) {
     preciosGlobal[nombre] = precio;
     if (bajo) alertas.push(nombre);
     var foto = datos[i][13] || '';
-    var fotoHtml = foto ? '<img class="producto-foto" src="' + foto + '" alt="' + nombre + '">' : '<div class="producto-foto-placeholder">🕯️</div>';
+    var fotoImg = foto ? '<img class="producto-foto" src="' + foto + '" alt="' + nombre + '">' : '<div class="producto-foto-placeholder">🕯️</div>';
+    var fotoHtml = '<div class="foto-wrap">' + fotoImg + '<button class="reponer-btn-mobile" onclick="abrirReponer(\'' + nombre + '\')">+</button></div>';
     html += '<div class="producto-item">' + fotoHtml + '<div style="flex:1;margin:0 12px;"><div class="producto-nombre">' + nombre + '</div>';
     if (precio > 0) html += '<div class="producto-precio">' + formatCOP(precio) + '</div>';
     html += bajo ? '<span class="badge-bajo">Reponer pronto</span>' : '<div class="producto-sub">En stock</div>';
