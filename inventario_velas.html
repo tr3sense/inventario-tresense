@@ -251,6 +251,10 @@ textarea { resize:none; height:70px; font-size:14px; }
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
 .sep { height:1px; background:var(--crema); margin:8px 0; }
+.spinner-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px; gap:12px; }
+.spinner { width:32px; height:32px; border:3px solid var(--verde-light); border-top-color:var(--verde); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.spinner-text { font-size:13px; color:var(--texto-suave); }
 .info-box { background:var(--crema); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--verde); margin-bottom:12px; }
 .info-box strong { font-weight:700; }
 </style>
@@ -882,30 +886,41 @@ window.mostrarTabConta=tab=>{
 };
 
 // INSUMOS
-async function cargarInsumos(){
-  document.getElementById('lista-insumos').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div>';
+async function cargarInsumos(force){
+  const cached=getCacheC('insumos');
+  if(cached&&!force){
+    insumosG=cached;
+    renderInsumos(cached);
+    return;
+  }
+  document.getElementById('lista-insumos').innerHTML=spinnerHtml('Cargando insumos...');
   try{
     const r=await fetch(API+'?accion=insumos',{redirect:'follow'});
     const d=await r.json();
+    setCacheC('insumos',d);
     insumosG=d;
-    let html='';
-    for(let i=1;i<d.length;i++){
-      if(!d[i][0])continue;
-      html+=`<div class="insumo-card">
-        <div class="insumo-card-top">
-          <div>
-            <div class="insumo-nombre">${d[i][0]}</div>
-            <div class="insumo-detalle">Q: ${d[i][1]} ${d[i][3]} · Total: ${fmt(d[i][2]||0)} · Unit: ${fmt(d[i][5]||0)}/${d[i][3]}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <span class="badge-tipo ${d[i][4]==='MP'?'badge-mp':'badge-cif'}">${d[i][4]}</span>
-            <button class="icon-btn" onclick="abrirModalInsumo(${i})">✏️</button>
-          </div>
-        </div>
-      </div>`;
-    }
-    document.getElementById('lista-insumos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin insumos.</div>';
+    renderInsumos(d);
   }catch(e){document.getElementById('lista-insumos').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
+}
+
+function renderInsumos(d){
+  let html='';
+  for(let i=1;i<d.length;i++){
+    if(!d[i][0])continue;
+    html+=`<div class="insumo-card">
+      <div class="insumo-card-top">
+        <div>
+          <div class="insumo-nombre">${d[i][0]}</div>
+          <div class="insumo-detalle">Q: ${d[i][1]} ${d[i][3]} · Total: ${fmt(d[i][2]||0)} · Unit: ${fmt(d[i][5]||0)}/${d[i][3]}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <span class="badge-tipo ${d[i][4]==='MP'?'badge-mp':'badge-cif'}">${d[i][4]}</span>
+          <button class="icon-btn" onclick="abrirModalInsumo(${i})">✏️</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('lista-insumos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin insumos.</div>';
 }
 
 window.calcInsUnit=()=>{
@@ -939,7 +954,7 @@ window.guardarInsumo=async()=>{
   if(!nombre||!valor){toast('Nombre y valor son obligatorios','error');return;}
   const p={accion:fila?'editarInsumo':'agregarInsumo',nombre,q:parseFloat(document.getElementById('insumo-q').value)||0,valorTotal:valor,unidad:document.getElementById('insumo-unidad').value,tipo:document.getElementById('insumo-tipo').value};
   if(fila)p.fila=parseInt(fila);
-  try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-insumo');cargarInsumos();toast('Guardado','success');}
+  try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-insumo');clearCacheC('insumos');cargarInsumos(true);toast('Guardado','success');}
   catch(e){toast('Error','error');}
 };
 
@@ -1141,11 +1156,14 @@ window.enviarADesarrollo=async()=>{
 };
 
 // DESARROLLO
-async function cargarDesarrollo(){
-  document.getElementById('lista-desarrollo').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div>';
+async function cargarDesarrollo(force){
+  const cached=getCacheC('desarrollo');
+  if(cached&&!force){renderDesarrollo(cached);return;}
+  document.getElementById('lista-desarrollo').innerHTML=spinnerHtml('Cargando productos...');
   try{
     const r=await fetch(API+'?accion=desarrollo',{redirect:'follow'});
     const d=await r.json();
+    setCacheC('desarrollo',d);
     const ahora=new Date();
     let html='';
     for(let i=1;i<d.length;i++){
@@ -1179,15 +1197,50 @@ async function cargarDesarrollo(){
         </div>
       </div>`;
     }
-    document.getElementById('lista-desarrollo').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin productos en desarrollo.</div>';
+    renderDesarrollo(d);
   }catch(e){document.getElementById('lista-desarrollo').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
+}
+
+function renderDesarrollo(d){
+  const ahora=new Date();
+  let html='';
+  for(let i=1;i<d.length;i++){
+    if(!d[i][0])continue;
+    const mp=d[i][1]||0,cif=d[i][2]||0,moe=d[i][6]||0,cmv=d[i][3]||0,pvu=d[i][4]||0;
+    const margen=pvu>0?Math.round(((pvu-cmv)/pvu)*100):0;
+    const estado=d[i][5]||'En desarrollo';
+    const aprobado=estado==='Aprobado';
+    if(!aprobado&&d[i][7]){
+      const fc=new Date(d[i][7]);
+      if((ahora-fc)/(1000*60*60*24)>7)continue;
+    }
+    html+=`<div class="des-card">
+      <div class="des-card-header">
+        <div class="des-card-nombre">${d[i][0]}</div>
+        <span class="badge ${aprobado?'badge-verde':'badge-amarillo'}">${estado}</span>
+      </div>
+      <div class="res-costeo">
+        <div class="res-costeo-row"><span>M.P</span><span>${fmt(mp)}</span></div>
+        <div class="res-costeo-row"><span>CIF</span><span>${fmt(cif)}</span></div>
+        <div class="res-costeo-row"><span>M.O + Energía</span><span>${fmt(moe)}</span></div>
+        <div class="res-costeo-row h"><span>CMV Total</span><span>${fmt(cmv)}</span></div>
+        <div class="res-costeo-row" style="margin-top:6px;"><span>PVU</span><span>${fmt(pvu)}</span></div>
+        ${pvu>0?`<div class="res-costeo-row"><span>Margen</span><span>${margen}%</span></div>`:''}
+      </div>
+      <div class="des-card-acciones">
+        ${!aprobado?`<button class="icon-btn" onclick="aprobarProducto('${d[i][0]}')">✅ Aprobar → Inventario</button>`:''}
+        <button class="icon-btn" style="color:var(--texto-suave);" onclick="continuarCosteo('${d[i][0]}')">✏️ Editar costeo</button>
+      </div>
+    </div>`;
+  }
+  document.getElementById('lista-desarrollo').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin productos en desarrollo.</div>';
 }
 
 window.aprobarProducto=async producto=>{
   if(!confirm(`¿Aprobar "${producto}" y pasarlo al inventario con stock 0?`))return;
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({accion:'aprobarProducto',producto})});
-    cargarDesarrollo();sessionStorage.removeItem('inv_cache');
+    clearCacheC('desarrollo');cargarDesarrollo(true);sessionStorage.removeItem('inv_cache');
     toast(producto+' aprobado y en inventario','success');
   }catch(e){toast('Error','error');}
 };
@@ -1204,11 +1257,14 @@ window.continuarCosteo=async nombre=>{
 };
 
 // ACTIVOS
-async function cargarActivos(){
-  document.getElementById('lista-activos').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div>';
+async function cargarActivos(force){
+  const cached=getCacheC('activos');
+  if(cached&&!force){renderActivos(cached);return;}
+  document.getElementById('lista-activos').innerHTML=spinnerHtml('Cargando activos...');
   try{
     const r=await fetch(API+'?accion=activos',{redirect:'follow'});
     const d=await r.json();
+    setCacheC('activos',d);
     let html='',total=0;
     for(let i=1;i<d.length;i++){
       if(!d[i][0])continue;
@@ -1222,9 +1278,26 @@ async function cargarActivos(){
         <button class="icon-btn" onclick="abrirModalActivo(${i},'${d[i][0]}','${d[i][1]||''}',${val},${cant})">✏️</button>
       </div>`;
     }
-    document.getElementById('lista-activos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin activos.</div>';
-    document.getElementById('total-activos').textContent='💰 Total inversión: '+fmt(total);
+    renderActivos(d);
   }catch(e){document.getElementById('lista-activos').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
+}
+
+function renderActivos(d){
+  let html='',total=0;
+  for(let i=1;i<d.length;i++){
+    if(!d[i][0])continue;
+    const val=d[i][2]||0,cant=d[i][3]||1,fecha=d[i][1]?new Date(d[i][1]).toLocaleDateString('es-CO'):'—';
+    total+=val*cant;
+    html+=`<div class="activo-card">
+      <div class="activo-info">
+        <div class="activo-nombre">${d[i][0]}</div>
+        <div class="activo-detalle">Cant: ${cant} · ${fmt(val)} · 📅 ${fecha}</div>
+      </div>
+      <button class="icon-btn" onclick="abrirModalActivo(${i},'${d[i][0]}','${d[i][1]||''}',${val},${cant})">✏️</button>
+    </div>`;
+  }
+  document.getElementById('lista-activos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin activos.</div>';
+  document.getElementById('total-activos').textContent='💰 Total inversión: '+fmt(total);
 }
 window.abrirModalActivo=(fila,nombre,fecha,valor,cantidad)=>{
   document.getElementById('activo-fila').value=fila!==undefined?fila:'';
@@ -1242,12 +1315,31 @@ window.guardarActivo=async()=>{
   if(!nombre||!valor){toast('Nombre y valor son obligatorios','error');return;}
   const p={accion:fila?'editarActivo':'agregarActivo',nombre,valor,fechaCompra:document.getElementById('activo-fecha').value,cantidad:document.getElementById('activo-cantidad').value||1};
   if(fila)p.fila=parseInt(fila);
-  try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-activo');cargarActivos();toast('Guardado','success');}
+  try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-activo');clearCacheC('activos');cargarActivos(true);toast('Guardado','success');}
   catch(e){toast('Error','error');}
 };
 
 // UTILS
 function abrirModal(id){document.getElementById(id).style.display='flex';}
+function spinnerHtml(msg){return `<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">${msg||'Cargando...'}</div></div>`;}
+
+// CACHÉ CONTABILIDAD
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+function getCacheC(key){
+  try{
+    const c=sessionStorage.getItem('cc_'+key);
+    if(!c)return null;
+    const {data,ts}=JSON.parse(c);
+    if(Date.now()-ts>CACHE_TTL){sessionStorage.removeItem('cc_'+key);return null;}
+    return data;
+  }catch(e){return null;}
+}
+function setCacheC(key,data){
+  try{sessionStorage.setItem('cc_'+key,JSON.stringify({data,ts:Date.now()}));}catch(e){}
+}
+function clearCacheC(key){
+  try{sessionStorage.removeItem('cc_'+key);}catch(e){}
+}
 window.cerrarModal=id=>document.getElementById(id).style.display='none';
 window.toast=function(msg,tipo){
   const t=document.getElementById('toast');
