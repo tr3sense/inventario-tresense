@@ -142,10 +142,7 @@
   @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
   .producto-foto { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: #f0ede4; }
   .producto-foto-placeholder { width: 64px; height: 64px; border-radius: 12px; background: #f0ede4; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-  .conta-coming { background: #fff; border-radius: 20px; padding: 40px 24px; text-align: center; border: 1px solid #dbe3e2; }
-  .conta-coming-icon { font-size: 48px; margin-bottom: 16px; }
-  .conta-coming-title { font-size: 18px; font-weight: 600; color: #5c6d5d; margin-bottom: 8px; }
-  .conta-coming-sub { font-size: 14px; color: #888; line-height: 1.7; }
+  #app-contabilidad { display: none; max-width: 1080px; margin: 0 auto; width: 100%; }
 </style>
 </head>
 <body>
@@ -287,11 +284,99 @@
     </div>
     <img src="logo.png" alt="Tr3sense" class="logo-header-dark">
   </div>
-  <div class="conta-coming">
-    <div class="conta-coming-icon">📊</div>
-    <div class="conta-coming-title">Módulo de Contabilidad</div>
-    <div class="conta-coming-sub">Aquí estarán los costos de materias primas,<br>costos directos, indirectos y la tabla totalizada.<br><br>Próximamente disponible.</div>
+
+  <!-- PESTAÑAS CONTABILIDAD -->
+  <div class="card" style="padding:4px;">
+    <div class="tabs">
+      <button class="tab-btn active" id="ctab-mp" onclick="mostrarTabConta('mp')">🌿 Mat. Primas</button>
+      <button class="tab-btn" id="ctab-af" onclick="mostrarTabConta('af')">🔧 Activos</button>
+      <button class="tab-btn" id="ctab-costeo" onclick="mostrarTabConta('costeo')">📊 Costeo</button>
+    </div>
   </div>
+
+  <!-- MATERIAS PRIMAS -->
+  <div id="cpanel-mp">
+    <div class="card">
+      <div class="card-title">Materias Primas</div>
+      <div id="lista-mp"><div class="loading">Cargando...</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Agregar compra</div>
+      <div class="form-group"><label class="form-label">Nombre</label><input type="text" id="mp-nombre" placeholder="Ej: Cera Coco"></div>
+      <div class="form-group"><label class="form-label">Gramos</label><input type="number" id="mp-gramos" placeholder="Ej: 1000"></div>
+      <div class="form-group"><label class="form-label">Valor total ($)</label><input type="number" id="mp-valor" placeholder="Ej: 30000"></div>
+      <div class="form-group"><label class="form-label">Fecha compra</label><input type="date" id="mp-fecha"></div>
+      <button class="btn btn-primary" onclick="agregarMP()">Agregar</button>
+    </div>
+  </div>
+
+  <!-- ACTIVOS FIJOS -->
+  <div id="cpanel-af" style="display:none;">
+    <div class="card">
+      <div class="card-title">Activos Fijos</div>
+      <div id="lista-af"><div class="loading">Cargando...</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Agregar activo</div>
+      <div class="form-group"><label class="form-label">Nombre</label><input type="text" id="af-nombre" placeholder="Ej: Gramera"></div>
+      <div class="form-group"><label class="form-label">Fecha compra</label><input type="date" id="af-fecha"></div>
+      <div class="form-group"><label class="form-label">Valor ($)</label><input type="number" id="af-valor" placeholder="Ej: 20000"></div>
+      <div class="form-group"><label class="form-label">Cantidad</label><input type="number" id="af-cantidad" value="1" min="1"></div>
+      <button class="btn btn-primary" onclick="agregarAF()">Agregar</button>
+    </div>
+  </div>
+
+  <!-- COSTEO -->
+  <div id="cpanel-costeo" style="display:none;">
+    <div class="card">
+      <div class="card-title">Costeo por producto</div>
+      <div id="lista-costeo"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR MP -->
+  <div class="reponer-modal" id="modal-mp">
+    <div class="reponer-card">
+      <div class="reponer-title">Editar materia prima</div>
+      <input type="hidden" id="edit-mp-fila">
+      <div class="form-group"><label class="form-label">Nombre</label><input type="text" id="edit-mp-nombre"></div>
+      <div class="form-group"><label class="form-label">Gramos</label><input type="number" id="edit-mp-gramos"></div>
+      <div class="form-group"><label class="form-label">Valor total ($)</label><input type="number" id="edit-mp-valor"></div>
+      <div class="form-group"><label class="form-label">Fecha compra</label><input type="date" id="edit-mp-fecha"></div>
+      <button class="btn btn-primary" onclick="guardarMP()">Guardar</button>
+      <button class="btn btn-secondary" onclick="cerrarModalMP()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR AF -->
+  <div class="reponer-modal" id="modal-af">
+    <div class="reponer-card">
+      <div class="reponer-title">Editar activo fijo</div>
+      <input type="hidden" id="edit-af-fila">
+      <div class="form-group"><label class="form-label">Nombre</label><input type="text" id="edit-af-nombre"></div>
+      <div class="form-group"><label class="form-label">Fecha compra</label><input type="date" id="edit-af-fecha"></div>
+      <div class="form-group"><label class="form-label">Valor ($)</label><input type="number" id="edit-af-valor"></div>
+      <div class="form-group"><label class="form-label">Cantidad</label><input type="number" id="edit-af-cantidad"></div>
+      <button class="btn btn-primary" onclick="guardarAF()">Guardar</button>
+      <button class="btn btn-secondary" onclick="cerrarModalAF()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR COSTEO -->
+  <div class="reponer-modal" id="modal-costeo">
+    <div class="reponer-card">
+      <div class="reponer-title">Editar costeo</div>
+      <input type="hidden" id="edit-costeo-fila">
+      <div class="form-group"><label class="form-label">Producto</label><input type="text" id="edit-costeo-producto" readonly style="opacity:0.6;"></div>
+      <div class="form-group"><label class="form-label">M.P ($)</label><input type="number" id="edit-costeo-mp"></div>
+      <div class="form-group"><label class="form-label">CIF ($)</label><input type="number" id="edit-costeo-cif"></div>
+      <div class="form-group"><label class="form-label">Costo Total ($)</label><input type="number" id="edit-costeo-total" readonly style="opacity:0.6;"></div>
+      <div class="form-group"><label class="form-label">PVU ($)</label><input type="number" id="edit-costeo-pvu"></div>
+      <button class="btn btn-primary" onclick="guardarCosteo()">Guardar</button>
+      <button class="btn btn-secondary" onclick="cerrarModalCosteo()">Cancelar</button>
+    </div>
+  </div>
+
   <div class="footer">
     <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
     <a href="terminos.html" target="_blank">Términos y condiciones de uso</a>
@@ -625,6 +710,208 @@ window.mostrarToast = function(msg, tipo) {
   setTimeout(function() { toast.className = 'toast'; }, 3000);
 };
 function mostrarToast(msg, tipo) { window.mostrarToast(msg, tipo); }
+
+// ============ CONTABILIDAD ============
+window.mostrarTabConta = function(tab) {
+  ['mp','af','costeo'].forEach(function(t) {
+    document.getElementById('ctab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('cpanel-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'mp') cargarMP();
+  if (tab === 'af') cargarAF();
+  if (tab === 'costeo') cargarCosteo();
+};
+
+async function cargarMP() {
+  document.getElementById('lista-mp').innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    var res = await fetch(API_URL + '?accion=materiasprimas');
+    var datos = await res.json();
+    var html = '';
+    for (var i = 1; i < datos.length; i++) {
+      if (!datos[i][0]) continue;
+      var fecha = datos[i][3] ? new Date(datos[i][3]).toLocaleDateString('es-CO') : '—';
+      var costUnit = datos[i][1] && datos[i][2] ? Math.round(datos[i][2] / datos[i][1]) : '—';
+      html += '<div class="historial-item">';
+      html += '<div class="historial-top"><span class="historial-producto">' + datos[i][0] + '</span>';
+      html += '<button class="reponer-btn" onclick="abrirModalMP(' + i + ',\'' + datos[i][0] + '\',' + (datos[i][1]||0) + ',' + (datos[i][2]||0) + ',\'' + (datos[i][3]||'') + '\')">✏️</button></div>';
+      html += '<div style="font-size:12px;color:#888;margin-top:4px;">';
+      html += datos[i][1] ? '⚖️ ' + datos[i][1] + ' gr · ' : '';
+      html += datos[i][2] ? '💰 $' + Number(datos[i][2]).toLocaleString('es-CO') + ' total · ' : '';
+      html += costUnit !== '—' ? '$' + Number(costUnit).toLocaleString('es-CO') + '/gr · ' : '';
+      html += '📅 ' + fecha;
+      html += '</div></div>';
+    }
+    document.getElementById('lista-mp').innerHTML = html || '<div class="loading">Sin datos.</div>';
+  } catch(e) { document.getElementById('lista-mp').innerHTML = '<div class="loading">Error cargando.</div>'; }
+}
+
+window.abrirModalMP = function(fila, nombre, gramos, valor, fecha) {
+  document.getElementById('edit-mp-fila').value = fila;
+  document.getElementById('edit-mp-nombre').value = nombre;
+  document.getElementById('edit-mp-gramos').value = gramos || '';
+  document.getElementById('edit-mp-valor').value = valor || '';
+  document.getElementById('edit-mp-fecha').value = fecha ? fecha.toString().substring(0,10) : '';
+  document.getElementById('modal-mp').style.display = 'flex';
+};
+window.cerrarModalMP = function() { document.getElementById('modal-mp').style.display = 'none'; };
+
+window.guardarMP = async function() {
+  var fila = document.getElementById('edit-mp-fila').value;
+  try {
+    await fetch(API_URL, { method: 'POST', body: JSON.stringify({
+      accion: 'editarMateriaPrima', fila: parseInt(fila),
+      nombre: document.getElementById('edit-mp-nombre').value,
+      gramos: document.getElementById('edit-mp-gramos').value,
+      valorTotal: document.getElementById('edit-mp-valor').value,
+      fechaCompra: document.getElementById('edit-mp-fecha').value
+    })});
+    cerrarModalMP(); cargarMP(); mostrarToast('Guardado', 'success');
+  } catch(e) { mostrarToast('Error al guardar', 'error'); }
+};
+
+window.agregarMP = async function() {
+  var nombre = document.getElementById('mp-nombre').value.trim();
+  var valor = document.getElementById('mp-valor').value;
+  if (!nombre || !valor) { mostrarToast('Nombre y valor son obligatorios', 'error'); return; }
+  try {
+    await fetch(API_URL, { method: 'POST', body: JSON.stringify({
+      accion: 'agregarMateriaPrima', nombre: nombre,
+      gramos: document.getElementById('mp-gramos').value,
+      valorTotal: valor, fechaCompra: document.getElementById('mp-fecha').value
+    })});
+    document.getElementById('mp-nombre').value = '';
+    document.getElementById('mp-gramos').value = '';
+    document.getElementById('mp-valor').value = '';
+    document.getElementById('mp-fecha').value = '';
+    cargarMP(); mostrarToast('Materia prima agregada', 'success');
+  } catch(e) { mostrarToast('Error al agregar', 'error'); }
+};
+
+async function cargarAF() {
+  document.getElementById('lista-af').innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    var res = await fetch(API_URL + '?accion=activosfijos');
+    var datos = await res.json();
+    var html = '', totalInversion = 0;
+    for (var i = 1; i < datos.length; i++) {
+      if (!datos[i][0]) continue;
+      var fecha = datos[i][1] ? new Date(datos[i][1]).toLocaleDateString('es-CO') : '—';
+      var valor = datos[i][2] || 0;
+      var cantidad = datos[i][3] || 1;
+      totalInversion += valor * cantidad;
+      html += '<div class="historial-item">';
+      html += '<div class="historial-top"><span class="historial-producto">' + datos[i][0] + '</span>';
+      html += '<button class="reponer-btn" onclick="abrirModalAF(' + i + ',\'' + datos[i][0] + '\',\'' + (datos[i][1]||'') + '\',' + valor + ',' + cantidad + ')">✏️</button></div>';
+      html += '<div style="font-size:12px;color:#888;margin-top:4px;">📦 Cant: ' + cantidad + ' · 💰 $' + Number(valor).toLocaleString('es-CO') + ' · 📅 ' + fecha + '</div>';
+      html += '</div>';
+    }
+    if (totalInversion > 0) html += '<div style="padding:12px 0;font-size:13px;font-weight:600;color:#5c6d5d;">Total inversión: $' + totalInversion.toLocaleString('es-CO') + '</div>';
+    document.getElementById('lista-af').innerHTML = html || '<div class="loading">Sin datos.</div>';
+  } catch(e) { document.getElementById('lista-af').innerHTML = '<div class="loading">Error cargando.</div>'; }
+}
+
+window.abrirModalAF = function(fila, nombre, fecha, valor, cantidad) {
+  document.getElementById('edit-af-fila').value = fila;
+  document.getElementById('edit-af-nombre').value = nombre;
+  document.getElementById('edit-af-fecha').value = fecha ? fecha.toString().substring(0,10) : '';
+  document.getElementById('edit-af-valor').value = valor || '';
+  document.getElementById('edit-af-cantidad').value = cantidad || 1;
+  document.getElementById('modal-af').style.display = 'flex';
+};
+window.cerrarModalAF = function() { document.getElementById('modal-af').style.display = 'none'; };
+
+window.guardarAF = async function() {
+  var fila = document.getElementById('edit-af-fila').value;
+  try {
+    await fetch(API_URL, { method: 'POST', body: JSON.stringify({
+      accion: 'editarActivoFijo', fila: parseInt(fila),
+      nombre: document.getElementById('edit-af-nombre').value,
+      fechaCompra: document.getElementById('edit-af-fecha').value,
+      valor: document.getElementById('edit-af-valor').value,
+      cantidad: document.getElementById('edit-af-cantidad').value
+    })});
+    cerrarModalAF(); cargarAF(); mostrarToast('Guardado', 'success');
+  } catch(e) { mostrarToast('Error al guardar', 'error'); }
+};
+
+window.agregarAF = async function() {
+  var nombre = document.getElementById('af-nombre').value.trim();
+  var valor = document.getElementById('af-valor').value;
+  if (!nombre || !valor) { mostrarToast('Nombre y valor son obligatorios', 'error'); return; }
+  try {
+    await fetch(API_URL, { method: 'POST', body: JSON.stringify({
+      accion: 'agregarActivoFijo', nombre: nombre,
+      fechaCompra: document.getElementById('af-fecha').value,
+      valor: valor, cantidad: document.getElementById('af-cantidad').value || 1
+    })});
+    document.getElementById('af-nombre').value = '';
+    document.getElementById('af-fecha').value = '';
+    document.getElementById('af-valor').value = '';
+    document.getElementById('af-cantidad').value = 1;
+    cargarAF(); mostrarToast('Activo agregado', 'success');
+  } catch(e) { mostrarToast('Error al agregar', 'error'); }
+};
+
+async function cargarCosteo() {
+  document.getElementById('lista-costeo').innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    var res = await fetch(API_URL + '?accion=costeo');
+    var datos = await res.json();
+    var html = '';
+    for (var i = 1; i < datos.length; i++) {
+      if (!datos[i][0]) continue;
+      var producto = datos[i][0], mp = datos[i][1]||0, cif = datos[i][2]||0;
+      var costoTotal = datos[i][3]||0, pvu = datos[i][4]||0;
+      var margen = pvu > 0 ? Math.round(((pvu - costoTotal) / pvu) * 100) : 0;
+      html += '<div class="historial-item">';
+      html += '<div class="historial-top"><span class="historial-producto">' + producto + '</span>';
+      html += '<button class="reponer-btn" onclick="abrirModalCosteo(' + i + ',\'' + producto + '\',' + mp + ',' + cif + ',' + costoTotal + ',' + pvu + ')">✏️</button></div>';
+      html += '<div class="historial-financiero" style="margin-top:8px;">';
+      html += 'M.P: $' + Number(mp).toLocaleString('es-CO') + ' · CIF: $' + Number(cif).toLocaleString('es-CO') + '<br>';
+      html += '<strong>Costo total: $' + Number(costoTotal).toLocaleString('es-CO') + '</strong><br>';
+      html += 'PVU: $' + Number(pvu).toLocaleString('es-CO') + ' · Margen: ' + margen + '%';
+      html += '</div></div>';
+    }
+    document.getElementById('lista-costeo').innerHTML = html || '<div class="loading">Sin datos.</div>';
+  } catch(e) { document.getElementById('lista-costeo').innerHTML = '<div class="loading">Error cargando.</div>'; }
+}
+
+window.abrirModalCosteo = function(fila, producto, mp, cif, total, pvu) {
+  document.getElementById('edit-costeo-fila').value = fila;
+  document.getElementById('edit-costeo-producto').value = producto;
+  document.getElementById('edit-costeo-mp').value = mp || '';
+  document.getElementById('edit-costeo-cif').value = cif || '';
+  document.getElementById('edit-costeo-total').value = total || '';
+  document.getElementById('edit-costeo-pvu').value = pvu || '';
+  document.getElementById('modal-costeo').style.display = 'flex';
+};
+window.cerrarModalCosteo = function() { document.getElementById('modal-costeo').style.display = 'none'; };
+
+document.getElementById('edit-costeo-mp') && document.getElementById('edit-costeo-mp').addEventListener('input', calcularTotalCosteo);
+document.getElementById('edit-costeo-cif') && document.getElementById('edit-costeo-cif').addEventListener('input', calcularTotalCosteo);
+
+function calcularTotalCosteo() {
+  var mp = parseFloat(document.getElementById('edit-costeo-mp').value) || 0;
+  var cif = parseFloat(document.getElementById('edit-costeo-cif').value) || 0;
+  document.getElementById('edit-costeo-total').value = mp + cif;
+}
+
+window.guardarCosteo = async function() {
+  var fila = document.getElementById('edit-costeo-fila').value;
+  var mp = parseFloat(document.getElementById('edit-costeo-mp').value) || 0;
+  var cif = parseFloat(document.getElementById('edit-costeo-cif').value) || 0;
+  var total = mp + cif;
+  var pvu = parseFloat(document.getElementById('edit-costeo-pvu').value) || 0;
+  var margen = pvu > 0 ? Math.round(((pvu - total) / pvu) * 100) : 0;
+  try {
+    await fetch(API_URL, { method: 'POST', body: JSON.stringify({
+      accion: 'editarCosteo', fila: parseInt(fila),
+      mp: mp, cif: cif, costoTotal: total, pvu: pvu, margen: margen
+    })});
+    cerrarModalCosteo(); cargarCosteo(); mostrarToast('Costeo actualizado', 'success');
+  } catch(e) { mostrarToast('Error al guardar', 'error'); }
+};
 </script>
 </body>
 </html>
