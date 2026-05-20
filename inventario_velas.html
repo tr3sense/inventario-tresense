@@ -307,6 +307,17 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div class="success-total" id="success-total"></div>
 </div>
 
+<!-- MODAL REPORTE -->
+<div class="modal-overlay" id="modal-reporte">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Reporte del mes</div>
+    <div id="reporte-contenido"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando reporte...</div></div></div>
+    <button class="btn btn-verde" onclick="enviarReporteTelegram()" style="margin-top:12px;">📱 Enviar a Telegram</button>
+    <button class="btn btn-crema" onclick="cerrarModal('modal-reporte')">Cerrar</button>
+  </div>
+</div>
+
 <!-- MODAL REPONER -->
 <div class="modal-overlay" id="modal-reponer">
   <div class="modal-card">
@@ -420,6 +431,7 @@ textarea { resize:none; height:70px; font-size:14px; }
       </div>
       <div class="scroll-box" id="lista-historial"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
       <div id="resumen-dia"></div>
+      <button class="btn btn-crema" style="margin-top:10px;" onclick="mostrarReporteMes()">📊 Reporte del mes</button>
     </div>
   </div>
 
@@ -1369,6 +1381,115 @@ function clearCacheC(key){
   try{sessionStorage.removeItem('cc_'+key);}catch(e){}
 }
 window.cerrarModal=id=>document.getElementById(id).style.display='none';
+
+let reporteTexto='';
+
+window.mostrarReporteMes=()=>{
+  abrirModal('modal-reporte');
+  document.getElementById('reporte-contenido').innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando reporte...</div></div>';
+  generarReporte();
+};
+
+async function generarReporte(){
+  try{
+    const r=await fetch(API,{redirect:'follow'});
+    const datos=await r.json();
+    const ahora=new Date();
+    const mes=ahora.getMonth();
+    const anio=ahora.getFullYear();
+
+    // Filtrar ventas del mes
+    const ventasPorProducto={};
+    let totalVentas=0,totalDom=0;
+
+    for(let i=1;i<datos.length;i++){
+      if(!datos[i][0]||!datos[i][3]||!datos[i][4])continue;
+      const fv=new Date(datos[i][3]);
+      if(fv.getMonth()!==mes||fv.getFullYear()!==anio)continue;
+      const nombre=datos[i][0],cant=datos[i][4]||0,precio=datos[i][9]||0,dom=datos[i][10]||0;
+      if(!ventasPorProducto[nombre])ventasPorProducto[nombre]={cant:0,total:0,precio};
+      ventasPorProducto[nombre].cant+=cant;
+      ventasPorProducto[nombre].total+=precio*cant;
+      totalVentas+=precio*cant;
+      totalDom+=dom;
+    }
+
+    // Ordenar por cantidad vendida
+    const ranking=Object.entries(ventasPorProducto).sort((a,b)=>b[1].cant-a[1].cant);
+
+    // Stock actual y margen desde desarrollo
+    let stockHtml='',rankingHtml='';
+    const mesNombre=ahora.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+
+    ranking.forEach(([nombre,v],idx)=>{
+      const emoji=idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'•';
+      rankingHtml+=`<div class="res-costeo-row"><span>${emoji} ${nombre}</span><span>${v.cant} uds · ${fmt(v.total)}</span></div>`;
+    });
+
+    for(let i=1;i<datos.length;i++){
+      if(!datos[i][0])continue;
+      stockHtml+=`<div class="res-costeo-row"><span>${datos[i][0]}</span><span>${datos[i][1]} uds · ${fmt(datos[i][9]||0)}</span></div>`;
+    }
+
+    const granTotal=totalVentas+totalDom;
+    const masVendido=ranking.length>0?ranking[0][0]:'—';
+
+    // Construir texto para Telegram
+    reporteTexto=`📊 Reporte mensual Tr3sense
+${mesNombre}
+
+`;
+    reporteTexto+=`🏆 Más vendido: ${masVendido}
+
+`;
+    reporteTexto+=`🛍 Ventas por producto:
+`;
+    ranking.forEach(([n,v])=>{reporteTexto+=`  • ${n}: ${v.cant} uds · $${Math.round(v.total).toLocaleString('es-CO')}
+`;});
+    reporteTexto+=`
+💰 Total ventas: $${Math.round(totalVentas).toLocaleString('es-CO')}
+`;
+    if(totalDom>0)reporteTexto+=`🚚 Total domicilios: $${Math.round(totalDom).toLocaleString('es-CO')}
+`;
+    reporteTexto+=`💵 Gran total: $${Math.round(granTotal).toLocaleString('es-CO')}
+
+`;
+    reporteTexto+=`📦 Stock actual:
+`;
+    for(let i=1;i<datos.length;i++){
+      if(!datos[i][0])continue;
+      reporteTexto+=`  • ${datos[i][0]}: ${datos[i][1]} uds
+`;
+    }
+
+    // HTML del reporte
+    const html=`
+      <div style="font-size:13px;font-weight:700;color:var(--verde);margin-bottom:8px;">${mesNombre}</div>
+      <div class="res-costeo" style="margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--verde);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">🏆 Ranking ventas</div>
+        ${rankingHtml||'<div style="color:var(--texto-mini);font-size:13px;">Sin ventas este mes.</div>'}
+      </div>
+      <div class="res-costeo" style="margin-bottom:12px;">
+        <div class="res-costeo-row"><span>💰 Total ventas</span><span>${fmt(totalVentas)}</span></div>
+        ${totalDom>0?`<div class="res-costeo-row"><span>🚚 Domicilios</span><span>${fmt(totalDom)}</span></div>`:''}
+        <div class="res-costeo-row h"><span>💵 Gran total</span><span>${fmt(granTotal)}</span></div>
+      </div>
+      <div class="res-costeo">
+        <div style="font-size:12px;font-weight:700;color:var(--verde);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">📦 Stock actual</div>
+        ${stockHtml}
+      </div>`;
+
+    document.getElementById('reporte-contenido').innerHTML=html;
+  }catch(e){document.getElementById('reporte-contenido').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error generando reporte.</div>';}
+}
+
+window.enviarReporteTelegram=async()=>{
+  if(!reporteTexto){toast('Genera el reporte primero','error');return;}
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'enviarTelegram',mensaje:reporteTexto})});
+    toast('Reporte enviado a Telegram','success');
+  }catch(e){toast('Error al enviar','error');}
+};
 
 window.toast=function(msg,tipo){
   const t=document.getElementById('toast');
