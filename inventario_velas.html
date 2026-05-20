@@ -419,9 +419,12 @@ window.onload = function() {
 
 onAuthStateChanged(auth, function(user) {
   if (user) {
+    document.getElementById('splash').style.display = 'none';
     document.getElementById('acceso-screen').style.display = 'none';
+    document.getElementById('app-inventario').style.display = 'none';
     document.getElementById('app-contabilidad').style.display = 'block';
     document.getElementById('conta-user').textContent = user.email;
+    mostrarTabConta('mp');
   }
 });
 
@@ -725,7 +728,7 @@ window.mostrarTabConta = function(tab) {
 async function cargarMP() {
   document.getElementById('lista-mp').innerHTML = '<div class="loading">Cargando...</div>';
   try {
-    var res = await fetch(API_URL + '?accion=materiasprimas');
+    var res = await fetch(API_URL + '?accion=materiasprimas', {redirect: 'follow'});
     var datos = await res.json();
     var html = '';
     for (var i = 1; i < datos.length; i++) {
@@ -791,7 +794,7 @@ window.agregarMP = async function() {
 async function cargarAF() {
   document.getElementById('lista-af').innerHTML = '<div class="loading">Cargando...</div>';
   try {
-    var res = await fetch(API_URL + '?accion=activosfijos');
+    var res = await fetch(API_URL + '?accion=activosfijos', {redirect: 'follow'});
     var datos = await res.json();
     var html = '', totalInversion = 0;
     for (var i = 1; i < datos.length; i++) {
@@ -856,7 +859,7 @@ window.agregarAF = async function() {
 async function cargarCosteo() {
   document.getElementById('lista-costeo').innerHTML = '<div class="loading">Cargando...</div>';
   try {
-    var res = await fetch(API_URL + '?accion=costeo');
+    var res = await fetch(API_URL + '?accion=costeo', {redirect: 'follow'});
     var datos = await res.json();
     var html = '';
     for (var i = 1; i < datos.length; i++) {
