@@ -259,6 +259,16 @@
   </div>
 </div>
 
+<!-- MODAL NUEVO PRODUCTO -->
+<div class="modal-overlay" id="modal-nuevo-producto">
+  <div class="modal-card">
+    <div class="modal-title">Nuevo producto</div>
+    <div class="form-group"><label class="form-label">Nombre del producto</label><input type="text" id="nuevo-producto-nombre" placeholder="Ej: Vela Bergamota"></div>
+    <button class="btn btn-primary" onclick="crearNuevoProducto()">Crear</button>
+    <button class="btn btn-secondary" onclick="cerrarModal('modal-nuevo-producto')">Cancelar</button>
+  </div>
+</div>
+
 <!-- MODAL PVU -->
 <div class="modal-overlay" id="modal-pvu">
   <div class="modal-card">
@@ -355,8 +365,8 @@
   <div class="card" style="padding:8px 12px;">
     <div class="tabs">
       <button class="tab-btn active" id="ctab-insumos" onclick="mostrarTabConta('insumos')">🌿 Insumos</button>
-      <button class="tab-btn" id="ctab-costeo-prod" onclick="mostrarTabConta('costeo-prod')">🧾 Costeo Prod.</button>
-      <button class="tab-btn" id="ctab-costeo" onclick="mostrarTabConta('costeo')">📊 Resumen</button>
+      <button class="tab-btn" id="ctab-costeo-prod" onclick="mostrarTabConta('costeo-prod')">🧾 Costeo</button>
+      <button class="tab-btn" id="ctab-desarrollo" onclick="mostrarTabConta('desarrollo')">🆕 Desarrollo</button>
       <button class="tab-btn" id="ctab-activos" onclick="mostrarTabConta('activos')">🔧 Activos</button>
     </div>
   </div>
@@ -383,9 +393,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div class="card-title" style="margin-bottom:0;">Costeo por producto</div>
         <select id="cp-producto-select" onchange="cargarCosteoProducto()" style="width:auto;padding:8px 12px;font-size:13px;border-radius:10px;">
-          <option value="Margarita de Luz">Margarita de Luz</option>
-          <option value="Encanto Floral">Encanto Floral</option>
-          <option value="Florecitas">Florecitas</option>
+          <option value="">Selecciona...</option>
         </select>
       </div>
       <div class="scroll-box" id="tabla-costeo-prod"><div class="loading">Cargando...</div></div>
@@ -393,11 +401,14 @@
     </div>
   </div>
 
-  <!-- RESUMEN COSTEO -->
-  <div id="cpanel-costeo" style="display:none;">
+  <!-- PRODUCTOS EN DESARROLLO -->
+  <div id="cpanel-desarrollo" style="display:none;">
     <div class="card">
-      <div class="card-title">Resumen de costeo</div>
-      <div class="scroll-box" id="lista-costeo-resumen"><div class="loading">Cargando...</div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0;">Productos en desarrollo</div>
+        <button class="reponer-btn" onclick="abrirModalNuevoProducto()">+ Nuevo</button>
+      </div>
+      <div class="scroll-box" id="lista-desarrollo"><div class="loading">Cargando...</div></div>
     </div>
   </div>
 
@@ -717,13 +728,13 @@ window.registrarVenta = async function() {
 
 // ============ CONTABILIDAD ============
 window.mostrarTabConta = function(tab) {
-  ['insumos','costeo-prod','costeo','activos'].forEach(function(t) {
+  ['insumos','costeo-prod','desarrollo','activos'].forEach(function(t) {
     document.getElementById('ctab-' + t).classList.toggle('active', t===tab);
     document.getElementById('cpanel-' + t).style.display = t===tab ? 'block' : 'none';
   });
   if (tab==='insumos') cargarInsumos();
   if (tab==='costeo-prod') cargarCosteoProducto();
-  if (tab==='costeo') cargarCosteoResumen();
+  if (tab==='desarrollo') cargarDesarrollo();
   if (tab==='activos') cargarActivos();
 };
 
@@ -789,6 +800,19 @@ window.guardarInsumo = async function() {
 
 // COSTEO POR PRODUCTO
 async function cargarCosteoProducto() {
+  // Cargar lista de productos desde desarrollo
+  try {
+    var rDes = await fetch(API_URL + '?accion=desarrollo', {redirect:'follow'});
+    var desDatos = await rDes.json();
+    var sel = document.getElementById('cp-producto-select');
+    var valorActual = sel.value;
+    sel.innerHTML = '<option value="">Selecciona...</option>';
+    for (var d = 1; d < desDatos.length; d++) {
+      if (!desDatos[d][0]) continue;
+      sel.innerHTML += '<option value="' + desDatos[d][0] + '">' + desDatos[d][0] + '</option>';
+    }
+    if (valorActual) sel.value = valorActual;
+  } catch(e) {}
   var producto = document.getElementById('cp-producto-select').value;
   document.getElementById('tabla-costeo-prod').innerHTML = '<div class="loading">Cargando...</div>';
   try {
