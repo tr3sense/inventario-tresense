@@ -307,26 +307,6 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div class="success-total" id="success-total"></div>
 </div>
 
-<!-- MODAL FOTO -->
-<div class="modal-overlay" id="modal-foto">
-  <div class="modal-card">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-foto-title">Foto del producto</div>
-    <input type="hidden" id="foto-producto">
-    <div class="form-group">
-      <label class="form-label">Link de la foto</label>
-      <input type="text" id="foto-url" placeholder="https://tr3sense.github.io/inventario-tresense/foto.jpg">
-    </div>
-    <div style="font-size:12px;color:var(--texto-suave);margin-bottom:12px;">Sube la foto a GitHub y pega el link aquí. Formato: <strong>https://tr3sense.github.io/inventario-tresense/nombre.jpg</strong></div>
-    <div id="foto-preview" style="display:none;margin-bottom:14px;text-align:center;">
-      <img id="foto-preview-img" style="width:120px;height:120px;object-fit:cover;border-radius:14px;border:2px solid var(--borde);">
-    </div>
-    <button class="btn btn-crema" onclick="previewFoto()" style="margin-bottom:6px;">👁 Vista previa</button>
-    <button class="btn btn-verde" onclick="guardarFoto()">Guardar foto</button>
-    <button class="btn btn-crema" onclick="cerrarModal('modal-foto')">Cancelar</button>
-  </div>
-</div>
-
 <!-- MODAL REPONER -->
 <div class="modal-overlay" id="modal-reponer">
   <div class="modal-card">
@@ -754,7 +734,7 @@ function renderProductos(datos){
         <div class="producto-nombre">${nombre}</div>
         ${precio>0?`<div class="producto-precio">${fmt(precio)}</div>`:''}
         ${bajo?'<span class="badge-bajo">⚠ Reponer pronto</span>':'<div style="font-size:12px;color:var(--texto-mini);margin-top:2px;">En stock</div>'}
-        <button class="icon-btn" style="font-size:11px;padding:3px 8px;margin-top:4px;" onclick="abrirModalFoto('${nombre}','${fotoUrl}')">📷 foto</button>
+
       </div>
       <div class="producto-stock">
         <div class="stock-ring ${bajo?'stock-ring-bajo':'stock-ring-ok'}">
@@ -1390,33 +1370,6 @@ function clearCacheC(key){
 }
 window.cerrarModal=id=>document.getElementById(id).style.display='none';
 
-window.abrirModalFoto=(nombre,fotoActual)=>{
-  document.getElementById('foto-producto').value=nombre;
-  document.getElementById('foto-url').value=fotoActual||'';
-  document.getElementById('modal-foto-title').textContent='Foto — '+nombre;
-  document.getElementById('foto-preview').style.display='none';
-  abrirModal('modal-foto');
-};
-
-window.previewFoto=()=>{
-  const url=document.getElementById('foto-url').value.trim();
-  if(!url){toast('Escribe el link primero','error');return;}
-  document.getElementById('foto-preview-img').src=url;
-  document.getElementById('foto-preview').style.display='block';
-};
-
-window.guardarFoto=async()=>{
-  const producto=document.getElementById('foto-producto').value;
-  const url=document.getElementById('foto-url').value.trim();
-  if(!url){toast('Escribe el link de la foto','error');return;}
-  try{
-    await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarFoto',producto,foto:url})});
-    cerrarModal('modal-foto');
-    sessionStorage.removeItem('inv_cache');
-    await cargarInventario();
-    toast('Foto actualizada','success');
-  }catch(e){toast('Error','error');}
-};
 window.toast=function(msg,tipo){
   const t=document.getElementById('toast');
   t.textContent=msg;t.className='toast show '+(tipo||'');
