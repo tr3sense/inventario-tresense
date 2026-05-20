@@ -172,7 +172,7 @@
   </div>
   <div id="panel-login" style="display:none;width:100%;max-width:320px;">
     <div class="login-card">
-      <div class="login-group"><label class="login-label">Correo</label><input type="email" id="login-email" class="login-input" placeholder="correo@ejemplo.com"></div>
+      <div class="login-group"><label class="login-label">Usuario</label><input type="text" id="login-usuario" class="login-input" placeholder="usuario"></div>
       <div class="login-group"><label class="login-label">Contraseña</label><input type="password" id="login-password" class="login-input" placeholder="••••••••"></div>
       <button class="login-btn" id="login-btn" onclick="iniciarSesionConta()">Entrar</button>
       <p class="login-error" id="login-error"></p>
@@ -417,16 +417,7 @@ window.onload = function() {
   }, 1500);
 };
 
-onAuthStateChanged(auth, function(user) {
-  if (user) {
-    document.getElementById('splash').style.display = 'none';
-    document.getElementById('acceso-screen').style.display = 'none';
-    document.getElementById('app-inventario').style.display = 'none';
-    document.getElementById('app-contabilidad').style.display = 'block';
-    document.getElementById('conta-user').textContent = user.email;
-    mostrarTabConta('mp');
-  }
-});
+// Firebase auth no requerido para login simple
 
 window.mostrarAcceso = function(tipo) {
   document.getElementById('tab-inv-btn').classList.toggle('active', tipo === 'inventario');
@@ -487,22 +478,29 @@ window.cerrarInventario = function() {
   clearTimeout(timerInactividad);
 };
 
-window.iniciarSesionConta = async function() {
-  var email = document.getElementById('login-email').value.trim();
+const CONTA_USUARIO = "contadora";
+const CONTA_PASSWORD = "Conta#Tr3s2025!";
+
+window.iniciarSesionConta = function() {
+  var usuario = document.getElementById('login-usuario').value.trim();
   var password = document.getElementById('login-password').value;
-  var btn = document.getElementById('login-btn');
   var errorEl = document.getElementById('login-error');
-  if (!email || !password) { errorEl.textContent = 'Escribe tu correo y contraseña.'; return; }
-  btn.disabled = true; btn.textContent = 'Entrando...'; errorEl.textContent = '';
-  try { await signInWithEmailAndPassword(auth, email, password); }
-  catch(e) { errorEl.textContent = 'Correo o contraseña incorrectos.'; btn.disabled = false; btn.textContent = 'Entrar'; }
+  if (!usuario || !password) { errorEl.textContent = 'Escribe usuario y contraseña.'; return; }
+  if (usuario === CONTA_USUARIO && password === CONTA_PASSWORD) {
+    errorEl.textContent = '';
+    document.getElementById('acceso-screen').style.display = 'none';
+    document.getElementById('app-contabilidad').style.display = 'block';
+    document.getElementById('conta-user').textContent = usuario;
+    mostrarTabConta('mp');
+  } else {
+    errorEl.textContent = 'Usuario o contraseña incorrectos.';
+  }
 };
 
-window.cerrarContabilidad = async function() {
-  await signOut(auth);
+window.cerrarContabilidad = function() {
   document.getElementById('app-contabilidad').style.display = 'none';
   document.getElementById('acceso-screen').style.display = 'flex';
-  document.getElementById('login-email').value = '';
+  document.getElementById('login-usuario').value = '';
   document.getElementById('login-password').value = '';
   document.getElementById('login-error').textContent = '';
   mostrarAcceso('contabilidad');
