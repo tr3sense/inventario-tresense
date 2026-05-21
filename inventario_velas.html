@@ -709,17 +709,24 @@ textarea { resize:none; height:70px; font-size:14px; }
 <div class="modal-overlay" id="modal-entregar">
   <div class="modal-card">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-entregar-title">Confirmar entrega</div>
+    <div class="modal-title" id="modal-entregar-title">Actualizar entrega</div>
     <input type="hidden" id="entregar-idx">
     <div id="entregar-detalle" style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;"></div>
     <div class="form-group">
+      <label class="form-label">Estado</label>
+      <div class="toggle-group">
+        <div class="toggle-btn" id="estado-btn-camino" onclick="setEstadoDom('En camino')" style="min-width:80px;">🚚 En camino</div>
+        <div class="toggle-btn" id="estado-btn-entregado" onclick="setEstadoDom('Entregado')" style="min-width:80px;">✅ Entregado</div>
+      </div>
+    </div>
+    <div class="form-group" id="foto-group" style="display:none;">
       <label class="form-label">📷 Foto de evidencia</label>
-      <input type="file" id="entregar-foto" accept="image/*" capture="environment" style="background:var(--blanco);padding:10px;">
+      <input type="file" id="entregar-foto" accept="image/*" capture="environment" style="background:var(--blanco);padding:10px;border-radius:12px;border:1.5px solid var(--borde);">
       <div id="foto-preview-dom" style="display:none;margin-top:10px;text-align:center;">
         <img id="foto-preview-img-dom" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;">
       </div>
     </div>
-    <button class="btn btn-verde" onclick="confirmarEntrega()">✅ Marcar como entregado</button>
+    <button class="btn btn-verde" id="btn-confirmar-entrega" onclick="confirmarEntrega()" disabled style="opacity:0.5;">Confirmar</button>
     <button class="btn btn-crema" onclick="cerrarModal('modal-entregar')">Cancelar</button>
   </div>
 </div>
@@ -1637,7 +1644,8 @@ function renderPendientes(datos){
       <div style="font-size:13px;color:var(--texto-suave);">📍 ${datos[i][8]||''}</div>
       <div style="font-size:12px;color:var(--verde);margin-top:4px;">🚚 ${datos[i][11]||''} · 💰 $${Math.round(datos[i][10]||0).toLocaleString('es-CO')}</div>
       <div class="des-card-acciones">
-        <button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="abrirModalEntregar(${i})">✅ Marcar entregado</button>
+        <span class="badge ${estado==='En camino'?'badge-amarillo':'badge-rosado'}">${estado||'Pendiente'}</span>
+        <button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="abrirModalEntregar(${i})">Actualizar estado</button>
       </div>
     </div>`;
   }
@@ -1662,9 +1670,9 @@ function renderHistorialDom(){
 }
 
 window.abrirModalEntregar=idx=>{
-  entregaActual=idx;
+  entregaActual=idx; estadoDomActual='';
   const d=domDatosGlobal[idx];
-  document.getElementById('modal-entregar-title').textContent='Entrega — '+d[5];
+  document.getElementById('modal-entregar-title').textContent='Entrega — '+(d[5]||'Cliente');
   document.getElementById('entregar-idx').value=idx;
   document.getElementById('entregar-detalle').innerHTML=`
     <div style="font-weight:700;color:var(--verde);margin-bottom:8px;">${d[5]||'Cliente'}</div>
@@ -1672,7 +1680,12 @@ window.abrirModalEntregar=idx=>{
     <div>🕯️ ${d[0]} · ${d[4]} uds</div>
     <div>📍 ${d[8]||''}</div>
     <div>🚚 ${d[11]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>`;
-  document.getElementById('entregar-foto').value='';
+  document.getElementById('estado-btn-camino').classList.remove('active');
+  document.getElementById('estado-btn-entregado').classList.remove('active');
+  document.getElementById('foto-group').style.display='none';
+  document.getElementById('btn-confirmar-entrega').disabled=true;
+  document.getElementById('btn-confirmar-entrega').style.opacity='0.5';
+  if(document.getElementById('entregar-foto')) document.getElementById('entregar-foto').value='';
   document.getElementById('foto-preview-dom').style.display='none';
   abrirModal('modal-entregar');
 };
@@ -1691,30 +1704,45 @@ document.addEventListener('change',e=>{
   }
 });
 
+let estadoDomActual='';
+
+window.setEstadoDom=estado=>{
+  estadoDomActual=estado;
+  document.getElementById('estado-btn-camino').classList.toggle('active',estado==='En camino');
+  document.getElementById('estado-btn-entregado').classList.toggle('active',estado==='Entregado');
+  document.getElementById('foto-group').style.display=estado==='Entregado'?'block':'none';
+  document.getElementById('btn-confirmar-entrega').disabled=false;
+  document.getElementById('btn-confirmar-entrega').style.opacity='1';
+};
+
 window.confirmarEntrega=async()=>{
   const idx=entregaActual;
   const d=domDatosGlobal[idx];
+  if(!estadoDomActual){toast('Selecciona un estado','error');return;}
   let fotoBase64='';
-  const fotoFile=document.getElementById('entregar-foto').files[0];
-  if(fotoFile){
-    fotoBase64=await new Promise(res=>{
-      const r=new FileReader();
-      r.onload=e=>res(e.target.result);
-      r.readAsDataURL(fotoFile);
-    });
+  if(estadoDomActual==='Entregado'){
+    const fotoFile=document.getElementById('entregar-foto').files[0];
+    if(fotoFile){
+      fotoBase64=await new Promise(res=>{
+        const r=new FileReader();
+        r.onload=e=>res(e.target.result);
+        r.readAsDataURL(fotoFile);
+      });
+    }
   }
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
-      accion:'marcarEntregado',
+      accion:'actualizarEstadoDomicilio',
+      estado:estadoDomActual,
       producto:d[0], cliente:d[5], telefono:d[6], direccion:d[8],
-      fotoBase64: fotoBase64?fotoBase64.substring(0,100)+'...':'',
+      zona:d[11]||'', fotoBase64,
       registradoPor:'Julian Builes',
-      filaInv: idx
+      filaInv:idx
     })});
     cerrarModal('modal-entregar');
     clearCacheC('domicilios');
     await cargarDomicilios(true);
-    toast('Entrega confirmada — notificación enviada','success');
+    toast(estadoDomActual==='En camino'?'🚚 En camino — notificación enviada':'✅ Entregado — notificación enviada','success');
   }catch(e){toast('Error al confirmar','error');}
 };
 
