@@ -259,6 +259,12 @@ textarea { resize:none; height:70px; font-size:14px; }
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
 .sep { height:1px; background:var(--crema); margin:8px 0; }
+.usuario-btn { width:100%; padding:14px 18px; background:var(--blanco); border:1.5px solid var(--borde); border-radius:14px; text-align:left; cursor:pointer; display:flex; align-items:center; gap:12px; transition:all 0.2s; }
+.usuario-btn:active { background:var(--verde-light); border-color:var(--verde); transform:scale(0.98); }
+.usuario-avatar { width:40px; height:40px; border-radius:50%; background:var(--verde-light); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.usuario-info { flex:1; }
+.usuario-nombre { font-size:15px; font-weight:600; color:var(--texto); }
+.usuario-rol { font-size:12px; color:var(--texto-suave); margin-top:2px; }
 .spinner-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px; gap:12px; }
 .spinner { width:32px; height:32px; border:3px solid var(--verde-light); border-top-color:var(--verde); border-radius:50%; animation:spin 0.8s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
@@ -278,19 +284,30 @@ textarea { resize:none; height:70px; font-size:14px; }
     <button class="acceso-tab active" id="tab-inv-btn" onclick="mostrarAcceso('inventario')">Inventario</button>
     <button class="acceso-tab" id="tab-cnt-btn" onclick="mostrarAcceso('contabilidad')">Contabilidad</button>
   </div>
-  <div id="panel-pin" style="display:flex;flex-direction:column;align-items:center;">
-    <p class="pin-title">Ingresa tu PIN</p>
-    <div class="pin-dots">
-      <div class="pin-dot" id="dot-0"></div><div class="pin-dot" id="dot-1"></div>
-      <div class="pin-dot" id="dot-2"></div><div class="pin-dot" id="dot-3"></div>
+  <div id="panel-pin" style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;">
+    <!-- PASO 1: Seleccionar usuario -->
+    <div id="step-usuario" style="width:100%;">
+      <p class="pin-title">¿Quién eres?</p>
+      <div id="lista-usuarios" style="display:flex;flex-direction:column;gap:10px;width:100%;"></div>
     </div>
-    <div class="pin-keypad" id="pin-keypad">
-      <div class="pin-key" onclick="pinPress('1')">1</div><div class="pin-key" onclick="pinPress('2')">2</div><div class="pin-key" onclick="pinPress('3')">3</div>
-      <div class="pin-key" onclick="pinPress('4')">4</div><div class="pin-key" onclick="pinPress('5')">5</div><div class="pin-key" onclick="pinPress('6')">6</div>
-      <div class="pin-key" onclick="pinPress('7')">7</div><div class="pin-key" onclick="pinPress('8')">8</div><div class="pin-key" onclick="pinPress('9')">9</div>
-      <div class="pin-key empty"></div><div class="pin-key" onclick="pinPress('0')">0</div><div class="pin-key delete" onclick="pinDelete()">⌫</div>
+    <!-- PASO 2: Ingresar PIN -->
+    <div id="step-pin" style="display:none;flex-direction:column;align-items:center;width:100%;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="volverUsuarios()" style="background:none;border:none;color:var(--verde);cursor:pointer;font-size:20px;">←</button>
+        <p class="pin-title" style="margin-bottom:0;" id="pin-usuario-label">Ingresa tu PIN</p>
+      </div>
+      <div class="pin-dots">
+        <div class="pin-dot" id="dot-0"></div><div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div><div class="pin-dot" id="dot-3"></div>
+      </div>
+      <div class="pin-keypad" id="pin-keypad">
+        <div class="pin-key" onclick="pinPress('1')">1</div><div class="pin-key" onclick="pinPress('2')">2</div><div class="pin-key" onclick="pinPress('3')">3</div>
+        <div class="pin-key" onclick="pinPress('4')">4</div><div class="pin-key" onclick="pinPress('5')">5</div><div class="pin-key" onclick="pinPress('6')">6</div>
+        <div class="pin-key" onclick="pinPress('7')">7</div><div class="pin-key" onclick="pinPress('8')">8</div><div class="pin-key" onclick="pinPress('9')">9</div>
+        <div class="pin-key empty"></div><div class="pin-key" onclick="pinPress('0')">0</div><div class="pin-key delete" onclick="pinDelete()">⌫</div>
+      </div>
+      <p class="pin-error" id="pin-error"></p><p class="pin-blocked" id="pin-blocked"></p>
     </div>
-    <p class="pin-error" id="pin-error"></p><p class="pin-blocked" id="pin-blocked"></p>
   </div>
   <div id="panel-login" style="display:none;width:100%;max-width:320px;">
     <div class="login-card">
@@ -655,7 +672,47 @@ window.onload=()=>{
   setTimeout(()=>{
     document.getElementById('splash').style.display='none';
     document.getElementById('acceso-screen').style.display='flex';
+    renderListaUsuarios();
   },1500);
+};
+
+function renderListaUsuarios(){
+  const avatares=['🌸','🌿','✨'];
+  const roles={admin:'Inventario + Contabilidad',inventario:'Inventario'};
+  let html='';
+  USUARIOS.forEach((u,i)=>{
+    html+=`<button class="usuario-btn" onclick="seleccionarUsuario(${i})">
+      <div class="usuario-avatar">${avatares[i]||'👤'}</div>
+      <div class="usuario-info">
+        <div class="usuario-nombre">${u.nombre}</div>
+        <div class="usuario-rol">${roles[u.rol]||u.rol}</div>
+      </div>
+      <span style="color:var(--texto-mini);font-size:18px;">›</span>
+    </button>`;
+  });
+  document.getElementById('lista-usuarios').innerHTML=html;
+}
+
+let usuarioSeleccionado=null;
+
+window.seleccionarUsuario=idx=>{
+  usuarioSeleccionado=USUARIOS[idx];
+  document.getElementById('pin-usuario-label').textContent='Hola, '+usuarioSeleccionado.nombre.split(' ')[0]+'!';
+  document.getElementById('step-usuario').style.display='none';
+  document.getElementById('step-pin').style.display='flex';
+  pinVal=''; updDots();
+  document.getElementById('pin-error').textContent='';
+  document.getElementById('pin-blocked').textContent='';
+};
+
+window.volverUsuarios=()=>{
+  document.getElementById('step-pin').style.display='none';
+  document.getElementById('step-usuario').style.display='block';
+  usuarioSeleccionado=null;
+  pinVal=''; intentos=0; bloqueado=false;
+  document.getElementById('pin-keypad').style.opacity='1';
+  document.getElementById('pin-keypad').style.pointerEvents='auto';
+  updDots();
 };
 
 // ACCESO
@@ -689,13 +746,15 @@ window.pinDelete=()=>{
 };
 function updDots(){for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.toggle('filled',i<pinVal.length);}
 function checkPin(){
-  const usuario=USUARIOS.find(u=>u.pin===pinVal);
-  if(usuario){
+  const usuario=usuarioSeleccionado;
+  if(usuario&&pinVal===usuario.pin){
     intentos=0;
     usuarioActual=usuario;
     document.getElementById('acceso-screen').style.display='none';
     document.getElementById('app-inventario').style.display='block';
     document.getElementById('inv-usuario').textContent=usuario.nombre;
+    // Volver al selector para próxima vez
+    setTimeout(()=>{volverUsuarios();},500);
     cargarInventario(); resetInact();
   } else {
     intentos++;
@@ -716,8 +775,12 @@ function checkPin(){
 window.cerrarInventario=()=>{
   document.getElementById('app-inventario').style.display='none';
   document.getElementById('acceso-screen').style.display='flex';
-  pinVal='';intentos=0;usuarioActual=null;updDots();
+  pinVal='';intentos=0;usuarioActual=null;bloqueado=false;
+  document.getElementById('pin-keypad').style.opacity='1';
+  document.getElementById('pin-keypad').style.pointerEvents='auto';
+  updDots();
   document.getElementById('pin-error').textContent='';
+  volverUsuarios();
   clearTimeout(timerInact);
 };
 window.iniciarSesionConta=()=>{
