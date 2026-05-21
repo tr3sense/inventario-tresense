@@ -283,6 +283,7 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div class="acceso-tabs">
     <button class="acceso-tab active" id="tab-inv-btn" onclick="mostrarAcceso('inventario')">Inventario</button>
     <button class="acceso-tab" id="tab-cnt-btn" onclick="mostrarAcceso('contabilidad')">Contabilidad</button>
+    <button class="acceso-tab" id="tab-dom-btn" onclick="mostrarAcceso('domicilios')">Domicilios</button>
   </div>
   <div id="panel-pin" style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;">
     <!-- PASO 1: Seleccionar usuario -->
@@ -309,6 +310,21 @@ textarea { resize:none; height:70px; font-size:14px; }
       <p class="pin-error" id="pin-error"></p><p class="pin-blocked" id="pin-blocked"></p>
     </div>
   </div>
+  <div id="panel-domicilios" style="display:none;flex-direction:column;align-items:center;width:100%;max-width:320px;">
+    <p class="pin-title">Julian Builes</p>
+    <div class="pin-dots">
+      <div class="pin-dot" id="dom-dot-0"></div><div class="pin-dot" id="dom-dot-1"></div>
+      <div class="pin-dot" id="dom-dot-2"></div><div class="pin-dot" id="dom-dot-3"></div>
+    </div>
+    <div class="pin-keypad" id="dom-pin-keypad">
+      <div class="pin-key" onclick="domPinPress('1')">1</div><div class="pin-key" onclick="domPinPress('2')">2</div><div class="pin-key" onclick="domPinPress('3')">3</div>
+      <div class="pin-key" onclick="domPinPress('4')">4</div><div class="pin-key" onclick="domPinPress('5')">5</div><div class="pin-key" onclick="domPinPress('6')">6</div>
+      <div class="pin-key" onclick="domPinPress('7')">7</div><div class="pin-key" onclick="domPinPress('8')">8</div><div class="pin-key" onclick="domPinPress('9')">9</div>
+      <div class="pin-key empty"></div><div class="pin-key" onclick="domPinPress('0')">0</div><div class="pin-key delete" onclick="domPinDelete()">⌫</div>
+    </div>
+    <p class="pin-error" id="dom-pin-error"></p>
+  </div>
+
   <div id="panel-login" style="display:none;width:100%;max-width:320px;">
     <div class="login-card">
       <div class="login-group"><label class="login-label">Usuario</label><input type="text" id="login-usuario" class="login-input" placeholder="usuario" autocomplete="username"></div>
@@ -647,6 +663,67 @@ textarea { resize:none; height:70px; font-size:14px; }
   </div>
 </div>
 
+<!-- APP DOMICILIOS -->
+<div id="app-domicilios" style="display:none;max-width:680px;margin:0 auto;width:100%;">
+  <div class="header">
+    <div class="header-top">
+      <button class="header-btn" onclick="cerrarDomicilios()"><img src="icono-salir.svg" alt=""> Salir</button>
+      <span style="color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;">Julian Builes</span>
+    </div>
+    <img src="logo.png" alt="Tr3sense" class="logo-header">
+  </div>
+
+  <div class="card" style="padding:8px 10px;">
+    <div class="tabs">
+      <button class="tab-btn active" id="dtab-pendientes" onclick="mostrarTabDom('pendientes')">Pendientes</button>
+      <button class="tab-btn" id="dtab-historial" onclick="mostrarTabDom('historial')">Historial</button>
+    </div>
+  </div>
+
+  <!-- PENDIENTES -->
+  <div id="dpanel-pendientes">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0;">Entregas pendientes</div>
+        <button class="icon-btn" onclick="cargarDomicilios(true)">↻ Actualizar</button>
+      </div>
+      <div id="lista-pendientes"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div id="dpanel-historial" style="display:none;">
+    <div class="card">
+      <div class="card-title">Historial de entregas</div>
+      <div id="lista-historial-dom"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
+    <p>Desarrollado por nt:natavergara</p>
+  </div>
+</div>
+
+<!-- MODAL ENTREGAR -->
+<div class="modal-overlay" id="modal-entregar">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-entregar-title">Confirmar entrega</div>
+    <input type="hidden" id="entregar-idx">
+    <div id="entregar-detalle" style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;"></div>
+    <div class="form-group">
+      <label class="form-label">📷 Foto de evidencia</label>
+      <input type="file" id="entregar-foto" accept="image/*" capture="environment" style="background:var(--blanco);padding:10px;">
+      <div id="foto-preview-dom" style="display:none;margin-top:10px;text-align:center;">
+        <img id="foto-preview-img-dom" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;">
+      </div>
+    </div>
+    <button class="btn btn-verde" onclick="confirmarEntrega()">✅ Marcar como entregado</button>
+    <button class="btn btn-crema" onclick="cerrarModal('modal-entregar')">Cancelar</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -657,6 +734,7 @@ const USUARIOS = [
   { nombre: "Sara Martínez",   pin: "3947", rol: "admin" },
   { nombre: "Juliana Martínez",pin: "7162", rol: "inventario" }
 ];
+const DOMICILIARIO = { nombre: "Julian Builes", pin: "5283" };
 const CU = "contadora", CP = "Conta#Tr3s2025!";
 const ZONAS = {medellin:13000,area1:15000,otras:18000};
 const ZONAS_N = {medellin:'Medellín',area1:'Bello/Envigado/Itagüí/Sabaneta',otras:'Otras zonas'};
@@ -719,8 +797,10 @@ window.volverUsuarios=()=>{
 window.mostrarAcceso=tipo=>{
   document.getElementById('tab-inv-btn').classList.toggle('active',tipo==='inventario');
   document.getElementById('tab-cnt-btn').classList.toggle('active',tipo==='contabilidad');
+  document.getElementById('tab-dom-btn').classList.toggle('active',tipo==='domicilios');
   document.getElementById('panel-pin').style.display=tipo==='inventario'?'flex':'none';
   document.getElementById('panel-login').style.display=tipo==='contabilidad'?'block':'none';
+  document.getElementById('panel-domicilios').style.display=tipo==='domicilios'?'flex':'none';
 };
 
 // Mostrar/ocultar pestaña contabilidad según usuario
@@ -1476,6 +1556,167 @@ function clearCacheC(key){
   try{sessionStorage.removeItem('cc_'+key);}catch(e){}
 }
 window.cerrarModal=id=>document.getElementById(id).style.display='none';
+
+// ============ DOMICILIOS ============
+let domPinVal='', domIntentos=0, domBloqueado=false;
+let domDatosGlobal=[], entregaActual=null;
+
+window.domPinPress=n=>{
+  if(domBloqueado||domPinVal.length>=4)return;
+  domPinVal+=n; updDomDots();
+  if(domPinVal.length===4)setTimeout(checkDomPin,200);
+};
+window.domPinDelete=()=>{
+  domPinVal=domPinVal.slice(0,-1); updDomDots();
+  document.getElementById('dom-pin-error').textContent='';
+};
+function updDomDots(){
+  for(let i=0;i<4;i++)document.getElementById('dom-dot-'+i).classList.toggle('filled',i<domPinVal.length);
+}
+function checkDomPin(){
+  if(domPinVal===DOMICILIARIO.pin){
+    domIntentos=0; domPinVal=''; updDomDots();
+    document.getElementById('acceso-screen').style.display='none';
+    document.getElementById('app-domicilios').style.display='block';
+    cargarDomicilios();
+  } else {
+    domIntentos++;
+    for(let i=0;i<4;i++)document.getElementById('dom-dot-'+i).classList.add('error');
+    setTimeout(()=>{for(let i=0;i<4;i++)document.getElementById('dom-dot-'+i).classList.remove('error','filled');},500);
+    domPinVal='';
+    document.getElementById('dom-pin-error').textContent='PIN incorrecto. Intenta de nuevo.';
+  }
+}
+window.cerrarDomicilios=()=>{
+  document.getElementById('app-domicilios').style.display='none';
+  document.getElementById('acceso-screen').style.display='flex';
+  mostrarAcceso('domicilios');
+};
+
+window.mostrarTabDom=tab=>{
+  ['pendientes','historial'].forEach(t=>{
+    document.getElementById('dtab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('dpanel-'+t).style.display=t===tab?'block':'none';
+  });
+  if(tab==='historial')renderHistorialDom();
+};
+
+window.cargarDomicilios=async(force)=>{
+  const cached=getCacheC('domicilios');
+  if(cached&&!force){domDatosGlobal=cached;renderPendientes(cached);return;}
+  document.getElementById('lista-pendientes').innerHTML=spinnerHtml('Cargando entregas...');
+  try{
+    const r=await fetch(API,{redirect:'follow'});
+    const d=await r.json();
+    domDatosGlobal=d;
+    setCacheC('domicilios',d);
+    renderPendientes(d);
+  }catch(e){document.getElementById('lista-pendientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
+};
+
+function renderPendientes(datos){
+  const hoy=new Date();
+  let html='', count=0;
+  for(let i=1;i<datos.length;i++){
+    if(!datos[i][0]||datos[i][7]!=='domicilio')continue;
+    const estado=datos[i][14]||'';
+    if(estado==='Entregado')continue;
+    const fechaEnt=datos[i][12]?new Date(datos[i][12].substring(0,10)+'T12:00:00'):null;
+    const fechaLabel=fechaEnt?fechaEnt.toLocaleDateString('es-CO',{weekday:'long',day:'2-digit',month:'long'}):'Sin fecha';
+    const esHoy=fechaEnt&&fechaEnt.toDateString()===hoy.toDateString();
+    count++;
+    html+=`<div class="des-card" style="${esHoy?'border:2px solid var(--verde);':''}">
+      <div class="des-card-header">
+        <div>
+          <div class="des-card-nombre">${datos[i][5]||'Cliente'}</div>
+          <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${datos[i][6]||''}</div>
+        </div>
+        ${esHoy?'<span class="badge badge-verde">Hoy</span>':'<span class="badge badge-amarillo">'+fechaLabel+'</span>'}
+      </div>
+      <div style="font-size:13px;color:var(--texto);margin:8px 0;">🕯️ ${datos[i][0]} · ${datos[i][4]} uds</div>
+      <div style="font-size:13px;color:var(--texto-suave);">📍 ${datos[i][8]||''}</div>
+      <div style="font-size:12px;color:var(--verde);margin-top:4px;">🚚 ${datos[i][11]||''} · 💰 $${Math.round(datos[i][10]||0).toLocaleString('es-CO')}</div>
+      <div class="des-card-acciones">
+        <button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="abrirModalEntregar(${i})">✅ Marcar entregado</button>
+      </div>
+    </div>`;
+  }
+  document.getElementById('lista-pendientes').innerHTML=count>0?html:'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas pendientes.</div>';
+}
+
+function renderHistorialDom(){
+  let html='', count=0;
+  for(let i=1;i<domDatosGlobal.length;i++){
+    if(!domDatosGlobal[i][0]||domDatosGlobal[i][7]!=='domicilio')continue;
+    const estado=domDatosGlobal[i][14]||'';
+    if(estado!=='Entregado')continue;
+    count++;
+    const fecha=new Date(domDatosGlobal[i][3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});
+    html+=`<div class="h-item">
+      <div class="h-top"><span class="h-producto">${domDatosGlobal[i][5]||'Cliente'}</span><span class="badge badge-verde">Entregado</span></div>
+      <div class="h-cliente">🕯️ ${domDatosGlobal[i][0]} · 📅 ${fecha}</div>
+      <div style="font-size:12px;color:var(--texto-suave);margin-top:3px;">📍 ${domDatosGlobal[i][8]||''}</div>
+    </div>`;
+  }
+  document.getElementById('lista-historial-dom').innerHTML=count>0?html:'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas completadas.</div>';
+}
+
+window.abrirModalEntregar=idx=>{
+  entregaActual=idx;
+  const d=domDatosGlobal[idx];
+  document.getElementById('modal-entregar-title').textContent='Entrega — '+d[5];
+  document.getElementById('entregar-idx').value=idx;
+  document.getElementById('entregar-detalle').innerHTML=`
+    <div style="font-weight:700;color:var(--verde);margin-bottom:8px;">${d[5]||'Cliente'}</div>
+    <div>📞 ${d[6]||''}</div>
+    <div>🕯️ ${d[0]} · ${d[4]} uds</div>
+    <div>📍 ${d[8]||''}</div>
+    <div>🚚 ${d[11]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>`;
+  document.getElementById('entregar-foto').value='';
+  document.getElementById('foto-preview-dom').style.display='none';
+  abrirModal('modal-entregar');
+};
+
+document.addEventListener('change',e=>{
+  if(e.target.id==='entregar-foto'){
+    const file=e.target.files[0];
+    if(file){
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        document.getElementById('foto-preview-img-dom').src=ev.target.result;
+        document.getElementById('foto-preview-dom').style.display='block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+});
+
+window.confirmarEntrega=async()=>{
+  const idx=entregaActual;
+  const d=domDatosGlobal[idx];
+  let fotoBase64='';
+  const fotoFile=document.getElementById('entregar-foto').files[0];
+  if(fotoFile){
+    fotoBase64=await new Promise(res=>{
+      const r=new FileReader();
+      r.onload=e=>res(e.target.result);
+      r.readAsDataURL(fotoFile);
+    });
+  }
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'marcarEntregado',
+      producto:d[0], cliente:d[5], telefono:d[6], direccion:d[8],
+      fotoBase64: fotoBase64?fotoBase64.substring(0,100)+'...':'',
+      registradoPor:'Julian Builes',
+      filaInv: idx
+    })});
+    cerrarModal('modal-entregar');
+    clearCacheC('domicilios');
+    await cargarDomicilios(true);
+    toast('Entrega confirmada — notificación enviada','success');
+  }catch(e){toast('Error al confirmar','error');}
+};
 
 let reporteTexto='';
 
