@@ -417,6 +417,7 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div class="header">
     <div class="header-top">
       <button class="header-btn" onclick="cerrarInventario()"><img src="icono-salir.svg" alt=""> Salir</button>
+      <span style="color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;" id="inv-usuario"></span>
       <button class="header-btn" onclick="cargarInventario()">Actualizar <img src="icono-actualizar.svg" alt=""></button>
     </div>
     <img src="logo.png" alt="Tr3sense" class="logo-header">
@@ -633,13 +634,18 @@ textarea { resize:none; height:70px; font-size:14px; }
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxCV6Rx5HFkaFcxsilL1juz-JoWusyPhKjb4kURSNyU1wD4meej5mzhEAFlSSE8mON7/exec";
-const PIN = "0825", MAX_INT = 3, INACT = 300000;
+const MAX_INT = 3, INACT = 300000;
+const USUARIOS = [
+  { nombre: "Natacha Vergara", pin: "0825", rol: "admin" },
+  { nombre: "Sara Martínez",   pin: "3947", rol: "admin" },
+  { nombre: "Juliana Martínez",pin: "7162", rol: "inventario" }
+];
 const CU = "contadora", CP = "Conta#Tr3s2025!";
 const ZONAS = {medellin:13000,area1:15000,otras:18000};
 const ZONAS_N = {medellin:'Medellín',area1:'Bello/Envigado/Itagüí/Sabaneta',otras:'Otras zonas'};
 const HORA_BASE = 7959;
 
-let pinVal="",intentos=0,bloqueado=false,timerInact=null;
+let pinVal="",intentos=0,bloqueado=false,timerInact=null,usuarioActual=null;
 let tipoEntrega='recogida',prodReponer='',datosInv=[],precios={};
 let insumosG=[],prodActivo='',ingEdicion=false,ingFila=-1;
 let cpDatos=[],metodoMOE='horas';
@@ -660,6 +666,16 @@ window.mostrarAcceso=tipo=>{
   document.getElementById('panel-login').style.display=tipo==='contabilidad'?'block':'none';
 };
 
+// Mostrar/ocultar pestaña contabilidad según usuario
+function actualizarAccesoContabilidad(){
+  const tabConta=document.getElementById('tab-cnt-btn');
+  if(usuarioActual&&usuarioActual.rol!=='admin'){
+    tabConta.style.display='none';
+  } else {
+    tabConta.style.display='block';
+  }
+}
+
 // PIN
 window.pinPress=n=>{
   if(bloqueado||pinVal.length>=4)return;
@@ -673,10 +689,13 @@ window.pinDelete=()=>{
 };
 function updDots(){for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.toggle('filled',i<pinVal.length);}
 function checkPin(){
-  if(pinVal===PIN){
+  const usuario=USUARIOS.find(u=>u.pin===pinVal);
+  if(usuario){
     intentos=0;
+    usuarioActual=usuario;
     document.getElementById('acceso-screen').style.display='none';
     document.getElementById('app-inventario').style.display='block';
+    document.getElementById('inv-usuario').textContent=usuario.nombre;
     cargarInventario(); resetInact();
   } else {
     intentos++;
@@ -697,7 +716,7 @@ function checkPin(){
 window.cerrarInventario=()=>{
   document.getElementById('app-inventario').style.display='none';
   document.getElementById('acceso-screen').style.display='flex';
-  pinVal='';intentos=0;updDots();
+  pinVal='';intentos=0;usuarioActual=null;updDots();
   document.getElementById('pin-error').textContent='';
   clearTimeout(timerInact);
 };
@@ -710,7 +729,7 @@ window.iniciarSesionConta=()=>{
     err.textContent='';
     document.getElementById('acceso-screen').style.display='none';
     document.getElementById('app-contabilidad').style.display='block';
-    document.getElementById('conta-user').textContent='Contadora';
+    document.getElementById('conta-user').textContent='Sara Martínez'; usuarioActual={nombre:'Sara Martínez',rol:'admin'};
     mostrarTabConta('insumos');
   } else {err.textContent='Usuario o contraseña incorrectos.';}
 };
@@ -720,6 +739,7 @@ window.cerrarContabilidad=()=>{
   document.getElementById('login-usuario').value='';
   document.getElementById('login-password').value='';
   document.getElementById('login-error').textContent='';
+  usuarioActual=null;
   mostrarAcceso('contabilidad');
 };
 function resetInact(){
@@ -853,7 +873,7 @@ window.confirmarReponer=async()=>{
   const c=parseInt(document.getElementById('reponer-cantidad').value);
   if(!c||c<1){toast('Cantidad inválida','error');return;}
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({producto:prodReponer,cantidad:-c,reponer:true,nombre:'Sistema',telefono:'',tipoEntrega:'recogida',direccion:''})});
+    await fetch(API,{method:'POST',body:JSON.stringify({producto:prodReponer,cantidad:-c,reponer:true,nombre:'Sistema',telefono:'',tipoEntrega:'recogida',direccion:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
     cerrarModal('modal-reponer');sessionStorage.removeItem('inv_cache');await cargarInventario();toast('Stock actualizado','success');
   }catch(e){toast('Error','error');}
 };
@@ -904,7 +924,7 @@ window.registrarVenta=async()=>{
   const btn=document.getElementById('btn-registrar');
   btn.disabled=true;btn.textContent='Registrando...';
   try{
-    const r=await fetch(API,{method:'POST',body:JSON.stringify({producto:prod,cantidad:cant,nota,nombre,telefono:tel,tipoEntrega,direccion:dir,costoDomicilio:dom,zonaEntrega:zonaN,fechaEntrega:fechaEnt})});
+    const r=await fetch(API,{method:'POST',body:JSON.stringify({producto:prod,cantidad:cant,nota,nombre,telefono:tel,tipoEntrega,direccion:dir,costoDomicilio:dom,zonaEntrega:zonaN,fechaEntrega:fechaEnt,registradoPor:usuarioActual?usuarioActual.nombre:''})});
     const d=await r.json();
     if(d.ok){
       const precio=precios[prod]||0,sub=precio*cant,tot=sub+dom;
@@ -1016,7 +1036,7 @@ window.crearProducto=async()=>{
   const nombre=document.getElementById('nuevo-prod-nombre').value.trim();
   if(!nombre){toast('Escribe el nombre del producto','error');return;}
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({accion:'agregarProductoDesarrollo',nombre})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'agregarProductoDesarrollo',usuario:usuarioActual?usuarioActual.nombre:'',nombre})});
     prodActivo=nombre;
     borradorKey='borrador_'+nombre.replace(/\s/g,'_');
     document.getElementById('nuevo-prod-nombre').value='';
@@ -1134,7 +1154,7 @@ window.guardarIngrediente=async()=>{
 };
 window.eliminarIngrediente=async()=>{
   if(!confirm('¿Eliminar este ingrediente?'))return;
-  try{await fetch(API,{method:'POST',body:JSON.stringify({accion:'eliminarCosteoProducto',fila:ingFila,producto:prodActivo})});cerrarModal('modal-ingrediente');await cargarIngredientesProducto();toast('Eliminado','success');}
+  try{await fetch(API,{method:'POST',body:JSON.stringify({accion:'eliminarCosteoProducto',usuario:usuarioActual?usuarioActual.nombre:'',fila:ingFila,producto:prodActivo})});cerrarModal('modal-ingrediente');await cargarIngredientesProducto();toast('Eliminado','success');}
   catch(e){toast('Error','error');}
 };
 
@@ -1186,7 +1206,7 @@ window.guardarBorrador=async()=>{
   localStorage.setItem(borradorKey,JSON.stringify(borrador));
   // Actualizar en sheet
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv,pvu,margen,estado:'Borrador'})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv,pvu,margen,estado:'Borrador'})});
     toast('Borrador guardado — puedes salir y continuar después','success');
   }catch(e){toast('Borrador guardado localmente','success');}
 };
@@ -1198,7 +1218,7 @@ window.enviarADesarrollo=async()=>{
   const cmv=mpTotal+cifTotal+moeTotal;
   const margen=pvu>0?Math.round(((pvu-cmv)/pvu)*100):0;
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv,pvu,margen,estado:'En desarrollo'})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv,pvu,margen,estado:'En desarrollo'})});
     localStorage.removeItem(borradorKey);
     limpiarProductoActivo();
     mostrarTabConta('desarrollo');
@@ -1290,7 +1310,7 @@ function renderDesarrollo(d){
 window.aprobarProducto=async producto=>{
   if(!confirm(`¿Aprobar "${producto}" y pasarlo al inventario con stock 0?`))return;
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({accion:'aprobarProducto',producto})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'aprobarProducto',usuario:usuarioActual?usuarioActual.nombre:'',producto})});
     clearCacheC('desarrollo');cargarDesarrollo(true);sessionStorage.removeItem('inv_cache');
     toast(producto+' aprobado y en inventario','success');
   }catch(e){toast('Error','error');}
@@ -1538,7 +1558,7 @@ window.guardarPVU=async()=>{
   const producto=document.getElementById('pvu-producto').value;
   const pvu=parseFloat(document.getElementById('pvu-valor').value);
   if(!pvu){toast('Escribe el PVU','error');return;}
-  try{await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarPVU',producto,pvu})});cerrarModal('modal-pvu');cargarDesarrollo();toast('PVU guardado','success');}
+  try{await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarPVU',usuario:usuarioActual?usuarioActual.nombre:'',producto,pvu})});cerrarModal('modal-pvu');cargarDesarrollo();toast('PVU guardado','success');}
   catch(e){toast('Error','error');}
 };
 </script>
