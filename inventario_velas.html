@@ -1027,9 +1027,9 @@ document.addEventListener('click', function(e){
   const btn = e.target.closest('.btn-gestionar');
   if(!btn) return;
   e.stopPropagation();
-  const i = parseInt(btn.getAttribute('data-i'));
-  alert('Botón tocado, idx='+i+', datos='+(window._dinvDatos?window._dinvDatos.length:'null'));
-  abrirGestionarDom(i);
+  const prod = btn.getAttribute('data-prod');
+  const cli = btn.getAttribute('data-cli');
+  abrirGestionarDomPorNombre(prod, cli);
 });
 document.addEventListener('click',resetInact);
 
@@ -1766,7 +1766,7 @@ function renderDinvPendientes(){
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
       ${datosInv[i][18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][18]}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="icon-btn btn-gestionar" data-i="${i}" style="background:var(--verde);color:#fff;border-color:var(--verde);padding:10px 16px;">⚙️ Gestionar</button>
+        <button class="icon-btn btn-gestionar" data-prod="${datosInv[i][0]}" data-cli="${datosInv[i][5]}" style="background:var(--verde);color:#fff;border-color:var(--verde);padding:10px 16px;">⚙️ Gestionar</button>
 
       </div>
     </div>`;
@@ -1836,14 +1836,17 @@ window.guardarNotaDomicilio=async()=>{
   }catch(e){toast('Error al guardar','error');}
 };
 
-window.abrirGestionarDom=function(idx){
-  idx=parseInt(idx);
+window.abrirGestionarDomPorNombre=function(prod, cli){
   const src=window._dinvDatos||datosInv;
-  const d=src[idx];
-  if(!d){toast('Error: fila '+idx+' no encontrada ('+src.length+' filas)','error');return;}
+  let d=null;
+  for(let i=1;i<src.length;i++){
+    if(src[i][0]===prod&&src[i][5]===cli){d=src[i];break;}
+  }
+  if(!d){toast('Pedido no encontrado','error');return;}
   const estado=(d[15]&&typeof d[15]==='string'&&d[15].indexOf('T')===-1)?d[15]:'Pendiente';
   const tipoEnt=d[7]||'';
-  document.getElementById('gestionar-dom-idx').value=idx;
+  document.getElementById('gestionar-dom-idx').setAttribute('data-prod',d[0]||'');
+  document.getElementById('gestionar-dom-idx').setAttribute('data-cli',d[5]||'');
   document.getElementById('gestionar-dom-title').textContent=(d[5]||'Cliente')+' — '+d[0];
   document.getElementById('gestionar-dom-detalle').innerHTML=
     '🕯️ '+d[0]+' · '+d[4]+' uds<br>'+
@@ -1867,10 +1870,13 @@ window.abrirGestionarDom=function(idx){
 };
 
 function getGestionarData(){
-  const idx=parseInt(document.getElementById('gestionar-dom-idx').value);
-  const d=datosInv[idx];
+  const prod=document.getElementById('gestionar-dom-idx').getAttribute('data-prod')||'';
+  const cli=document.getElementById('gestionar-dom-idx').getAttribute('data-cli')||'';
+  const src=window._dinvDatos||datosInv;
+  let d=null;
+  for(let i=1;i<src.length;i++){if(src[i][0]===prod&&src[i][5]===cli){d=src[i];break;}}
   const nota=document.getElementById('gestionar-dom-nota').value.trim();
-  return {idx,d,nota};
+  return {d,nota};
 }
 
 window.soloGuardarNota=async()=>{
