@@ -1839,6 +1839,7 @@ window.guardarNotaDomicilio=async()=>{
 };
 
 window.abrirGestionarDomConDatos=function(d){
+  alert('abrirGestionarDomConDatos llamada, d='+(d?d[5]:'null'));
   if(!d){toast('Error cargando pedido','error');return;}
   const estado=(d[15]&&typeof d[15]==='string'&&d[15].indexOf('T')===-1)?d[15]:'Pendiente';
   const tipoEnt=d[7]||'';
