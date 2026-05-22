@@ -1092,17 +1092,19 @@ window.setFiltroHistorial=filtro=>{
 };
 
 function renderHistorial(){
-  if(!datosInv.length){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Carga primero.</div>';return;}
+  const src=datosVentas.length>1?datosVentas:[];
+  if(!src.length){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas registradas.</div>';document.getElementById('resumen-dia').innerHTML='';return;}
   const ahora=new Date();
   const hoy=ahora.toDateString();
   const ventas=[];
-  for(let i=1;i<datosInv.length;i++){
-    if(!datosInv[i][0]||!datosInv[i][3]||!datosInv[i][4])continue;
-    const fv=new Date(datosInv[i][0]);
+  for(let i=1;i<src.length;i++){
+    const r=src[i];
+    if(!r[0]||!r[1]||!r[2])continue;
+    const fv=new Date(r[0]);
     if(filtroHistorial==='hoy'&&fv.toDateString()!==hoy)continue;
     if(filtroHistorial==='semana'){const diff=(ahora-fv)/(1000*60*60*24);if(diff>7)continue;}
     if(filtroHistorial==='mes'){const diff=(ahora-fv)/(1000*60*60*24);if(diff>30)continue;}
-    ventas.push({producto:datosInv[i][0],cantidad:datosInv[i][4],fecha:datosInv[i][3],cliente:datosInv[i][5]||'',telefono:datosInv[i][6]||'',entrega:datosInv[i][7]||'',direccion:datosInv[i][8]||'',precio:datosInv[i][9]||0,costoDom:datosInv[i][10]||0,zona:datosInv[i][11]||'',fechaEnt:datosInv[i][12]||'',nota:datosInv[i][17]||''});
+    ventas.push({producto:r[1],cantidad:r[2],fecha:r[0],cliente:r[3]||'',telefono:r[4]||'',entrega:r[5]||'',direccion:r[6]||'',precio:r[9]||0,costoDom:r[10]||0,zona:r[7]||'',fechaEnt:r[8]||'',nota:r[14]||''});
   }
   if(!ventas.length){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas hoy.</div>';document.getElementById('resumen-dia').innerHTML='';return;}
   ventas.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
