@@ -1150,6 +1150,7 @@ window.cargarInventario=async()=>{
   try{
     const r=await fetch(API,{redirect:'follow'});
     const d=await r.json();
+    console.log('inventario API response:', JSON.stringify(d));
     sessionStorage.setItem('inv_cache',JSON.stringify(d));
     renderProductos(d);
   }catch(e){document.getElementById('lista-productos').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Error de conexión.</div>';toast('Error de conexión','error');}
