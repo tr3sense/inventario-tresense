@@ -533,6 +533,7 @@ textarea { resize:none; height:70px; font-size:14px; }
         </div>
         <div class="scroll-box" id="dinv-lista-historial"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
         <div id="dinv-resumen"></div>
+      <button class="btn btn-crema" style="margin-top:10px;" onclick="mostrarReporteDinv()">📊 Reporte del mes</button>
       </div>
     </div>
 
@@ -780,6 +781,20 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div class="footer">
     <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
     <p>Desarrollado por nt:natavergara</p>
+  </div>
+</div>
+
+<!-- MODAL REPORTE DOMICILIOS INVENTARIO -->
+<div class="modal-overlay" id="modal-reporte-dinv">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Reporte domicilios & recogidas</div>
+    <div class="form-group">
+      <label class="form-label">Selecciona el mes</label>
+      <select id="reporte-dinv-mes" onchange="generarReporteDinv()"></select>
+    </div>
+    <div id="reporte-dinv-contenido"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando...</div></div></div>
+    <button class="btn btn-crema" onclick="cerrarModal('modal-reporte-dinv')">Cerrar</button>
   </div>
 </div>
 
@@ -2108,6 +2123,63 @@ function renderHistorialDom(){
   const labels={hoy:'hoy',semana:'últimos 7 días',mes:'este mes',todo:'total'};
   document.getElementById('resumen-dom').innerHTML=count>0?`<div class="resumen-dia-box">🚚 ${totalEntregas} entregas ${labels[filtroDom]} · 💰 Total domicilios: <strong>$${Math.round(totalDom).toLocaleString('es-CO')}</strong></div>`:'';
 }
+
+window.mostrarReporteDinv=()=>{
+  abrirModal('modal-reporte-dinv');
+  const sel=document.getElementById('reporte-dinv-mes');
+  sel.innerHTML='';
+  const ahora=new Date();
+  for(let i=0;i<12;i++){
+    const d=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);
+    const val=d.getFullYear()+'-'+d.getMonth();
+    const label=d.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${val}">${label}</option>`;
+  }
+  generarReporteDinv();
+};
+
+window.generarReporteDinv=()=>{
+  document.getElementById('reporte-dinv-contenido').innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando...</div></div>';
+  const selVal=document.getElementById('reporte-dinv-mes').value.split('-');
+  const anio=parseInt(selVal[0]), mes=parseInt(selVal[1]);
+  const refDate=new Date(anio,mes,1);
+  const mesNombre=refDate.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+  let totalDomicilios=0, totalRecogidas=0, totalCostoDom=0;
+  const porZona={};
+  for(let i=1;i<datosInv.length;i++){
+    if(!datosInv[i][0]||!datosInv[i][3]||!datosInv[i][4])continue;
+    const tipoE=datosInv[i][7]||'';
+    if(tipoE!=='domicilio'&&tipoE!=='recogida')continue;
+    const estadoE=(datosInv[i][15]&&typeof datosInv[i][15]==='string'&&datosInv[i][15].indexOf('T')===-1)?datosInv[i][15]:'';
+    if(estadoE!=='Entregado')continue;
+    const fv=new Date(datosInv[i][3]);
+    if(fv.getMonth()!==mes||fv.getFullYear()!==anio)continue;
+    if(tipoE==='domicilio'){
+      totalDomicilios++;
+      const dom=datosInv[i][10]||0;
+      totalCostoDom+=dom;
+      const zona=datosInv[i][11]||'Sin zona';
+      if(!porZona[zona])porZona[zona]={count:0,total:0};
+      porZona[zona].count++; porZona[zona].total+=dom;
+    } else {
+      totalRecogidas++;
+    }
+  }
+  let zonaHtml='';
+  Object.entries(porZona).forEach(([z,v])=>{
+    zonaHtml+=`<div class="res-costeo-row"><span>${z}</span><span>${v.count} entregas · ${fmt(v.total)}</span></div>`;
+  });
+  document.getElementById('reporte-dinv-contenido').innerHTML=`
+    <div style="font-size:13px;font-weight:700;color:var(--verde);margin-bottom:12px;">${mesNombre}</div>
+    <div class="res-costeo" style="margin-bottom:12px;">
+      <div class="res-costeo-row"><span>🚚 Domicilios entregados</span><span>${totalDomicilios}</span></div>
+      <div class="res-costeo-row"><span>🏪 Recogidas entregadas</span><span>${totalRecogidas}</span></div>
+      <div class="res-costeo-row h"><span>Total entregas</span><span>${totalDomicilios+totalRecogidas}</span></div>
+      ${totalCostoDom>0?`<div class="res-costeo-row" style="margin-top:6px;"><span>💰 Total cobrado domicilios</span><span>${fmt(totalCostoDom)}</span></div>`:''}
+    </div>
+    ${zonaHtml?`<div class="res-costeo"><div style="font-size:12px;font-weight:700;color:var(--verde);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Por zona</div>${zonaHtml}</div>`:''}
+    ${(totalDomicilios+totalRecogidas)===0?'<div style="text-align:center;padding:16px;color:var(--texto-mini);">Sin entregas este mes.</div>':''}`;
+};
 
 window.mostrarReporteDom=()=>{
   abrirModal('modal-reporte-dom');
