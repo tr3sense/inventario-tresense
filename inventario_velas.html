@@ -785,22 +785,6 @@ textarea { resize:none; height:70px; font-size:14px; }
   </div>
 </div>
 
-<!-- MODAL GESTIONAR DOMICILIO -->
-<div class="modal-overlay" id="modal-gestionar-dom">
-  <div class="modal-card">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-gestionar-dom-title">Gestionar domicilio</div>
-    <input type="hidden" id="gestionar-dom-idx">
-    <div id="gestionar-dom-detalle" style="background:var(--crema);border-radius:12px;padding:12px;margin-bottom:16px;font-size:13px;"></div>
-    <div class="form-group">
-      <label class="form-label">📝 Nota para el domiciliario</label>
-      <textarea id="gestionar-dom-nota" placeholder="Ej: llamar antes de llegar, dejar con el portero..."></textarea>
-    </div>
-    <div id="gestionar-dom-acciones" style="display:flex;flex-direction:column;gap:8px;margin-top:4px;"></div>
-    <button class="btn btn-crema" style="margin-top:4px;" onclick="cerrarModal('modal-gestionar-dom')">Cancelar</button>
-  </div>
-</div>
-
 <!-- MODAL REPORTE DOMICILIOS INVENTARIO -->
 <div class="modal-overlay" id="modal-reporte-dinv">
   <div class="modal-card">
@@ -1022,17 +1006,7 @@ function resetInact(){
 }
 document.addEventListener('touchstart',resetInact);
 
-// Delegación de eventos para botón gestionar domicilio
-document.addEventListener('click', function(e){
-  const btn = e.target.closest('.btn-gestionar');
-  if(!btn) return;
-  e.stopPropagation();
-  const row = parseInt(btn.getAttribute('data-row'));
-  const src = window._dinvDatos||datosInv;
-  const d = src[row];
-  if(!d){toast('Error cargando pedido','error');return;}
-  abrirGestionarDomConDatos(d);
-});
+
 document.addEventListener('click',resetInact);
 
 // INVENTARIO TABS
@@ -1768,7 +1742,16 @@ function renderDinvPendientes(){
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
       ${datosInv[i][18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][18]}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="icon-btn btn-gestionar" data-row="${i}" style="background:var(--verde);color:#fff;border-color:var(--verde);padding:10px 16px;">⚙️ Gestionar</button>
+        <div id="panel-dom-${i}" style="display:none;margin-top:8px;background:var(--crema);border-radius:12px;padding:12px;">
+          <div class="form-group" style="margin-bottom:8px;"><label class="form-label" style="font-size:12px;">📝 Nota para el domiciliario</label><textarea id="nota-dom-${i}" style="width:100%;padding:10px;border:1.5px solid var(--borde);border-radius:10px;font-size:14px;resize:none;height:60px;background:var(--blanco);font-family:inherit;">${datosInv[i][18]||''}</textarea></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${tipoEnt==='domicilio'&&estado==='Pendiente'?`<button class="btn btn-verde" style="margin-top:0;padding:10px;" onclick="guardarNotaListoEnviar(${i})">📦 Listo para enviar</button>`:''}
+            ${tipoEnt==='recogida'&&estado==='Pendiente'?`<button class="btn btn-verde" style="margin-top:0;padding:10px;" onclick="guardarNotaEntregado(${i})">✅ Entregado</button>`:''}
+            <button class="btn btn-crema" style="margin-top:0;padding:10px;" onclick="soloNota(${i})">💾 Guardar nota</button>
+            <button class="icon-btn" onclick="document.getElementById('panel-dom-${i}').style.display='none'">✕</button>
+          </div>
+        </div>
+        <button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);padding:10px 16px;" onclick="togglePanelDom(${i})">⚙️ Gestionar</button>
 
       </div>
     </div>`;
@@ -1838,72 +1821,6 @@ window.guardarNotaDomicilio=async()=>{
   }catch(e){toast('Error al guardar','error');}
 };
 
-window.abrirGestionarDomConDatos=function(d){
-  if(!d){toast('Error cargando pedido','error');return;}
-  const estado=(d[15]&&typeof d[15]==='string'&&d[15].indexOf('T')===-1)?d[15]:'Pendiente';
-  const tipoEnt=d[7]||'';
-  window._gestionarDom=d;
-  document.getElementById('gestionar-dom-title').textContent=(d[5]||'Cliente')+' — '+d[0];
-  document.getElementById('gestionar-dom-detalle').innerHTML=
-    '🕯️ '+d[0]+' · '+d[4]+' uds<br>'+
-    '📞 '+(d[6]||'')+
-    (d[8]?'<br>📍 '+d[8]:'')+'<br>'+
-    '📅 Estado: <strong>'+estado+'</strong>';
-  document.getElementById('gestionar-dom-nota').value=d[18]||'';
-  // Botones según estado y tipo
-  let acciones='';
-  if(tipoEnt==='domicilio'&&estado==='Pendiente'){
-    acciones+=`<button class="btn btn-verde" onclick="guardarNotaYListo()">💾 Guardar nota y Listo para enviar</button>`;
-    acciones+=`<button class="btn btn-crema" onclick="soloGuardarNota()">💾 Solo guardar nota</button>`;
-  } else if(tipoEnt==='recogida'&&estado==='Pendiente'){
-    acciones+=`<button class="btn btn-verde" onclick="guardarNotaYEntregado()">💾 Guardar nota y Entregado</button>`;
-    acciones+=`<button class="btn btn-crema" onclick="soloGuardarNota()">💾 Solo guardar nota</button>`;
-  } else {
-    acciones+=`<button class="btn btn-crema" onclick="soloGuardarNota()">💾 Guardar nota</button>`;
-  }
-  document.getElementById('gestionar-dom-acciones').innerHTML=acciones;
-  document.getElementById('modal-gestionar-dom').style.display='flex';
-};
-
-function getGestionarData(){
-  const d=window._gestionarDom;
-  const nota=document.getElementById('gestionar-dom-nota').value.trim();
-  return {d,nota};
-}
-
-window.soloGuardarNota=async()=>{
-  const {d,nota}=getGestionarData();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  cerrarModal('modal-gestionar-dom');
-  sessionStorage.removeItem('inv_cache');
-  await cargarInventario();
-  renderDinvPendientes();
-  toast('Nota guardada','success');
-};
-
-window.guardarNotaYListo=async()=>{
-  const {d,nota}=getGestionarData();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[0],cliente:d[5],telefono:d[6]||'',direccion:d[8]||'',zona:d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  cerrarModal('modal-gestionar-dom');
-  sessionStorage.removeItem('inv_cache');
-  clearCacheC('domicilios');
-  await cargarInventario();
-  renderDinvPendientes();
-  toast('Listo para enviar','success');
-};
-
-window.guardarNotaYEntregado=async()=>{
-  const {d,nota}=getGestionarData();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[0],cliente:d[5],telefono:d[6]||'',direccion:d[8]||'',zona:d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  cerrarModal('modal-gestionar-dom');
-  sessionStorage.removeItem('inv_cache');
-  clearCacheC('domicilios');
-  await cargarInventario();
-  renderDinvPendientes();
-  toast('Marcado como entregado','success');
-};
 
 window.marcarEntregadoRecogida=async(idx,producto,cliente)=>{
   if(!confirm(`¿Marcar como entregado el pedido de ${cliente}?`))return;
@@ -1920,6 +1837,38 @@ window.marcarEntregadoRecogida=async(idx,producto,cliente)=>{
     renderDinvPendientes();
     toast('Pedido marcado como entregado','success');
   }catch(e){toast('Error','error');}
+};
+
+window.togglePanelDom=function(i){
+  var p=document.getElementById('panel-dom-'+i);
+  if(p) p.style.display=p.style.display==='none'?'block':'none';
+};
+
+window.soloNota=async function(i){
+  var d=datosInv[i];
+  var nota=document.getElementById('nota-dom-'+i).value.trim();
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  document.getElementById('panel-dom-'+i).style.display='none';
+  sessionStorage.removeItem('inv_cache'); await cargarInventario(); renderDinvPendientes();
+  toast('Nota guardada','success');
+};
+
+window.guardarNotaListoEnviar=async function(i){
+  var d=datosInv[i];
+  var nota=document.getElementById('nota-dom-'+i).value.trim();
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[0],cliente:d[5],telefono:d[6]||'',direccion:d[8]||'',zona:d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  sessionStorage.removeItem('inv_cache'); clearCacheC('domicilios'); await cargarInventario(); renderDinvPendientes();
+  toast('Listo para enviar','success');
+};
+
+window.guardarNotaEntregado=async function(i){
+  var d=datosInv[i];
+  var nota=document.getElementById('nota-dom-'+i).value.trim();
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[0],cliente:d[5],telefono:d[6]||'',direccion:d[8]||'',zona:d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  sessionStorage.removeItem('inv_cache'); clearCacheC('domicilios'); await cargarInventario(); renderDinvPendientes();
+  toast('Entregado','success');
 };
 
 window.marcarListoEnviarLegacy=async(idx,producto,cliente)=>{
