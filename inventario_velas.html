@@ -1036,7 +1036,7 @@ window.cargarVentasHistorial=async()=>{
   clearCacheC('ventas');
   document.getElementById('lista-historial').innerHTML=spinnerHtml('Cargando historial...');
   try{
-    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
+    const r=await fetch(API+'?accion=ventas',);
     const d=await r.json();
     datosVentas=d;
     setCacheC('ventas',d);
@@ -1148,8 +1148,9 @@ window.cargarInventario=async()=>{
   if(cacheValido)renderProductos(JSON.parse(cache));else mostrarSkeleton();
   document.getElementById('alerta-banner').style.display='none';
   try{
-    const r=await fetch(API,{redirect:'follow'});
-    const d=await r.json();
+    const r=await fetch(API);
+    const text=await r.text();
+    const d=JSON.parse(text);
     sessionStorage.setItem('inv_cache',JSON.stringify(d));
     renderProductos(d);
   }catch(e){document.getElementById('lista-productos').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Error de conexión.</div>';toast('Error de conexión','error');}
@@ -1260,7 +1261,7 @@ async function cargarInsumos(force){
   }
   document.getElementById('lista-insumos').innerHTML=spinnerHtml('Cargando insumos...');
   try{
-    const r=await fetch(API+'?accion=insumos',{redirect:'follow'});
+    const r=await fetch(API+'?accion=insumos',);
     const d=await r.json();
     setCacheC('insumos',d);
     insumosG=d;
@@ -1361,7 +1362,7 @@ window.limpiarProductoActivo=()=>{
 async function cargarIngredientesProducto(){
   if(!prodActivo)return;
   try{
-    const r=await fetch(API+'?accion=costeoporproducto',{redirect:'follow'});
+    const r=await fetch(API+'?accion=costeoporproducto',);
     const d=await r.json();
     cpDatos=d;
     let html='';
@@ -1526,7 +1527,7 @@ async function cargarDesarrollo(force){
   if(cached&&!force){renderDesarrollo(cached);return;}
   document.getElementById('lista-desarrollo').innerHTML=spinnerHtml('Cargando productos...');
   try{
-    const r=await fetch(API+'?accion=desarrollo',{redirect:'follow'});
+    const r=await fetch(API+'?accion=desarrollo',);
     const d=await r.json();
     setCacheC('desarrollo',d);
     const ahora=new Date();
@@ -1627,7 +1628,7 @@ async function cargarActivos(force){
   if(cached&&!force){renderActivos(cached);return;}
   document.getElementById('lista-activos').innerHTML=spinnerHtml('Cargando activos...');
   try{
-    const r=await fetch(API+'?accion=activos',{redirect:'follow'});
+    const r=await fetch(API+'?accion=activos',);
     const d=await r.json();
     setCacheC('activos',d);
     let html='',total=0;
@@ -1734,7 +1735,7 @@ window.cargarDomiciliosInv=async(force)=>{
   if(cached&&!force){window._dinvDatos=cached;datosInv=cached;renderDinvPendientes();return;}
   document.getElementById('dinv-lista-pendientes').innerHTML=spinnerHtml('Cargando...');
   try{
-    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
+    const r=await fetch(API+'?accion=ventas',);
     const d=await r.json();
     window._dinvDatos=d; datosInv=d;
     setCacheC('domicilios_inv',d);
@@ -1925,7 +1926,7 @@ window.cargarVentas=async(force)=>{
   if(cached&&!force){datosInv=cached;renderVentas(cached);return;}
   document.getElementById('lista-ventas').innerHTML=spinnerHtml('Cargando ventas...');
   try{
-    const r=await fetch(API,{redirect:'follow'});
+    const r=await fetch(API,);
     const d=await r.json();
     datosInv=d;
     setCacheC('ventas',d);
@@ -2113,7 +2114,7 @@ window.cargarDomicilios=async(force)=>{
   if(cached&&!force){domDatosGlobal=cached;renderPendientes(cached);return;}
   document.getElementById('lista-pendientes').innerHTML=spinnerHtml('Cargando entregas...');
   try{
-    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
+    const r=await fetch(API+'?accion=ventas',);
     const d=await r.json();
     domDatosGlobal=d;
     setCacheC('domicilios',d);
@@ -2436,7 +2437,7 @@ window.mostrarReporteMes=()=>{
 async function generarReporte(){
   document.getElementById('reporte-contenido').innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando reporte...</div></div>';
   try{
-    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
+    const r=await fetch(API+'?accion=ventas',);
     const datos=await r.json();
     const selVal=document.getElementById('reporte-mes').value.split('-');
     const anio=parseInt(selVal[0]);
@@ -2471,7 +2472,7 @@ async function generarReporte(){
       rankingHtml+=`<div class="res-costeo-row"><span>${emoji} ${nombre}</span><span>${v.cant} uds · ${fmt(v.total)}</span></div>`;
     });
 
-    const invR=await fetch(API,{redirect:'follow'});
+    const invR=await fetch(API,);
     const invData=await invR.json();
     for(let i=1;i<invData.length;i++){
       if(!invData[i][0])continue;
