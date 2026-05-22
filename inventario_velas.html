@@ -1642,6 +1642,10 @@ window.cerrarModal=id=>document.getElementById(id).style.display='none';
 
 // VENTAS
 window.cargarVentas=async(force)=>{
+  // Usar datosInv si ya está cargado
+  if(datosInv.length&&!force){renderVentas(datosInv);return;}
+  const cached=getCacheC('ventas');
+  if(cached&&!force){datosInv=cached;renderVentas(cached);return;}
   document.getElementById('lista-ventas').innerHTML=spinnerHtml('Cargando ventas...');
   try{
     const r=await fetch(API,{redirect:'follow'});
