@@ -376,6 +376,26 @@ textarea { resize:none; height:70px; font-size:14px; }
   </div>
 </div>
 
+<!-- MODAL EDITAR VENTA -->
+<div class="modal-overlay" id="modal-editar-venta">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-venta-title">Editar venta</div>
+    <input type="hidden" id="edit-venta-idx">
+    <div id="edit-venta-detalle" style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--texto);"></div>
+    <div class="form-group">
+      <label class="form-label">Fecha de entrega</label>
+      <input type="date" id="edit-venta-fecha">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nota</label>
+      <textarea id="edit-venta-nota" placeholder="Ej: pago contraentrega..."></textarea>
+    </div>
+    <button class="btn btn-verde" onclick="guardarEdicionVenta()">Guardar</button>
+    <button class="btn btn-crema" onclick="cerrarModal('modal-editar-venta')">Cancelar</button>
+  </div>
+</div>
+
 <!-- MODAL REPONER -->
 <div class="modal-overlay" id="modal-reponer">
   <div class="modal-card">
@@ -472,6 +492,7 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div class="card">
     <div class="tabs">
       <button class="tab-btn active" id="tab-stock" onclick="mostrarTab('stock')">Stock actual</button>
+      <button class="tab-btn" id="tab-ventas" onclick="mostrarTab('ventas')">Ventas</button>
       <button class="tab-btn" id="tab-historial" onclick="mostrarTab('historial')">Historial</button>
     </div>
     <div id="panel-stock">
@@ -479,6 +500,10 @@ textarea { resize:none; height:70px; font-size:14px; }
       <div class="scroll-box" id="lista-productos"><div class="loading" style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
       <p class="ultimo-update" id="ultimo-update"></p>
     </div>
+    <div id="panel-ventas" style="display:none;">
+      <div class="scroll-box" id="lista-ventas"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+    </div>
+
     <div id="panel-historial" style="display:none;">
       <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
         <div class="toggle-group" style="margin-bottom:0;flex:1;">
@@ -1599,6 +1624,93 @@ function clearCacheC(key){
   try{sessionStorage.removeItem('cc_'+key);}catch(e){}
 }
 window.cerrarModal=id=>document.getElementById(id).style.display='none';
+
+// VENTAS
+window.cargarVentas=async(force)=>{
+  const cached=getCacheC('ventas');
+  if(cached&&!force){renderVentas(cached);return;}
+  document.getElementById('lista-ventas').innerHTML=spinnerHtml('Cargando ventas...');
+  try{
+    const r=await fetch(API,{redirect:'follow'});
+    const d=await r.json();
+    setCacheC('ventas',d);
+    renderVentas(d);
+  }catch(e){document.getElementById('lista-ventas').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
+};
+
+function renderVentas(datos){
+  let html='';
+  const ventas=[];
+  for(let i=1;i<datos.length;i++){
+    if(!datos[i][0]||!datos[i][3]||!datos[i][4])continue;
+    ventas.push({idx:i, producto:datos[i][0], cantidad:datos[i][4], fecha:datos[i][3],
+      cliente:datos[i][5]||'', telefono:datos[i][6]||'', entrega:datos[i][7]||'',
+      direccion:datos[i][8]||'', zona:datos[i][11]||'', fechaEnt:datos[i][12]||'',
+      nota:datos[i][13]||'', precio:datos[i][9]||0, costoDom:datos[i][10]||0});
+  }
+  ventas.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  ventas.forEach(v=>{
+    const fechaReg=new Date(v.fecha).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const tieneFecha=v.fechaEnt&&v.fechaEnt.toString().length>0;
+    let fechaEntLabel='Sin fecha de entrega';
+    if(tieneFecha){
+      const fe=new Date(v.fechaEnt.toString().substring(0,10)+'T12:00:00');
+      fechaEntLabel=fe.toLocaleDateString('es-CO',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+    }
+    const subtotal=(v.precio||0)*(v.cantidad||0);
+    const total=subtotal+(v.costoDom||0);
+    html+=`<div class="h-item">
+      <div class="h-top">
+        <span class="h-producto">${v.producto}</span>
+        <button class="icon-btn" style="font-size:12px;" onclick="abrirEditarVenta(${v.idx})">✏️</button>
+      </div>
+      <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${fechaReg}</div>
+      <div class="h-cliente" style="margin-top:3px;">${v.cliente?'👤 '+v.cliente:''} ${v.telefono?'· '+v.telefono:''}</div>
+      <div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="badge ${v.entrega==='domicilio'?'badge-rosado':'badge-verde'}">${v.entrega==='domicilio'?'🚚 Domicilio':'🏪 Recogida'}</span>
+        <span class="badge ${tieneFecha?'badge-verde':'badge-amarillo'}">${tieneFecha?'📅 '+fechaEntLabel:'⚠ Sin fecha'}</span>
+      </div>
+      ${v.direccion?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;">📍 ${v.direccion}</div>`:''}
+      ${total>0?`<div class="h-financiero" style="margin-top:6px;">Subtotal: ${fmt(subtotal)}${v.costoDom>0?' · Domicilio: '+fmt(v.costoDom):''}<br><strong>Total: ${fmt(total)}</strong></div>`:''}
+    </div>`;
+  });
+  document.getElementById('lista-ventas').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas registradas.</div>';
+}
+
+window.abrirEditarVenta=idx=>{
+  const d=datosInv[idx];
+  if(!d)return;
+  document.getElementById('edit-venta-idx').value=idx;
+  document.getElementById('modal-venta-title').textContent='Editar — '+d[0];
+  document.getElementById('edit-venta-detalle').innerHTML=`
+    <strong>${d[0]}</strong> · ${d[4]} uds<br>
+    👤 ${d[5]||''} · 📞 ${d[6]||''}<br>
+    ${d[7]==='domicilio'?'🚚 Domicilio · '+d[11]+'<br>📍 '+(d[8]||''):'🏪 Recogida'}`;
+  const fechaActual=d[12]?d[12].toString().substring(0,10):'';
+  document.getElementById('edit-venta-fecha').value=fechaActual;
+  document.getElementById('edit-venta-nota').value=d[13]||'';
+  abrirModal('modal-editar-venta');
+};
+
+window.guardarEdicionVenta=async()=>{
+  const idx=parseInt(document.getElementById('edit-venta-idx').value);
+  const fecha=document.getElementById('edit-venta-fecha').value;
+  const nota=document.getElementById('edit-venta-nota').value.trim();
+  const d=datosInv[idx];
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'editarVenta', producto:d[0], cliente:d[5],
+      fechaEntrega:fecha, nota, registradoPor:usuarioActual?usuarioActual.nombre:'',
+      filaInv:idx
+    })});
+    cerrarModal('modal-editar-venta');
+    clearCacheC('ventas'); clearCacheC('domicilios');
+    sessionStorage.removeItem('inv_cache');
+    await cargarInventario();
+    cargarVentas(true);
+    toast('Venta actualizada','success');
+  }catch(e){toast('Error al guardar','error');}
+};
 
 // ============ DOMICILIOS ============
 let domPinVal='', domIntentos=0, domBloqueado=false;
