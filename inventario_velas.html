@@ -1038,7 +1038,7 @@ function renderHistorial(){
     if(filtroHistorial==='hoy'&&fv.toDateString()!==hoy)continue;
     if(filtroHistorial==='semana'){const diff=(ahora-fv)/(1000*60*60*24);if(diff>7)continue;}
     if(filtroHistorial==='mes'){const diff=(ahora-fv)/(1000*60*60*24);if(diff>30)continue;}
-    ventas.push({producto:datosInv[i][0],cantidad:datosInv[i][4],fecha:datosInv[i][3],cliente:datosInv[i][5]||'',telefono:datosInv[i][6]||'',entrega:datosInv[i][7]||'',direccion:datosInv[i][8]||'',precio:datosInv[i][9]||0,costoDom:datosInv[i][10]||0,zona:datosInv[i][11]||'',fechaEnt:datosInv[i][12]||'',nota:datosInv[i][16]||''});
+    ventas.push({producto:datosInv[i][0],cantidad:datosInv[i][4],fecha:datosInv[i][3],cliente:datosInv[i][5]||'',telefono:datosInv[i][6]||'',entrega:datosInv[i][7]||'',direccion:datosInv[i][8]||'',precio:datosInv[i][9]||0,costoDom:datosInv[i][10]||0,zona:datosInv[i][11]||'',fechaEnt:datosInv[i][12]||'',nota:datosInv[i][17]||''});
   }
   if(!ventas.length){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas hoy.</div>';document.getElementById('resumen-dia').innerHTML='';return;}
   ventas.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
@@ -1660,7 +1660,7 @@ function renderVentas(datos){
     ventas.push({idx:i, producto:datos[i][0], cantidad:datos[i][4], fecha:datos[i][3],
       cliente:datos[i][5]||'', telefono:datos[i][6]||'', entrega:datos[i][7]||'',
       direccion:datos[i][8]||'', zona:datos[i][11]||'', fechaEnt:datos[i][12]||'',
-      nota:datos[i][16]||'', precio:datos[i][9]||0, costoDom:datos[i][10]||0});
+      nota:datos[i][17]||'', precio:datos[i][9]||0, costoDom:datos[i][10]||0});
   }
   ventas.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
   ventas.forEach(v=>{
