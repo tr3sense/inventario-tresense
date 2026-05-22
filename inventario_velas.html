@@ -1596,7 +1596,7 @@ function renderDesarrollo(d){
       <div class="des-card-acciones">
         ${!aprobado?`<button class="icon-btn" onclick="aprobarProducto('${d[i][0]}')">✅ Aprobar → Inventario</button>`:''}
         <button class="icon-btn" style="color:var(--texto-suave);" onclick="continuarCosteo('${d[i][0]}')">✏️ Editar costeo</button>
-        <button class="icon-btn" style="background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarDesarrollo('${d[i][0]}')">🗑 Eliminar</button>
+        ${!aprobado?'<button class="icon-btn" style="background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarDesarrollo(\'${d[i][0]}\')">🗑 Eliminar</button>':''}
       </div>
     </div>`;
   }
