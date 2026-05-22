@@ -2452,10 +2452,10 @@ async function generarReporte(){
     let totalVentas=0,totalDom=0;
 
     for(let i=1;i<datos.length;i++){
-      if(!datos[i][0]||!datos[i][3]||!datos[i][4])continue;
-      const fv=new Date(datos[i][3]);
-      if(fv.getMonth()!==mes||fv.getFullYear()!==anio)continue;
-      const nombre=datos[i][0],cant=datos[i][4]||0,precio=datos[i][9]||0,dom=datos[i][10]||0;
+      if(!datos[i][0]||!datos[i][1]||!datos[i][2])continue;
+      const fv=new Date(datos[i][0]);
+      if(isNaN(fv)||fv.getMonth()!==mes||fv.getFullYear()!==anio)continue;
+      const nombre=datos[i][1],cant=datos[i][2]||0,precio=datos[i][9]||0,dom=datos[i][10]||0;
       if(!ventasPorProducto[nombre])ventasPorProducto[nombre]={cant:0,total:0,precio};
       ventasPorProducto[nombre].cant+=cant;
       ventasPorProducto[nombre].total+=precio*cant;
@@ -2475,7 +2475,7 @@ async function generarReporte(){
       rankingHtml+=`<div class="res-costeo-row"><span>${emoji} ${nombre}</span><span>${v.cant} uds · ${fmt(v.total)}</span></div>`;
     });
 
-    const invR=await fetch(API,);
+    const invR=await fetch(API+'?accion=inventario',{redirect:'follow'});
     const invData=await invR.json();
     for(let i=1;i<invData.length;i++){
       if(!invData[i][0])continue;
