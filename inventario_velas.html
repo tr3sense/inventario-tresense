@@ -1028,18 +1028,17 @@ window.setVentasTab=tab=>{
     document.getElementById('vtab-'+t).classList.toggle('active',t===tab);
     document.getElementById('vpanel-'+t).style.display=t===tab?'block':'none';
   });
-  if(tab==='historial'){
-    if(datosVentas.length<2) cargarVentasHistorial();
-    else renderHistorial();
-  }
+  if(tab==='historial') cargarVentasHistorial();
 };
 
 window.cargarVentasHistorial=async()=>{
+  clearCacheC('ventas');
   document.getElementById('lista-historial').innerHTML=spinnerHtml('Cargando historial...');
   try{
     const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
     const d=await r.json();
     datosVentas=d;
+    setCacheC('ventas',d);
     renderHistorial();
   }catch(e){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
 };
