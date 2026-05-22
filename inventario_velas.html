@@ -1880,7 +1880,9 @@ window.soloNota=async function(i){
   var nota=document.getElementById('nota-dom-'+i).value.trim();
   await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
   document.getElementById('panel-dom-'+i).style.display='none';
-  sessionStorage.removeItem('inv_cache'); await cargarInventario(); renderDinvPendientes();
+  // Actualizar nota en memoria sin recargar
+  if(datosInv[i]) datosInv[i][15]=nota;
+  clearCacheC('domicilios_inv');
   toast('Nota guardada','success');
 };
 
@@ -1889,7 +1891,8 @@ window.guardarNotaListoEnviar=async function(i){
   var nota=document.getElementById('nota-dom-'+i).value.trim();
   await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
   await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  sessionStorage.removeItem('inv_cache'); clearCacheC('domicilios'); await cargarInventario(); renderDinvPendientes();
+  clearCacheC('domicilios_inv'); clearCacheC('domicilios');
+  await cargarDomiciliosInv(true);
   toast('Listo para enviar','success');
 };
 
@@ -1898,7 +1901,8 @@ window.guardarNotaEntregado=async function(i){
   var nota=document.getElementById('nota-dom-'+i).value.trim();
   await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
   await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  sessionStorage.removeItem('inv_cache'); clearCacheC('domicilios'); await cargarInventario(); renderDinvPendientes();
+  clearCacheC('domicilios_inv'); clearCacheC('domicilios');
+  await cargarDomiciliosInv(true);
   toast('Entregado','success');
 };
 
