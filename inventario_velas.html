@@ -1751,14 +1751,15 @@ let prodDatos=[];
 window.cargarProduccion=async(force)=>{
   const cached=getCacheC('produccion');
   if(cached&&!force){prodDatos=cached;renderProduccion(cached);return;}
-  document.getElementById('lista-produccion').innerHTML=spinnerHtml('Cargando pedidos...');
+  document.getElementById('lista-por-producir').innerHTML=spinnerHtml('Cargando pedidos...');
+  document.getElementById('lista-listos-prod').innerHTML='';
   try{
     const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
     const d=await r.json();
     prodDatos=d;
     setCacheC('produccion',d);
     renderProduccion(d);
-  }catch(e){document.getElementById('lista-produccion').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
+  }catch(e){document.getElementById('lista-por-producir').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
 };
 
 function renderProduccion(datos){
