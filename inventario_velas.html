@@ -382,6 +382,7 @@ textarea { resize:none; height:70px; font-size:14px; }
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-venta-title">Editar venta</div>
     <input type="hidden" id="edit-venta-idx">
+    <div class="form-group"><label class="form-label">Cantidad</label><input type="number" id="edit-venta-cantidad" min="1"></div>
     <div class="form-group"><label class="form-label">Cliente</label><input type="text" id="edit-venta-cliente"></div>
     <div class="form-group"><label class="form-label">Teléfono</label><input type="tel" id="edit-venta-telefono"></div>
     <div class="form-group"><label class="form-label">Fecha de entrega</label><input type="date" id="edit-venta-fecha"></div>
@@ -1703,6 +1704,7 @@ window.abrirEditarVenta=idx=>{
   if(!d)return;
   document.getElementById('edit-venta-idx').value=idx;
   document.getElementById('modal-venta-title').textContent='Editar — '+d[0];
+  document.getElementById('edit-venta-cantidad').value=d[4]||1;
   document.getElementById('edit-venta-cliente').value=d[5]||'';
   document.getElementById('edit-venta-telefono').value=d[6]||'';
   const fechaActual=d[12]?d[12].toString().substring(0,10):'';
@@ -1739,6 +1741,7 @@ window.guardarEdicionVenta=async()=>{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'editarVenta',
       producto:d[0],
+      cantidad:parseInt(document.getElementById('edit-venta-cantidad').value)||d[4],
       clienteOriginal:d[5],
       cliente:document.getElementById('edit-venta-cliente').value.trim(),
       telefono:document.getElementById('edit-venta-telefono').value.trim(),
