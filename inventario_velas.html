@@ -447,13 +447,13 @@ textarea { resize:none; height:70px; font-size:14px; }
 
 <!-- APP INVENTARIO -->
 <div id="app-inventario">
-  <div class="header">
-    <div class="header-top">
+  <div class="header" style="padding:14px 20px 16px;">
+    <div class="header-top" style="margin-bottom:6px;">
       <button class="header-btn" onclick="cerrarInventario()"><img src="icono-salir.svg" alt=""> Salir</button>
-      <span style="color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;" id="inv-usuario"></span>
       <button class="header-btn" onclick="cargarInventario()">Actualizar <img src="icono-actualizar.svg" alt=""></button>
     </div>
-    <img src="logo.png" alt="Tr3sense" class="logo-header">
+    <img src="logo.png" alt="Tr3sense" class="logo-header" style="width:140px;margin-bottom:6px;">
+    <div style="text-align:center;color:rgba(255,255,255,0.75);font-size:13px;font-weight:600;" id="inv-usuario"></div>
   </div>
 
   <div class="card">
@@ -665,12 +665,12 @@ textarea { resize:none; height:70px; font-size:14px; }
 
 <!-- APP DOMICILIOS -->
 <div id="app-domicilios" style="display:none;max-width:680px;margin:0 auto;width:100%;">
-  <div class="header">
-    <div class="header-top">
+  <div class="header" style="padding:14px 20px 16px;">
+    <div class="header-top" style="margin-bottom:6px;">
       <button class="header-btn" onclick="cerrarDomicilios()"><img src="icono-salir.svg" alt=""> Salir</button>
-      <span style="color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;">Julian Builes</span>
     </div>
-    <img src="logo.png" alt="Tr3sense" class="logo-header">
+    <img src="logo.png" alt="Tr3sense" class="logo-header" style="width:140px;margin-bottom:6px;">
+    <div style="text-align:center;color:rgba(255,255,255,0.75);font-size:13px;font-weight:600;">Julian Builes</div>
   </div>
 
   <div class="card" style="padding:8px 10px;">
@@ -695,13 +695,35 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div id="dpanel-historial" style="display:none;">
     <div class="card">
       <div class="card-title">Historial de entregas</div>
-      <div id="lista-historial-dom"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+      <div class="toggle-group" style="margin-bottom:12px;">
+        <div class="toggle-btn active" id="dfiltro-hoy" onclick="setFiltroDom('hoy')" style="min-width:50px;padding:8px;">Hoy</div>
+        <div class="toggle-btn" id="dfiltro-semana" onclick="setFiltroDom('semana')" style="min-width:50px;padding:8px;">7 días</div>
+        <div class="toggle-btn" id="dfiltro-mes" onclick="setFiltroDom('mes')" style="min-width:50px;padding:8px;">Mes</div>
+        <div class="toggle-btn" id="dfiltro-todo" onclick="setFiltroDom('todo')" style="min-width:50px;padding:8px;">Todo</div>
+      </div>
+      <div class="scroll-box" id="lista-historial-dom"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+      <div id="resumen-dom" style="margin-top:8px;"></div>
+      <button class="btn btn-crema" style="margin-top:10px;" onclick="mostrarReporteDom()">📊 Reporte del mes</button>
     </div>
   </div>
 
   <div class="footer">
     <img src="ntnatavergara_footer.png" alt="nt:natavergara" class="footer-logo">
     <p>Desarrollado por nt:natavergara</p>
+  </div>
+</div>
+
+<!-- MODAL REPORTE DOMICILIOS -->
+<div class="modal-overlay" id="modal-reporte-dom">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Reporte domicilios</div>
+    <div class="form-group">
+      <label class="form-label">Selecciona el mes</label>
+      <select id="reporte-dom-mes" onchange="generarReporteDom()"></select>
+    </div>
+    <div id="reporte-dom-contenido"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando...</div></div></div>
+    <button class="btn btn-crema" onclick="cerrarModal('modal-reporte-dom')">Cerrar</button>
   </div>
 </div>
 
@@ -1605,7 +1627,7 @@ window.mostrarTabDom=tab=>{
     document.getElementById('dtab-'+t).classList.toggle('active',t===tab);
     document.getElementById('dpanel-'+t).style.display=t===tab?'block':'none';
   });
-  if(tab==='historial')renderHistorialDom();
+  if(tab==='historial'){filtroDom='hoy';renderHistorialDom();}
 };
 
 window.cargarDomicilios=async(force)=>{
@@ -1623,51 +1645,161 @@ window.cargarDomicilios=async(force)=>{
 
 function renderPendientes(datos){
   const hoy=new Date();
-  let html='', count=0;
+  // Organizar por días de la semana (hoy + 6 días)
+  const dias=[];
+  for(let d=0;d<7;d++){
+    const fecha=new Date(hoy);
+    fecha.setDate(hoy.getDate()+d);
+    dias.push({fecha, entregas:[]});
+  }
   for(let i=1;i<datos.length;i++){
     if(!datos[i][0]||datos[i][7]!=='domicilio')continue;
     const estado=datos[i][14]||'';
     if(estado==='Entregado')continue;
     const fechaEnt=datos[i][12]?new Date(datos[i][12].substring(0,10)+'T12:00:00'):null;
-    const fechaLabel=fechaEnt?fechaEnt.toLocaleDateString('es-CO',{weekday:'long',day:'2-digit',month:'long'}):'Sin fecha';
-    const esHoy=fechaEnt&&fechaEnt.toDateString()===hoy.toDateString();
-    count++;
-    html+=`<div class="des-card" style="${esHoy?'border:2px solid var(--verde);':''}">
-      <div class="des-card-header">
+    if(!fechaEnt)continue;
+    const diaIdx=dias.findIndex(d=>d.fecha.toDateString()===fechaEnt.toDateString());
+    if(diaIdx>=0) dias[diaIdx].entregas.push({i,d:datos[i]});
+  }
+
+  let html='';
+  dias.forEach((dia,idx)=>{
+    const esHoy=idx===0;
+    const tieneEntregas=dia.fecha.entregas>0||dia.entregas.length>0;
+    const label=esHoy?'Hoy':dia.fecha.toLocaleDateString('es-CO',{weekday:'long',day:'2-digit',month:'long'});
+    const bgColor=esHoy?'var(--verde)':tieneEntregas?'var(--amarillo-light)':'var(--crema)';
+    const textColor=esHoy?'#fff':tieneEntregas?'#9a7d1a':'var(--texto-suave)';
+    const borderColor=esHoy?'var(--verde)':tieneEntregas?'var(--amarillo)':'var(--borde)';
+    const count=dia.entregas.length;
+
+    html+=`<div style="margin-bottom:8px;border:1.5px solid ${borderColor};border-radius:14px;overflow:hidden;">
+      <div onclick="toggleDia('dia-${idx}')" style="background:${bgColor};padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <div class="des-card-nombre">${datos[i][5]||'Cliente'}</div>
-          <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${datos[i][6]||''}</div>
+          <span style="font-size:14px;font-weight:700;color:${textColor};">${label}</span>
+          ${count>0?`<span style="font-size:12px;color:${textColor};margin-left:8px;">${count} entrega${count>1?'s':''}</span>`:'<span style="font-size:12px;color:'+textColor+';margin-left:8px;">Sin entregas</span>'}
         </div>
-        ${esHoy?'<span class="badge badge-verde">Hoy</span>':'<span class="badge badge-amarillo">'+fechaLabel+'</span>'}
+        <span style="color:${textColor};font-size:18px;" id="arrow-dia-${idx}">${count>0&&esHoy?'▼':'▶'}</span>
       </div>
-      <div style="font-size:13px;color:var(--texto);margin:8px 0;">🕯️ ${datos[i][0]} · ${datos[i][4]} uds</div>
-      <div style="font-size:13px;color:var(--texto-suave);">📍 ${datos[i][8]||''}</div>
-      <div style="font-size:12px;color:var(--verde);margin-top:4px;">🚚 ${datos[i][11]||''} · 💰 $${Math.round(datos[i][10]||0).toLocaleString('es-CO')}</div>
-      <div class="des-card-acciones">
-        <span class="badge ${estado==='En camino'?'badge-amarillo':'badge-rosado'}">${estado||'Pendiente'}</span>
-        <button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="abrirModalEntregar(${i})">Actualizar estado</button>
+      <div id="dia-${idx}" style="display:${count>0&&esHoy?'block':'none'};">
+        ${dia.entregas.map(({i,d})=>`
+        <div style="padding:14px 16px;border-top:1px solid var(--borde);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--texto);">${d[5]||'Cliente'}</div>
+              <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${d[6]||''}</div>
+            </div>
+            <span class="badge ${d[14]==='En camino'?'badge-amarillo':'badge-rosado'}">${d[14]||'Pendiente'}</span>
+          </div>
+          <div style="font-size:13px;color:var(--texto);margin:6px 0;">🕯️ ${d[0]} · ${d[4]} uds</div>
+          <div style="font-size:12px;color:var(--texto-suave);">📍 ${d[8]||''}</div>
+          <div style="font-size:12px;color:var(--verde);margin-top:4px;">🚚 ${d[11]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>
+          <button class="icon-btn" style="margin-top:8px;background:var(--verde);color:#fff;border-color:var(--verde);width:100%;padding:10px;" onclick="abrirModalEntregar(${i})">Actualizar estado</button>
+        </div>`).join('')}
+        ${dia.entregas.length===0?'<div style="padding:12px 16px;color:var(--texto-mini);font-size:13px;text-align:center;">Sin entregas este día</div>':''}
       </div>
     </div>`;
-  }
-  document.getElementById('lista-pendientes').innerHTML=count>0?html:'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas pendientes.</div>';
+  });
+
+
+
+  if(!html) html='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas pendientes.</div>';
+  document.getElementById('lista-pendientes').innerHTML=html;
 }
 
+window.toggleDia=id=>{
+  const panel=document.getElementById(id);
+  const idx=id.replace('dia-','');
+  const arrow=document.getElementById('arrow-'+id);
+  const visible=panel.style.display!=='none';
+  panel.style.display=visible?'none':'block';
+  if(arrow) arrow.textContent=visible?'▶':'▼';
+};
+
+let filtroDom='hoy';
+
+window.setFiltroDom=filtro=>{
+  filtroDom=filtro;
+  ['hoy','semana','mes','todo'].forEach(f=>{
+    document.getElementById('dfiltro-'+f).classList.toggle('active',f===filtro);
+  });
+  renderHistorialDom();
+};
+
 function renderHistorialDom(){
-  let html='', count=0;
+  const ahora=new Date();
+  const hoy=ahora.toDateString();
+  let html='', count=0, totalDom=0, totalEntregas=0;
   for(let i=1;i<domDatosGlobal.length;i++){
     if(!domDatosGlobal[i][0]||domDatosGlobal[i][7]!=='domicilio')continue;
     const estado=domDatosGlobal[i][14]||'';
     if(estado!=='Entregado')continue;
+    const fv=new Date(domDatosGlobal[i][3]);
+    if(filtroDom==='hoy'&&fv.toDateString()!==hoy)continue;
+    if(filtroDom==='semana'&&(ahora-fv)/(1000*60*60*24)>7)continue;
+    if(filtroDom==='mes'&&(ahora-fv)/(1000*60*60*24)>30)continue;
     count++;
-    const fecha=new Date(domDatosGlobal[i][3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const costoDom=domDatosGlobal[i][10]||0;
+    totalDom+=costoDom; totalEntregas++;
+    const fecha=fv.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     html+=`<div class="h-item">
-      <div class="h-top"><span class="h-producto">${domDatosGlobal[i][5]||'Cliente'}</span><span class="badge badge-verde">Entregado</span></div>
+      <div class="h-top"><span class="h-producto">${domDatosGlobal[i][5]||'Cliente'}</span><span class="badge badge-verde">✅ Entregado</span></div>
       <div class="h-cliente">🕯️ ${domDatosGlobal[i][0]} · 📅 ${fecha}</div>
       <div style="font-size:12px;color:var(--texto-suave);margin-top:3px;">📍 ${domDatosGlobal[i][8]||''}</div>
+      <div style="font-size:12px;color:var(--verde);margin-top:3px;">🚚 ${domDatosGlobal[i][11]||''} · 💰 $${Math.round(costoDom).toLocaleString('es-CO')}</div>
     </div>`;
   }
-  document.getElementById('lista-historial-dom').innerHTML=count>0?html:'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas completadas.</div>';
+  document.getElementById('lista-historial-dom').innerHTML=count>0?html:'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas en este periodo.</div>';
+  const labels={hoy:'hoy',semana:'últimos 7 días',mes:'este mes',todo:'total'};
+  document.getElementById('resumen-dom').innerHTML=count>0?`<div class="resumen-dia-box">🚚 ${totalEntregas} entregas ${labels[filtroDom]} · 💰 Total domicilios: <strong>$${Math.round(totalDom).toLocaleString('es-CO')}</strong></div>`:'';
 }
+
+window.mostrarReporteDom=()=>{
+  abrirModal('modal-reporte-dom');
+  const sel=document.getElementById('reporte-dom-mes');
+  sel.innerHTML='';
+  const ahora=new Date();
+  for(let i=0;i<12;i++){
+    const d=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);
+    const val=d.getFullYear()+'-'+d.getMonth();
+    const label=d.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${val}">${label}</option>`;
+  }
+  generarReporteDom();
+};
+
+window.generarReporteDom=()=>{
+  document.getElementById('reporte-dom-contenido').innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando...</div></div>';
+  const selVal=document.getElementById('reporte-dom-mes').value.split('-');
+  const anio=parseInt(selVal[0]), mes=parseInt(selVal[1]);
+  const refDate=new Date(anio,mes,1);
+  const mesNombre=refDate.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+  let totalEntregas=0, totalDom=0;
+  const porZona={};
+  for(let i=1;i<domDatosGlobal.length;i++){
+    if(!domDatosGlobal[i][0]||domDatosGlobal[i][7]!=='domicilio')continue;
+    if((domDatosGlobal[i][14]||'')!=='Entregado')continue;
+    const fv=new Date(domDatosGlobal[i][3]);
+    if(fv.getMonth()!==mes||fv.getFullYear()!==anio)continue;
+    totalEntregas++;
+    const dom=domDatosGlobal[i][10]||0;
+    const zona=domDatosGlobal[i][11]||'Sin zona';
+    totalDom+=dom;
+    if(!porZona[zona])porZona[zona]={count:0,total:0};
+    porZona[zona].count++; porZona[zona].total+=dom;
+  }
+  let zonaHtml='';
+  Object.entries(porZona).forEach(([z,v])=>{
+    zonaHtml+=`<div class="res-costeo-row"><span>${z}</span><span>${v.count} entregas · ${fmt(v.total)}</span></div>`;
+  });
+  document.getElementById('reporte-dom-contenido').innerHTML=`
+    <div style="font-size:13px;font-weight:700;color:var(--verde);margin-bottom:12px;">${mesNombre}</div>
+    <div class="res-costeo" style="margin-bottom:12px;">
+      <div class="res-costeo-row"><span>Total entregas</span><span>${totalEntregas}</span></div>
+      <div class="res-costeo-row h"><span>Total domicilios</span><span>${fmt(totalDom)}</span></div>
+    </div>
+    ${zonaHtml?`<div class="res-costeo"><div style="font-size:12px;font-weight:700;color:var(--verde);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Por zona</div>${zonaHtml}</div>`:''}
+    ${totalEntregas===0?'<div style="text-align:center;padding:16px;color:var(--texto-mini);">Sin entregas este mes.</div>':''}`;
+};
 
 window.abrirModalEntregar=idx=>{
   entregaActual=idx; estadoDomActual='';
