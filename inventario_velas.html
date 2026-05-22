@@ -1695,7 +1695,7 @@ function clearCacheC(key){
 window.cerrarModal=id=>document.getElementById(id).style.display='none';
 
 // DOMICILIOS EN INVENTARIO
-let dinvTab='pendientes', dinvFiltro='hoy';
+let dinvTab='pendientes', dinvFiltro='hoy', dinvDatos=[];
 
 window.setDinvTab=tab=>{
   dinvTab=tab;
@@ -1720,7 +1720,7 @@ window.cargarDomiciliosInv=async(force)=>{
   try{
     const r=await fetch(API,{redirect:'follow'});
     const d=await r.json();
-    datosInv=d;
+    datosInv=d; dinvDatos=d;
     sessionStorage.setItem('inv_cache',JSON.stringify(d));
     renderDinvPendientes();
   }catch(e){document.getElementById('dinv-lista-pendientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
@@ -1754,7 +1754,7 @@ function renderDinvPendientes(){
       <div style="font-size:12px;color:var(--texto-suave);">📞 ${datosInv[i][6]||''}</div>
       ${(datosInv[i][8]||datosInv[i][11])?`<div style="font-size:12px;color:var(--verde);margin-top:3px;">📍 ${datosInv[i][8]||''} ${datosInv[i][11]?'· 🗺 '+datosInv[i][11]:''}</div>`:''}
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
-      ${datosInv[i][17]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][17]}</div>`:''}
+      ${datosInv[i][18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][18]}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
         ${tipoEnt==='domicilio'&&estado==='Pendiente'?`<button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="marcarListoEnviar(${i},'${datosInv[i][0]}','${datosInv[i][5]}')">📦 Listo para enviar</button>`:''}
         ${tipoEnt==='domicilio'&&estado==='Listo para enviar'?`<span style="font-size:12px;color:var(--verde);font-weight:600;">📦 Esperando domiciliario</span>`:''}
@@ -1803,12 +1803,12 @@ function renderDinvHistorial(){
 
 window.abrirNotaDomicilioIdx=function(idx){
   idx=parseInt(idx);
-  var d=datosInv[idx];
-  if(!d){alert('Error: datos no encontrados');return;}
+  var d=dinvDatos[idx]||datosInv[idx];
+  if(!d){alert('Error: índice '+idx+' no encontrado en '+dinvDatos.length+' registros');return;}
   document.getElementById('nota-dom-producto').value=d[0]||'';
   document.getElementById('nota-dom-cliente').value=d[5]||'';
   document.getElementById('nota-dom-title').textContent='Nota — '+(d[5]||'Cliente');
-  document.getElementById('nota-dom-texto').value=d[17]||'';
+  document.getElementById('nota-dom-texto').value=d[18]||'';
   document.getElementById('modal-nota-dom').style.display='flex';
 };
 window.guardarNotaDomicilio=async()=>{
@@ -1818,7 +1818,7 @@ window.guardarNotaDomicilio=async()=>{
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'editarVenta', producto, clienteOriginal:cliente,
-      cliente, nota, registradoPor:usuarioActual?usuarioActual.nombre:''
+      cliente, notaDomicilio:nota, registradoPor:usuarioActual?usuarioActual.nombre:''
     })});
     cerrarModal('modal-nota-dom');
     sessionStorage.removeItem('inv_cache');
@@ -2115,7 +2115,7 @@ function renderPendientes(datos){
           <div style="font-size:13px;color:var(--texto);margin:6px 0;">🕯️ ${d[0]} · ${d[4]} uds</div>
           <div style="font-size:12px;color:var(--texto-suave);">📍 ${d[8]||''}</div>
           <div style="font-size:12px;color:var(--verde);margin-top:4px;">🚚 ${d[11]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>
-          ${d[17]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${d[17]}</div>`:''}
+          ${d[18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${d[18]}</div>`:''}
           <button class="icon-btn" style="margin-top:8px;background:var(--verde);color:#fff;border-color:var(--verde);width:100%;padding:10px;" onclick="abrirModalEntregar(${i})">Actualizar estado</button>
         </div>`).join('')}
         ${dia.entregas.length===0?'<div style="padding:12px 16px;color:var(--texto-mini);font-size:13px;text-align:center;">Sin entregas este día</div>':''}
