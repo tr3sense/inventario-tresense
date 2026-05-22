@@ -1684,12 +1684,12 @@ window.setDinvFiltro=filtro=>{
 };
 
 window.cargarDomiciliosInv=async(force)=>{
-  if(datosInv.length&&!force){renderDinvPendientes();return;}
   document.getElementById('dinv-lista-pendientes').innerHTML=spinnerHtml('Cargando...');
   try{
     const r=await fetch(API,{redirect:'follow'});
     const d=await r.json();
     datosInv=d;
+    sessionStorage.setItem('inv_cache',JSON.stringify(d));
     renderDinvPendientes();
   }catch(e){document.getElementById('dinv-lista-pendientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
 };
@@ -1699,7 +1699,7 @@ function renderDinvPendientes(){
   let html='', count=0;
   for(let i=1;i<datosInv.length;i++){
     if(!datosInv[i][0]||datosInv[i][7]!=='domicilio')continue;
-    const estado=datosInv[i][14]||'Pendiente';
+    const estado=datosInv[i][15]||'Pendiente';
     if(estado==='Entregado')continue;
     count++;
     const fechaEnt=datosInv[i][12]?new Date(datosInv[i][12].toString().substring(0,10)+'T12:00:00'):null;
@@ -1731,7 +1731,7 @@ function renderDinvHistorial(){
   let html='', totalEntregas=0, totalDom=0;
   for(let i=1;i<datosInv.length;i++){
     if(!datosInv[i][0]||datosInv[i][7]!=='domicilio')continue;
-    if((datosInv[i][14]||'')!=='Entregado')continue;
+    if((datosInv[i][15]||'')!=='Entregado')continue;
     const fv=new Date(datosInv[i][3]);
     if(dinvFiltro==='hoy'&&fv.toDateString()!==hoy)continue;
     if(dinvFiltro==='semana'&&(ahora-fv)/(1000*60*60*24)>7)continue;
@@ -1980,7 +1980,7 @@ function renderPendientes(datos){
   }
   for(let i=1;i<datos.length;i++){
     if(!datos[i][0]||datos[i][7]!=='domicilio')continue;
-    const estado=datos[i][14]||'';
+    const estado=datos[i][15]||'';
     if(estado==='Entregado'||estado==='Pendiente')continue;
     const fechaEnt=datos[i][12]?new Date(datos[i][12].substring(0,10)+'T12:00:00'):null;
     if(!fechaEnt)continue;
@@ -2014,7 +2014,7 @@ function renderPendientes(datos){
               <div style="font-size:14px;font-weight:700;color:var(--texto);">${d[5]||'Cliente'}</div>
               <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${d[6]||''}</div>
             </div>
-            <span class="badge ${d[14]==='En camino'?'badge-amarillo':'badge-rosado'}">${d[14]||'Pendiente'}</span>
+            <span class="badge ${d[15]==='En camino'?'badge-amarillo':'badge-rosado'}">${d[15]||'Pendiente'}</span>
           </div>
           <div style="font-size:13px;color:var(--texto);margin:6px 0;">🕯️ ${d[0]} · ${d[4]} uds</div>
           <div style="font-size:12px;color:var(--texto-suave);">📍 ${d[8]||''}</div>
@@ -2057,7 +2057,7 @@ function renderHistorialDom(){
   let html='', count=0, totalDom=0, totalEntregas=0;
   for(let i=1;i<domDatosGlobal.length;i++){
     if(!domDatosGlobal[i][0]||domDatosGlobal[i][7]!=='domicilio')continue;
-    const estado=domDatosGlobal[i][14]||'';
+    const estado=domDatosGlobal[i][15]||'';
     if(estado!=='Entregado')continue;
     const fv=new Date(domDatosGlobal[i][3]);
     if(filtroDom==='hoy'&&fv.toDateString()!==hoy)continue;
@@ -2103,7 +2103,7 @@ window.generarReporteDom=()=>{
   const porZona={};
   for(let i=1;i<domDatosGlobal.length;i++){
     if(!domDatosGlobal[i][0]||domDatosGlobal[i][7]!=='domicilio')continue;
-    if((domDatosGlobal[i][14]||'')!=='Entregado')continue;
+    if((domDatosGlobal[i][15]||'')!=='Entregado')continue;
     const fv=new Date(domDatosGlobal[i][3]);
     if(fv.getMonth()!==mes||fv.getFullYear()!==anio)continue;
     totalEntregas++;
