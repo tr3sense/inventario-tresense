@@ -855,7 +855,7 @@ const ZONAS = {medellin:13000,area1:15000,otras:18000};
 const ZONAS_N = {medellin:'Medellín',area1:'Bello/Envigado/Itagüí/Sabaneta',otras:'Otras zonas'};
 const HORA_BASE = 7959;
 
-let pinVal="",intentos=0,bloqueado=false,timerInact=null,usuarioActual=null;
+let pinVal="",intentos=0,bloqueado=false,timerInact=null,usuarioActual=null,datosVentas=[];
 let tipoEntrega='recogida',prodReponer='',datosInv=[],precios={};
 let insumosG=[],prodActivo='',ingEdicion=false,ingFila=-1;
 let cpDatos=[],metodoMOE='horas';
@@ -1029,8 +1029,7 @@ function renderProductos(datos){
   let html='',alertas=[];
   for(let i=1;i<datos.length;i++){
     if(!datos[i][0])continue;
-    const [nombre,,,,,,,,, ,,,, foto]=[datos[i][0],datos[i][1],datos[i][2],datos[i][3],datos[i][4],datos[i][5],datos[i][6],datos[i][7],datos[i][8],datos[i][9],datos[i][10],datos[i][11],datos[i][12],datos[i][13]];
-    const stock=datos[i][1],minimo=datos[i][2]||3,precio=datos[i][9]||0,bajo=stock<=minimo,fotoUrl=datos[i][13]||'';
+    const nombre=datos[i][0],stock=datos[i][1],minimo=datos[i][2]||3,precio=datos[i][3]||0,bajo=stock<=minimo,fotoUrl=datos[i][4]||'';
     precios[nombre]=precio;
     if(bajo)alertas.push(nombre);
     const fotoHtml=fotoUrl?`<img class="producto-foto" src="${fotoUrl}" alt="${nombre}">`:`<div class="producto-foto-placeholder">🕯️</div>`;
@@ -1075,7 +1074,7 @@ function renderHistorial(){
   const ventas=[];
   for(let i=1;i<datosInv.length;i++){
     if(!datosInv[i][0]||!datosInv[i][3]||!datosInv[i][4])continue;
-    const fv=new Date(datosInv[i][3]);
+    const fv=new Date(datosInv[i][0]);
     if(filtroHistorial==='hoy'&&fv.toDateString()!==hoy)continue;
     if(filtroHistorial==='semana'){const diff=(ahora-fv)/(1000*60*60*24);if(diff>7)continue;}
     if(filtroHistorial==='mes'){const diff=(ahora-fv)/(1000*60*60*24);if(diff>30)continue;}
@@ -1137,7 +1136,7 @@ window.confirmarReponer=async()=>{
   const c=parseInt(document.getElementById('reponer-cantidad').value);
   if(!c||c<1){toast('Cantidad inválida','error');return;}
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({producto:prodReponer,cantidad:-c,reponer:true,nombre:'Sistema',telefono:'',tipoEntrega:'recogida',direccion:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'reponer',producto:prodReponer,cantidad:c,registradoPor:usuarioActual?usuarioActual.nombre:''})});
     cerrarModal('modal-reponer');sessionStorage.removeItem('inv_cache');await cargarInventario();toast('Stock actualizado','success');
   }catch(e){toast('Error','error');}
 };
@@ -1204,7 +1203,7 @@ window.registrarVenta=async()=>{
       document.getElementById('success-overlay').style.display='flex';
       setTimeout(()=>document.getElementById('success-overlay').style.display='none',2500);
       sessionStorage.removeItem('inv_cache');
-      clearCacheC('ventas'); clearCacheC('domicilios');
+      clearCacheC('ventas'); clearCacheC('domicilios'); clearCacheC('domicilios_inv');
       await cargarInventario();
     }else toast(d.error||'Error al registrar','error');
   }catch(e){toast('Error de conexión','error');}
@@ -1702,12 +1701,14 @@ window.setDinvFiltro=filtro=>{
 };
 
 window.cargarDomiciliosInv=async(force)=>{
+  const cached=getCacheC('domicilios_inv');
+  if(cached&&!force){datosVentas=cached;window._dinvDatos=cached;renderDinvPendientes();return;}
   document.getElementById('dinv-lista-pendientes').innerHTML=spinnerHtml('Cargando...');
   try{
-    const r=await fetch(API,{redirect:'follow'});
+    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
     const d=await r.json();
-    datosInv=d; dinvDatos=d; window._dinvDatos=d;
-    sessionStorage.setItem('inv_cache',JSON.stringify(d));
+    datosVentas=d; window._dinvDatos=d;
+    setCacheC('domicilios_inv',d);
     renderDinvPendientes();
   }catch(e){document.getElementById('dinv-lista-pendientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
 };
@@ -1716,37 +1717,37 @@ function renderDinvPendientes(){
   const estados=['Pendiente','Listo para enviar','En camino'];
   let html='', count=0;
   for(let i=1;i<datosInv.length;i++){
-    if(!datosInv[i][0]||!datosInv[i][3]||!datosInv[i][4])continue;
-    const tipoEnt=datosInv[i][7]||'';
+    if(!datosInv[i][0]||!datosInv[i][1])continue;
+    const tipoEnt=datosInv[i][5]||'';
     if(tipoEnt!=='domicilio'&&tipoEnt!=='recogida')continue;
-    const estado=(datosInv[i][15]&&typeof datosInv[i][15]==='string'&&datosInv[i][15].indexOf('T')===-1)?datosInv[i][15]:'Pendiente';
+    const estado=(datosInv[i][11]&&typeof datosInv[i][11]==='string'&&datosInv[i][11].indexOf('T')===-1)?datosInv[i][11]:'Pendiente';
     if(estado==='Entregado')continue;
     count++;
-    const fechaEnt=datosInv[i][12]?new Date(datosInv[i][12].toString().substring(0,10)+'T12:00:00'):null;
+    const fechaEnt=datosInv[i][8]?new Date(datosInv[i][8].toString().substring(0,10)+'T12:00:00'):null;
     const fechaLabel=fechaEnt?fechaEnt.toLocaleDateString('es-CO',{weekday:'short',day:'2-digit',month:'short'}):'Sin fecha';
     const esHoy=fechaEnt&&fechaEnt.toDateString()===new Date().toDateString();
     const badgeColor=estado==='Listo para enviar'?'badge-verde':estado==='En camino'?'badge-amarillo':'badge-rosado';
     const tipoLabel=tipoEnt==='domicilio'?'🚚 Domicilio':'🏪 Recogida';
     html+=`<div class="h-item">
-      <div style="font-size:10px;color:var(--texto-mini);margin-bottom:0;">Creación: ${new Date(datosInv[i][3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+      <div style="font-size:10px;color:var(--texto-mini);margin-bottom:0;">Creación: ${new Date(datosInv[i][0]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
       <div class="h-top">
-        <span class="h-producto">${datosInv[i][5]||'Cliente'}</span>
+        <span class="h-producto">${datosInv[i][3]||'Cliente'}</span>
         <div style="display:flex;flex-direction:row;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
           <span class="badge ${tipoEnt==='domicilio'?'badge-rosado':'badge-verde'}">${tipoLabel}</span>
           <span class="badge ${badgeColor}">${estado}</span>
         </div>
       </div>
-      <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">🕯️ ${datosInv[i][0]} · ${datosInv[i][4]} uds</div>
-      <div style="font-size:12px;color:var(--texto-suave);">📞 ${datosInv[i][6]||''}</div>
+      <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">🕯️ ${datosInv[i][1]} · ${datosInv[i][2]} uds</div>
+      <div style="font-size:12px;color:var(--texto-suave);">📞 ${datosInv[i][4]||''}</div>
       ${(datosInv[i][8]||datosInv[i][11])?`<div style="font-size:12px;color:var(--verde);margin-top:3px;">📍 ${datosInv[i][8]||''} ${datosInv[i][11]?'· 🗺 '+datosInv[i][11]:''}</div>`:''}
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
       ${datosInv[i][18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][18]}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
         <div id="panel-dom-${i}" style="display:none;margin-top:8px;background:var(--crema);border-radius:12px;padding:12px;">
-          <div class="form-group" style="margin-bottom:8px;"><label class="form-label" style="font-size:12px;">📝 Nota para el domiciliario</label><textarea id="nota-dom-${i}" style="width:100%;padding:10px;border:1.5px solid var(--borde);border-radius:10px;font-size:14px;resize:none;height:60px;background:var(--blanco);font-family:inherit;">${datosInv[i][18]||''}</textarea></div>
+          <div class="form-group" style="margin-bottom:8px;"><label class="form-label" style="font-size:12px;">📝 Nota para el domiciliario</label><textarea id="nota-dom-${i}" style="width:100%;padding:10px;border:1.5px solid var(--borde);border-radius:10px;font-size:14px;resize:none;height:60px;background:var(--blanco);font-family:inherit;">${datosInv[i][15]||''}</textarea></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${tipoEnt==='domicilio'&&estado==='Pendiente'?`<button class="btn btn-verde" style="margin-top:0;padding:10px;" onclick="guardarNotaListoEnviar(${i})">📦 Listo para enviar</button>`:''}
-            ${tipoEnt==='recogida'&&estado==='Pendiente'?`<button class="btn btn-verde" style="margin-top:0;padding:10px;" onclick="guardarNotaEntregado(${i})">✅ Entregado</button>`:''}
+            ${tipoEnt==='domicilio'&&estado==='Pendiente'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaListoEnviar('+i+')\">📦 Listo para enviar</button>':''}
+            ${tipoEnt==='recogida'&&estado==='Pendiente'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaEntregado('+i+')\">✅ Entregado</button>':''}
             <button class="btn btn-crema" style="margin-top:0;padding:10px;" onclick="soloNota(${i})">💾 Guardar nota</button>
             <button class="icon-btn" onclick="document.getElementById('panel-dom-${i}').style.display='none'">✕</button>
           </div>
@@ -1764,12 +1765,12 @@ function renderDinvHistorial(){
   const hoy=ahora.toDateString();
   let html='', totalEntregas=0, totalDom=0;
   for(let i=1;i<datosInv.length;i++){
-    if(!datosInv[i][0]||!datosInv[i][3]||!datosInv[i][4])continue;
-    const tipoH=datosInv[i][7]||'';
+    if(!datosInv[i][0]||!datosInv[i][1])continue;
+    const tipoH=datosInv[i][5]||'';
     if(tipoH!=='domicilio'&&tipoH!=='recogida')continue;
-    const estadoH=(datosInv[i][15]&&typeof datosInv[i][15]==='string'&&datosInv[i][15].indexOf('T')===-1)?datosInv[i][15]:'';
+    const estadoH=(datosInv[i][11]&&typeof datosInv[i][11]==='string'&&datosInv[i][11].indexOf('T')===-1)?datosInv[i][11]:'';
     if(estadoH!=='Entregado')continue;
-    const fv=new Date(datosInv[i][3]);
+    const fv=new Date(datosInv[i][0]);
     if(dinvFiltro==='hoy'&&fv.toDateString()!==hoy)continue;
     if(dinvFiltro==='semana'&&(ahora-fv)/(1000*60*60*24)>7)continue;
     if(dinvFiltro==='mes'&&(ahora-fv)/(1000*60*60*24)>30)continue;
@@ -1777,12 +1778,12 @@ function renderDinvHistorial(){
     totalDom+=datosInv[i][10]||0;
     const fecha=fv.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});
     html+=`<div class="h-item">
-      <div style="font-size:10px;color:var(--texto-mini);margin-bottom:0;">Creación: ${new Date(datosInv[i][3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+      <div style="font-size:10px;color:var(--texto-mini);margin-bottom:0;">Creación: ${new Date(datosInv[i][0]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-        <span style="font-size:15px;font-weight:700;color:var(--texto);">${datosInv[i][5]||'Cliente'}</span>
+        <span style="font-size:15px;font-weight:700;color:var(--texto);">${datosInv[i][3]||'Cliente'}</span>
         <span class="badge badge-verde">✅ Entregado</span>
       </div>
-      <div style="font-size:12px;color:var(--texto-suave);margin-top:4px;">🕯️ ${datosInv[i][0]} · ${tipoH==='domicilio'?'🚚 Domicilio':'🏪 Recogida'} · 📅 ${fecha}</div>
+      <div style="font-size:12px;color:var(--texto-suave);margin-top:4px;">🕯️ ${datosInv[i][1]} · ${tipoH==='domicilio'?'🚚 Domicilio':'🏪 Recogida'} · 📅 ${fecha}</div>
       ${tipoH==='domicilio'?`<div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📍 ${datosInv[i][8]||''} ${datosInv[i][11]?'· '+datosInv[i][11]:''}</div><div style="font-size:12px;color:var(--verde);margin-top:2px;">💰 ${fmt(datosInv[i][10]||0)}</div>`:''}
     </div>`;
   }
@@ -1799,7 +1800,7 @@ window.abrirNotaDomicilioIdx=function(idx){
   if(!d){alert('Error: índice '+idx+' no encontrado en '+dinvDatos.length+' registros');return;}
   document.getElementById('nota-dom-producto').value=d[0]||'';
   document.getElementById('nota-dom-cliente').value=d[5]||'';
-  document.getElementById('nota-dom-title').textContent='Nota — '+(d[5]||'Cliente');
+  document.getElementById('nota-dom-title').textContent='Nota — '+(d[3]||'Cliente');
   document.getElementById('nota-dom-texto').value=d[18]||'';
   document.getElementById('modal-nota-dom').style.display='flex';
 };
@@ -1845,28 +1846,28 @@ window.togglePanelDom=function(i){
 };
 
 window.soloNota=async function(i){
-  var d=datosInv[i];
+  var d=datosVentas[i]||datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1]||d[0],clienteOriginal:d[3]||d[5],cliente:d[3]||d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
   document.getElementById('panel-dom-'+i).style.display='none';
   sessionStorage.removeItem('inv_cache'); await cargarInventario(); renderDinvPendientes();
   toast('Nota guardada','success');
 };
 
 window.guardarNotaListoEnviar=async function(i){
-  var d=datosInv[i];
+  var d=datosVentas[i]||datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[0],cliente:d[5],telefono:d[6]||'',direccion:d[8]||'',zona:d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1]||d[0],clienteOriginal:d[3]||d[5],cliente:d[3]||d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[1]||d[0],cliente:d[3]||d[5],telefono:d[4]||d[6]||'',direccion:d[6]||d[8]||'',zona:d[7]||d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
   sessionStorage.removeItem('inv_cache'); clearCacheC('domicilios'); await cargarInventario(); renderDinvPendientes();
   toast('Listo para enviar','success');
 };
 
 window.guardarNotaEntregado=async function(i){
-  var d=datosInv[i];
+  var d=datosVentas[i]||datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[0],clienteOriginal:d[5],cliente:d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[0],cliente:d[5],telefono:d[6]||'',direccion:d[8]||'',zona:d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1]||d[0],clienteOriginal:d[3]||d[5],cliente:d[3]||d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[1]||d[0],cliente:d[3]||d[5],telefono:d[4]||d[6]||'',direccion:d[6]||d[8]||'',zona:d[7]||d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
   sessionStorage.removeItem('inv_cache'); clearCacheC('domicilios'); await cargarInventario(); renderDinvPendientes();
   toast('Entregado','success');
 };
@@ -1960,7 +1961,7 @@ window.eliminarVenta=async(idx,producto,cliente)=>{
       accion:'eliminarVenta', producto, cliente,
       registradoPor:usuarioActual?usuarioActual.nombre:'', filaInv:idx
     })});
-    clearCacheC('ventas'); clearCacheC('domicilios');
+    clearCacheC('ventas'); clearCacheC('domicilios'); clearCacheC('domicilios_inv');
     sessionStorage.removeItem('inv_cache');
     await cargarInventario();
     cargarVentas(true);
@@ -1969,7 +1970,8 @@ window.eliminarVenta=async(idx,producto,cliente)=>{
 };
 
 window.abrirEditarVenta=idx=>{
-  const d=datosInv[idx];
+  const d=datosVentas[idx]||datosInv[idx];
+  if(!d)return;
   if(!d)return;
   document.getElementById('edit-venta-idx').value=idx;
   document.getElementById('modal-venta-title').textContent='Editar — '+d[0];
@@ -2001,7 +2003,8 @@ window.setEditEntrega=tipo=>{
 
 window.guardarEdicionVenta=async()=>{
   const idx=parseInt(document.getElementById('edit-venta-idx').value);
-  const d=datosInv[idx];
+  const d=datosVentas[idx]||datosInv[idx];
+  if(!d)return;
   const entrega=document.getElementById('edit-btn-domicilio').classList.contains('active')?'domicilio':'recogida';
   const zonaVal=document.getElementById('edit-venta-zona').value;
   const zonaTexto=zonaVal?ZONAS_N[zonaVal]:'';
@@ -2011,7 +2014,7 @@ window.guardarEdicionVenta=async()=>{
       accion:'editarVenta',
       producto:d[0],
       cantidad:parseInt(document.getElementById('edit-venta-cantidad').value)||d[4],
-      clienteOriginal:d[5],
+      clienteOriginal:d[3]||d[5],
       cliente:document.getElementById('edit-venta-cliente').value.trim(),
       telefono:document.getElementById('edit-venta-telefono').value.trim(),
       fechaEntrega:document.getElementById('edit-venta-fecha').value,
@@ -2024,7 +2027,7 @@ window.guardarEdicionVenta=async()=>{
       filaInv:idx
     })});
     cerrarModal('modal-editar-venta');
-    clearCacheC('ventas'); clearCacheC('domicilios');
+    clearCacheC('ventas'); clearCacheC('domicilios'); clearCacheC('domicilios_inv');
     sessionStorage.removeItem('inv_cache');
     await cargarInventario();
     cargarVentas(true);
@@ -2081,7 +2084,7 @@ window.cargarDomicilios=async(force)=>{
   if(cached&&!force){domDatosGlobal=cached;renderPendientes(cached);return;}
   document.getElementById('lista-pendientes').innerHTML=spinnerHtml('Cargando entregas...');
   try{
-    const r=await fetch(API,{redirect:'follow'});
+    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
     const d=await r.json();
     domDatosGlobal=d;
     setCacheC('domicilios',d);
@@ -2099,10 +2102,10 @@ function renderPendientes(datos){
     dias.push({fecha, entregas:[]});
   }
   for(let i=1;i<datos.length;i++){
-    if(!datos[i][0]||datos[i][7]!=='domicilio')continue;
-    const estado=(datos[i][15]&&typeof datos[i][15]==='string'&&datos[i][15].indexOf('T')===-1)?datos[i][15]:'';
+    if(!datos[i][0]||datos[i][5]!=='domicilio')continue;
+    const estado=(datos[i][11]&&typeof datos[i][11]==='string'&&datos[i][11].indexOf('T')===-1)?datos[i][11]:'';
     if(estado!=='Listo para enviar'&&estado!=='En camino')continue;
-    const fechaEnt=datos[i][12]?new Date(datos[i][12].substring(0,10)+'T12:00:00'):null;
+    const fechaEnt=datos[i][8]?new Date(datos[i][8].toString().substring(0,10)+'T12:00:00'):null;
     if(!fechaEnt)continue;
     const diaIdx=dias.findIndex(d=>d.fecha.toDateString()===fechaEnt.toDateString());
     if(diaIdx>=0) dias[diaIdx].entregas.push({i,d:datos[i]});
@@ -2131,15 +2134,15 @@ function renderPendientes(datos){
         <div style="padding:14px 16px;border-top:1px solid var(--borde);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
             <div>
-              <div style="font-size:14px;font-weight:700;color:var(--texto);">${d[5]||'Cliente'}</div>
+              <div style="font-size:14px;font-weight:700;color:var(--texto);">${d[3]||'Cliente'}</div>
               <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${new Date(d[3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
-          <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${d[6]||''}</div>
+          <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${d[4]||''}</div>
             </div>
-            <span class="badge ${d[15]==='En camino'?'badge-amarillo':'badge-rosado'}">${d[15]||'Pendiente'}</span>
+            <span class="badge ${d[11]==='En camino'?'badge-amarillo':'badge-rosado'}">${d[15]||'Pendiente'}</span>
           </div>
-          <div style="font-size:13px;color:var(--texto);margin:6px 0;">🕯️ ${d[0]} · ${d[4]} uds</div>
-          <div style="font-size:12px;color:var(--texto-suave);">📍 ${d[8]||''}</div>
-          <div style="font-size:12px;color:var(--verde);margin-top:4px;">🚚 ${d[11]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>
+          <div style="font-size:13px;color:var(--texto);margin:6px 0;">🕯️ ${d[1]} · ${d[2]} uds</div>
+          <div style="font-size:12px;color:var(--texto-suave);">📍 ${d[6]||''}</div>
+          <div style="font-size:12px;color:var(--verde);margin-top:4px;">🚚 ${d[7]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>
           ${d[18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${d[18]}</div>`:''}
           <button class="icon-btn" style="margin-top:8px;background:var(--verde);color:#fff;border-color:var(--verde);width:100%;padding:10px;" onclick="abrirModalEntregar(${i})">Actualizar estado</button>
         </div>`).join('')}
@@ -2178,10 +2181,10 @@ function renderHistorialDom(){
   const hoy=ahora.toDateString();
   let html='', count=0, totalDom=0, totalEntregas=0;
   for(let i=1;i<domDatosGlobal.length;i++){
-    if(!domDatosGlobal[i][0]||domDatosGlobal[i][7]!=='domicilio')continue;
-    const estado=(domDatosGlobal[i][15]&&typeof domDatosGlobal[i][15]==='string'&&domDatosGlobal[i][15].indexOf('T')===-1)?domDatosGlobal[i][15]:'';
+    if(!domDatosGlobal[i][0]||domDatosGlobal[i][5]!=='domicilio')continue;
+    const estado=(domDatosGlobal[i][11]&&typeof domDatosGlobal[i][11]==='string'&&domDatosGlobal[i][11].indexOf('T')===-1)?domDatosGlobal[i][11]:'';
     if(estado!=='Entregado')continue;
-    const fv=new Date(domDatosGlobal[i][3]);
+    const fv=new Date(domDatosGlobal[i][0]);
     if(filtroDom==='hoy'&&fv.toDateString()!==hoy)continue;
     if(filtroDom==='semana'&&(ahora-fv)/(1000*60*60*24)>7)continue;
     if(filtroDom==='mes'&&(ahora-fv)/(1000*60*60*24)>30)continue;
@@ -2190,11 +2193,11 @@ function renderHistorialDom(){
     totalDom+=costoDom; totalEntregas++;
     const fecha=fv.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     html+=`<div class="h-item">
-      <div style="font-size:10px;color:var(--texto-mini);margin-bottom:0;">Creación: ${new Date(domDatosGlobal[i][3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
-      <div class="h-top"><span class="h-producto">${domDatosGlobal[i][5]||'Cliente'}</span><span class="badge badge-verde">✅ Entregado</span></div>
-      <div class="h-cliente">🕯️ ${domDatosGlobal[i][0]} · 📅 ${fecha}</div>
-      <div style="font-size:12px;color:var(--texto-suave);margin-top:3px;">📍 ${domDatosGlobal[i][8]||''}</div>
-      <div style="font-size:12px;color:var(--verde);margin-top:3px;">🚚 ${domDatosGlobal[i][11]||''} · 💰 $${Math.round(costoDom).toLocaleString('es-CO')}</div>
+      <div style="font-size:10px;color:var(--texto-mini);margin-bottom:0;">Creación: ${new Date(domDatosGlobal[i][0]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+      <div class="h-top"><span class="h-producto">${domDatosGlobal[i][3]||'Cliente'}</span><span class="badge badge-verde">✅ Entregado</span></div>
+      <div class="h-cliente">🕯️ ${domDatosGlobal[i][1]} · 📅 ${fecha}</div>
+      <div style="font-size:12px;color:var(--texto-suave);margin-top:3px;">📍 ${domDatosGlobal[i][6]||''}</div>
+      <div style="font-size:12px;color:var(--verde);margin-top:3px;">🚚 ${domDatosGlobal[i][7]||''} · 💰 $${Math.round(costoDom).toLocaleString('es-CO')}</div>
     </div>`;
   }
   document.getElementById('lista-historial-dom').innerHTML=count>0?html:'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas en este periodo.</div>';
@@ -2230,7 +2233,7 @@ window.generarReporteDinv=()=>{
     if(tipoE!=='domicilio'&&tipoE!=='recogida')continue;
     const estadoE=(datosInv[i][15]&&typeof datosInv[i][15]==='string'&&datosInv[i][15].indexOf('T')===-1)?datosInv[i][15]:'';
     if(estadoE!=='Entregado')continue;
-    const fv=new Date(datosInv[i][3]);
+    const fv=new Date(datosInv[i][0]);
     if(fv.getMonth()!==mes||fv.getFullYear()!==anio)continue;
     if(tipoE==='domicilio'){
       totalDomicilios++;
@@ -2284,7 +2287,7 @@ window.generarReporteDom=()=>{
   for(let i=1;i<domDatosGlobal.length;i++){
     if(!domDatosGlobal[i][0]||domDatosGlobal[i][7]!=='domicilio')continue;
     if((domDatosGlobal[i][15]||'')!=='Entregado')continue;
-    const fv=new Date(domDatosGlobal[i][3]);
+    const fv=new Date(domDatosGlobal[i][0]);
     if(fv.getMonth()!==mes||fv.getFullYear()!==anio)continue;
     totalEntregas++;
     const dom=domDatosGlobal[i][10]||0;
@@ -2310,14 +2313,14 @@ window.generarReporteDom=()=>{
 window.abrirModalEntregar=idx=>{
   entregaActual=idx; estadoDomActual='';
   const d=domDatosGlobal[idx];
-  document.getElementById('modal-entregar-title').textContent='Entrega — '+(d[5]||'Cliente');
+  document.getElementById('modal-entregar-title').textContent='Entrega — '+(d[3]||'Cliente');
   document.getElementById('entregar-idx').value=idx;
   document.getElementById('entregar-detalle').innerHTML=`
-    <div style="font-weight:700;color:var(--verde);margin-bottom:8px;">${d[5]||'Cliente'}</div>
-    <div>📞 ${d[6]||''}</div>
-    <div>🕯️ ${d[0]} · ${d[4]} uds</div>
-    <div>📍 ${d[8]||''}</div>
-    <div>🚚 ${d[11]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>`;
+    <div style="font-weight:700;color:var(--verde);margin-bottom:8px;">${d[3]||'Cliente'}</div>
+    <div>📞 ${d[4]||''}</div>
+    <div>🕯️ ${d[1]} · ${d[2]} uds</div>
+    <div>📍 ${d[6]||''}</div>
+    <div>🚚 ${d[7]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>`;
   document.getElementById('estado-btn-camino').classList.remove('active');
   document.getElementById('estado-btn-entregado').classList.remove('active');
   document.getElementById('foto-group').style.display='none';
@@ -2372,8 +2375,8 @@ window.confirmarEntrega=async()=>{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'actualizarEstadoDomicilio',
       estado:estadoDomActual,
-      producto:d[0], cliente:d[5], telefono:d[6], direccion:d[8],
-      zona:d[11]||'', fotoBase64,
+      producto:d[1], cliente:d[3], telefono:d[4], direccion:d[6],
+      zona:d[7]||'', fotoBase64,
       registradoPor:'Julian Builes',
       filaInv:idx
     })});
@@ -2404,7 +2407,7 @@ window.mostrarReporteMes=()=>{
 async function generarReporte(){
   document.getElementById('reporte-contenido').innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando reporte...</div></div>';
   try{
-    const r=await fetch(API,{redirect:'follow'});
+    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
     const datos=await r.json();
     const selVal=document.getElementById('reporte-mes').value.split('-');
     const anio=parseInt(selVal[0]);
@@ -2439,9 +2442,11 @@ async function generarReporte(){
       rankingHtml+=`<div class="res-costeo-row"><span>${emoji} ${nombre}</span><span>${v.cant} uds · ${fmt(v.total)}</span></div>`;
     });
 
-    for(let i=1;i<datos.length;i++){
-      if(!datos[i][0])continue;
-      stockHtml+=`<div class="res-costeo-row"><span>${datos[i][0]}</span><span>${datos[i][1]} uds · ${fmt(datos[i][9]||0)}</span></div>`;
+    const invR=await fetch(API,{redirect:'follow'});
+    const invData=await invR.json();
+    for(let i=1;i<invData.length;i++){
+      if(!invData[i][0])continue;
+      stockHtml+=`<div class="res-costeo-row"><span>${invData[i][0]}</span><span>${invData[i][1]} uds · ${fmt(invData[i][3]||0)}</span></div>`;
     }
 
     const granTotal=totalVentas+totalDom;
