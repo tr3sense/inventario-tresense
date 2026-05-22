@@ -1092,7 +1092,7 @@ window.setFiltroHistorial=filtro=>{
 };
 
 function renderHistorial(){
-  console.log('renderHistorial datosVentas:', JSON.stringify(datosVentas?datosVentas.slice(0,3):[]));
+
   const src=datosVentas&&datosVentas.length>1&&datosVentas[1]&&datosVentas[1][1]?datosVentas:[];
   if(!src.length){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas registradas.</div>';document.getElementById('resumen-dia').innerHTML='';return;}
   const ahora=new Date();
@@ -1150,7 +1150,6 @@ window.cargarInventario=async()=>{
   try{
     const r=await fetch(API,{redirect:'follow'});
     const d=await r.json();
-    console.log('inventario API response:', JSON.stringify(d));
     sessionStorage.setItem('inv_cache',JSON.stringify(d));
     renderProductos(d);
   }catch(e){document.getElementById('lista-productos').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Error de conexión.</div>';toast('Error de conexión','error');}
