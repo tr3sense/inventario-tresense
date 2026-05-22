@@ -506,7 +506,6 @@ textarea { resize:none; height:70px; font-size:14px; }
       <button class="tab-btn active" id="tab-stock" onclick="mostrarTab('stock')">Stock</button>
       <button class="tab-btn" id="tab-ventas" onclick="mostrarTab('ventas')">Ventas</button>
       <button class="tab-btn" id="tab-domicilios-inv" onclick="mostrarTab('domicilios-inv')">Domicilios</button>
-      <button class="tab-btn" id="tab-historial" onclick="mostrarTab('historial')">Historial</button>
     </div>
     <div id="panel-stock">
       <div id="alerta-banner" class="alerta-banner"></div>
@@ -514,7 +513,24 @@ textarea { resize:none; height:70px; font-size:14px; }
       <p class="ultimo-update" id="ultimo-update"></p>
     </div>
     <div id="panel-ventas" style="display:none;">
-      <div class="scroll-box" id="lista-ventas"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+      <div style="display:flex;gap:4px;margin-bottom:12px;background:var(--crema);border-radius:12px;padding:4px;">
+        <button class="tab-btn active" id="vtab-recientes" onclick="setVentasTab('recientes')" style="font-size:11px;">Recientes</button>
+        <button class="tab-btn" id="vtab-historial" onclick="setVentasTab('historial')" style="font-size:11px;">Historial</button>
+      </div>
+      <div id="vpanel-recientes">
+        <div class="scroll-box" id="lista-ventas"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+      </div>
+      <div id="vpanel-historial" style="display:none;">
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+          <div class="toggle-btn active" id="filtro-hoy" onclick="setFiltroHistorial('hoy')" style="min-width:50px;padding:7px;font-size:11px;">Hoy</div>
+          <div class="toggle-btn" id="filtro-semana" onclick="setFiltroHistorial('semana')" style="min-width:50px;padding:7px;font-size:11px;">7 días</div>
+          <div class="toggle-btn" id="filtro-mes" onclick="setFiltroHistorial('mes')" style="min-width:50px;padding:7px;font-size:11px;">Mes</div>
+          <div class="toggle-btn" id="filtro-todo" onclick="setFiltroHistorial('todo')" style="min-width:50px;padding:7px;font-size:11px;">Todo</div>
+        </div>
+        <div class="scroll-box" id="lista-historial"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+        <div id="resumen-dia"></div>
+        <button class="btn btn-crema" style="margin-top:10px;" onclick="mostrarReporteMes()">📊 Reporte del mes</button>
+      </div>
     </div>
 
     <div id="panel-domicilios-inv" style="display:none;">
@@ -538,19 +554,7 @@ textarea { resize:none; height:70px; font-size:14px; }
       </div>
     </div>
 
-    <div id="panel-historial" style="display:none;">
-      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
-        <div class="toggle-group" style="margin-bottom:0;flex:1;">
-          <div class="toggle-btn active" id="filtro-hoy" onclick="setFiltroHistorial('hoy')" style="min-width:60px;padding:8px;">Hoy</div>
-          <div class="toggle-btn" id="filtro-semana" onclick="setFiltroHistorial('semana')" style="min-width:60px;padding:8px;">7 días</div>
-          <div class="toggle-btn" id="filtro-mes" onclick="setFiltroHistorial('mes')" style="min-width:60px;padding:8px;">Mes</div>
-          <div class="toggle-btn" id="filtro-todo" onclick="setFiltroHistorial('todo')" style="min-width:60px;padding:8px;">Todo</div>
-        </div>
-      </div>
-      <div class="scroll-box" id="lista-historial"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
-      <div id="resumen-dia"></div>
-      <button class="btn btn-crema" style="margin-top:10px;" onclick="mostrarReporteMes()">📊 Reporte del mes</button>
-    </div>
+
   </div>
 
   <div class="card">
@@ -1011,13 +1015,33 @@ document.addEventListener('click',resetInact);
 
 // INVENTARIO TABS
 window.mostrarTab=tab=>{
-  ['stock','ventas','domicilios-inv','historial'].forEach(t=>{
+  ['stock','ventas','domicilios-inv'].forEach(t=>{
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
     document.getElementById('panel-'+t).style.display=t===tab?'block':'none';
   });
-  if(tab==='historial') renderHistorial();
-  if(tab==='ventas') cargarVentas();
+  if(tab==='ventas'){cargarVentas();setVentasTab('recientes');}
   if(tab==='domicilios-inv') cargarDomiciliosInv();
+};
+
+window.setVentasTab=tab=>{
+  ['recientes','historial'].forEach(t=>{
+    document.getElementById('vtab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('vpanel-'+t).style.display=t===tab?'block':'none';
+  });
+  if(tab==='historial'){
+    if(datosVentas.length<2) cargarVentasHistorial();
+    else renderHistorial();
+  }
+};
+
+window.cargarVentasHistorial=async()=>{
+  document.getElementById('lista-historial').innerHTML=spinnerHtml('Cargando historial...');
+  try{
+    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
+    const d=await r.json();
+    datosVentas=d;
+    renderHistorial();
+  }catch(e){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
 };
 
 const fmt=n=>'$'+Math.round(n).toLocaleString('es-CO');
