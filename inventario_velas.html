@@ -1728,7 +1728,7 @@ window.cargarDomiciliosInv=async(force)=>{
   try{
     const r=await fetch(API,{redirect:'follow'});
     const d=await r.json();
-    datosInv=d; dinvDatos=d;
+    datosInv=d; dinvDatos=d; window._dinvDatos=d;
     sessionStorage.setItem('inv_cache',JSON.stringify(d));
     renderDinvPendientes();
   }catch(e){document.getElementById('dinv-lista-pendientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
@@ -1836,8 +1836,9 @@ window.guardarNotaDomicilio=async()=>{
 
 window.abrirGestionarDom=function(idx){
   idx=parseInt(idx);
-  const d=datosInv[idx];
-  if(!d){toast('Error cargando datos','error');return;}
+  const src=window._dinvDatos||datosInv;
+  const d=src[idx];
+  if(!d){toast('Error: fila '+idx+' no encontrada ('+src.length+' filas)','error');return;}
   const estado=(d[15]&&typeof d[15]==='string'&&d[15].indexOf('T')===-1)?d[15]:'Pendiente';
   const tipoEnt=d[7]||'';
   document.getElementById('gestionar-dom-idx').value=idx;
