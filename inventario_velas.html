@@ -1026,7 +1026,9 @@ document.addEventListener('touchstart',resetInact);
 document.addEventListener('click', function(e){
   const btn = e.target.closest('.btn-gestionar');
   if(!btn) return;
+  e.stopPropagation();
   const i = parseInt(btn.getAttribute('data-i'));
+  alert('Botón tocado, idx='+i+', datos='+(window._dinvDatos?window._dinvDatos.length:'null'));
   abrirGestionarDom(i);
 });
 document.addEventListener('click',resetInact);
