@@ -1092,7 +1092,7 @@ window.setFiltroHistorial=filtro=>{
 };
 
 function renderHistorial(){
-  const src=datosVentas.length>1?datosVentas:[];
+  const src=datosVentas&&datosVentas.length>1&&datosVentas[1]&&datosVentas[1][1]?datosVentas:[];
   if(!src.length){document.getElementById('lista-historial').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas registradas.</div>';document.getElementById('resumen-dia').innerHTML='';return;}
   const ahora=new Date();
   const hoy=ahora.toDateString();
@@ -1728,12 +1728,12 @@ window.setDinvFiltro=filtro=>{
 
 window.cargarDomiciliosInv=async(force)=>{
   const cached=getCacheC('domicilios_inv');
-  if(cached&&!force){datosVentas=cached;window._dinvDatos=cached;renderDinvPendientes();return;}
+  if(cached&&!force){window._dinvDatos=cached;datosInv=cached;renderDinvPendientes();return;}
   document.getElementById('dinv-lista-pendientes').innerHTML=spinnerHtml('Cargando...');
   try{
     const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
     const d=await r.json();
-    datosVentas=d; window._dinvDatos=d;
+    window._dinvDatos=d; datosInv=d;
     setCacheC('domicilios_inv',d);
     renderDinvPendientes();
   }catch(e){document.getElementById('dinv-lista-pendientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
