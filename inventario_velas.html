@@ -1760,7 +1760,7 @@ function renderDinvPendientes(){
         ${tipoEnt==='domicilio'&&estado==='Listo para enviar'?`<span style="font-size:12px;color:var(--verde);font-weight:600;">📦 Esperando domiciliario</span>`:''}
         ${tipoEnt==='domicilio'&&estado==='En camino'?`<span style="font-size:12px;color:#9a7d1a;font-weight:600;">🚚 En camino</span>`:''}
         ${tipoEnt==='recogida'&&estado==='Pendiente'?`<button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="marcarEntregadoRecogida(${i},'${datosInv[i][0]}','${datosInv[i][5]}')">✅ Entregado</button>`:''}
-        <button class="icon-btn" onclick="abrirNotaDomicilioIdx(${i})">📝 Nota</button>
+        <button class="icon-btn" onclick="window.abrirNotaDomicilioIdx(${i})">📝 Nota</button>
       </div>
     </div>`;
   }
@@ -1799,17 +1799,18 @@ function renderDinvHistorial(){
   document.getElementById('dinv-resumen').innerHTML=totalEntregas>0?`<div class="resumen-dia-box" style="margin-top:8px;">🚚 ${totalEntregas} entregas ${labels[dinvFiltro]} · <strong>$${Math.round(totalDom).toLocaleString('es-CO')}</strong></div>`:'';
 }
 
+
+
 window.abrirNotaDomicilioIdx=function(idx){
   idx=parseInt(idx);
-  const d=datosInv[idx];
-  if(!d){toast('Error cargando datos','error');return;}
+  var d=datosInv[idx];
+  if(!d){alert('Error: datos no encontrados');return;}
   document.getElementById('nota-dom-producto').value=d[0]||'';
   document.getElementById('nota-dom-cliente').value=d[5]||'';
   document.getElementById('nota-dom-title').textContent='Nota — '+(d[5]||'Cliente');
   document.getElementById('nota-dom-texto').value=d[17]||'';
   document.getElementById('modal-nota-dom').style.display='flex';
 };
-
 window.guardarNotaDomicilio=async()=>{
   const producto=document.getElementById('nota-dom-producto').value;
   const cliente=document.getElementById('nota-dom-cliente').value;
