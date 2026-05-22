@@ -1142,17 +1142,17 @@ function mostrarSkeleton(){
 }
 
 window.cargarInventario=async()=>{
-  const cache=sessionStorage.getItem('inv_cache');
-  // Verificar que el caché es del inventario nuevo (tiene columna Foto en [4], no en [13])
-  const cacheValido=cache&&JSON.parse(cache)[1]&&JSON.parse(cache)[1].length<=6;
-  if(cacheValido)renderProductos(JSON.parse(cache));else mostrarSkeleton();
+  mostrarSkeleton();
   document.getElementById('alerta-banner').style.display='none';
   try{
-    const r=await fetch(API);
-    const text=await r.text();
-    const d=JSON.parse(text);
-    sessionStorage.setItem('inv_cache',JSON.stringify(d));
-    renderProductos(d);
+    const r=await fetch(API+'?accion=inventario',{redirect:'follow'});
+    const d=await r.json();
+    if(d&&d.length>0){
+      sessionStorage.setItem('inv_cache',JSON.stringify(d));
+      renderProductos(d);
+    } else {
+      document.getElementById('lista-productos').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin productos.</div>';
+    }
   }catch(e){document.getElementById('lista-productos').innerHTML='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Error de conexión.</div>';toast('Error de conexión','error');}
 };
 
