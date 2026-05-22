@@ -1771,7 +1771,7 @@ function renderDinvPendientes(){
       <div style="font-size:12px;color:var(--texto-suave);">📞 ${datosInv[i][4]||''}</div>
       ${(datosInv[i][8]||datosInv[i][11])?`<div style="font-size:12px;color:var(--verde);margin-top:3px;">📍 ${datosInv[i][8]||''} ${datosInv[i][11]?'· 🗺 '+datosInv[i][11]:''}</div>`:''}
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
-      ${datosInv[i][18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][18]}</div>`:''}
+      ${datosInv[i][15]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][15]}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
         <div id="panel-dom-${i}" style="display:none;margin-top:8px;background:var(--crema);border-radius:12px;padding:12px;">
           <div class="form-group" style="margin-bottom:8px;"><label class="form-label" style="font-size:12px;">📝 Nota para el domiciliario</label><textarea id="nota-dom-${i}" style="width:100%;padding:10px;border:1.5px solid var(--borde);border-radius:10px;font-size:14px;resize:none;height:60px;background:var(--blanco);font-family:inherit;">${datosInv[i][15]||''}</textarea></div>
@@ -1876,28 +1876,28 @@ window.togglePanelDom=function(i){
 };
 
 window.soloNota=async function(i){
-  var d=datosVentas[i]||datosInv[i];
+  var d=datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1]||d[0],clienteOriginal:d[3]||d[5],cliente:d[3]||d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
   document.getElementById('panel-dom-'+i).style.display='none';
   sessionStorage.removeItem('inv_cache'); await cargarInventario(); renderDinvPendientes();
   toast('Nota guardada','success');
 };
 
 window.guardarNotaListoEnviar=async function(i){
-  var d=datosVentas[i]||datosInv[i];
+  var d=datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1]||d[0],clienteOriginal:d[3]||d[5],cliente:d[3]||d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[1]||d[0],cliente:d[3]||d[5],telefono:d[4]||d[6]||'',direccion:d[6]||d[8]||'',zona:d[7]||d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
   sessionStorage.removeItem('inv_cache'); clearCacheC('domicilios'); await cargarInventario(); renderDinvPendientes();
   toast('Listo para enviar','success');
 };
 
 window.guardarNotaEntregado=async function(i){
-  var d=datosVentas[i]||datosInv[i];
+  var d=datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1]||d[0],clienteOriginal:d[3]||d[5],cliente:d[3]||d[5],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[1]||d[0],cliente:d[3]||d[5],telefono:d[4]||d[6]||'',direccion:d[6]||d[8]||'',zona:d[7]||d[11]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
   sessionStorage.removeItem('inv_cache'); clearCacheC('domicilios'); await cargarInventario(); renderDinvPendientes();
   toast('Entregado','success');
 };
@@ -1949,7 +1949,8 @@ function renderVentas(datos){
   });
   ventasFiltradas.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
   ventasFiltradas.forEach(v=>{
-    const fechaReg=new Date(v.fecha).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const fechaObj=new Date(v.fecha);
+    const fechaReg=isNaN(fechaObj)?'':fechaObj.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});
     const tieneFecha=v.fechaEnt&&v.fechaEnt.toString().length>0;
     let fechaEntLabel='Sin fecha de entrega';
     if(tieneFecha){
@@ -1980,7 +1981,7 @@ function renderVentas(datos){
   document.getElementById('lista-ventas').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas en los últimos 3 días.</div>';
 }
 
-const ZONAS_VAL={'Medellín':'medellin','Bello/Envigado/Itagüí/Sabaneta':'area1','Otras zonas':'otras'};
+const ZONAS_VAL={'Medellín':'medellin','Bello/Envigado/Itagüí/Sabaneta':'area1','Otras zonas del área metropolitana':'otras','Bello, Envigado, Itagüí, Sabaneta':'area1'};
 
 window.eliminarVenta=async(idx,producto,cliente)=>{
   if(!confirm(`¿Eliminar la venta de ${producto} — ${cliente}?\nEsta acción no se puede deshacer.`))return;
@@ -1998,8 +1999,8 @@ window.eliminarVenta=async(idx,producto,cliente)=>{
 };
 
 window.abrirEditarVenta=idx=>{
-  const d=datosVentas[idx]||datosInv[idx];
-  if(!d)return;
+  const d=datosVentas[idx];
+  if(!d){toast('Error','error');return;}
   if(!d)return;
   document.getElementById('edit-venta-idx').value=idx;
   document.getElementById('modal-venta-title').textContent='Editar — '+d[0];
@@ -2031,8 +2032,8 @@ window.setEditEntrega=tipo=>{
 
 window.guardarEdicionVenta=async()=>{
   const idx=parseInt(document.getElementById('edit-venta-idx').value);
-  const d=datosVentas[idx]||datosInv[idx];
-  if(!d)return;
+  const d=datosVentas[idx];
+  if(!d){toast('Error','error');return;}
   const entrega=document.getElementById('edit-btn-domicilio').classList.contains('active')?'domicilio':'recogida';
   const zonaVal=document.getElementById('edit-venta-zona').value;
   const zonaTexto=zonaVal?ZONAS_N[zonaVal]:'';
@@ -2042,7 +2043,7 @@ window.guardarEdicionVenta=async()=>{
       accion:'editarVenta',
       producto:d[0],
       cantidad:parseInt(document.getElementById('edit-venta-cantidad').value)||d[4],
-      clienteOriginal:d[3]||d[5],
+      clienteOriginal:d[3],
       cliente:document.getElementById('edit-venta-cliente').value.trim(),
       telefono:document.getElementById('edit-venta-telefono').value.trim(),
       fechaEntrega:document.getElementById('edit-venta-fecha').value,
@@ -2171,7 +2172,7 @@ function renderPendientes(datos){
           <div style="font-size:13px;color:var(--texto);margin:6px 0;">🕯️ ${d[1]} · ${d[2]} uds</div>
           <div style="font-size:12px;color:var(--texto-suave);">📍 ${d[6]||''}</div>
           <div style="font-size:12px;color:var(--verde);margin-top:4px;">🚚 ${d[7]||''} · 💰 $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>
-          ${d[18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${d[18]}</div>`:''}
+          ${d[15]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${d[15]}</div>`:''}
           <button class="icon-btn" style="margin-top:8px;background:var(--verde);color:#fff;border-color:var(--verde);width:100%;padding:10px;" onclick="abrirModalEntregar(${i})">Actualizar estado</button>
         </div>`).join('')}
         ${dia.entregas.length===0?'<div style="padding:12px 16px;color:var(--texto-mini);font-size:13px;text-align:center;">Sin entregas este día</div>':''}
