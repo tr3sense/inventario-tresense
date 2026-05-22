@@ -264,9 +264,9 @@ textarea { resize:none; height:70px; font-size:14px; }
 .inv-logo { width:150px; margin-bottom:10px; }
 .inv-usuario-label { text-align:center; color:rgba(255,255,255,0.75); font-size:13px; font-weight:600; letter-spacing:0.3px; }
 @media (min-width:600px) {
-  .inv-header { padding:20px 28px 24px; }
-  .inv-logo { width:180px; margin-bottom:16px; }
-  .inv-usuario-label { font-size:14px; margin-top:2px; }
+  .inv-header { padding:24px 28px 26px; }
+  .inv-logo { width:190px; margin-top:4px; margin-bottom:18px; }
+  .inv-usuario-label { font-size:14px; letter-spacing:0.5px; }
 }
 @media (min-width:600px) {
   #app-inventario .header, #app-domicilios .header { padding:20px 28px 22px; }
@@ -773,8 +773,8 @@ const API = "https://script.google.com/macros/s/AKfycbxCV6Rx5HFkaFcxsilL1juz-JoW
 const MAX_INT = 3, INACT = 300000;
 const USUARIOS = [
   { nombre: "Natacha Vergara", pin: "0825", rol: "admin" },
-  { nombre: "Sara Martínez",   pin: "3947", rol: "admin" },
-  { nombre: "Juliana Martínez",pin: "7162", rol: "inventario" }
+  { nombre: "Sara Martínez", pin: "3947", rol: "admin" },
+  { nombre: "Juliana Martínez", pin: "7162", rol: "inventario" }
 ];
 const DOMICILIARIO = { nombre: "Julian Builes", pin: "5283" };
 const CU = "contadora", CP = "Conta#Tr3s2025!";
@@ -914,7 +914,7 @@ window.iniciarSesionConta=()=>{
     err.textContent='';
     document.getElementById('acceso-screen').style.display='none';
     document.getElementById('app-contabilidad').style.display='block';
-    document.getElementById('conta-user').textContent='Sara Martínez'; usuarioActual={nombre:'Sara Martínez',rol:'admin'};
+    document.getElementById('conta-user').textContent='Contadora'; usuarioActual={nombre:'Sara Martínez',rol:'admin'};
     mostrarTabConta('insumos');
   } else {err.textContent='Usuario o contraseña incorrectos.';}
 };
