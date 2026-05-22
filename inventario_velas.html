@@ -118,12 +118,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .stock-label { font-size:10px; color:var(--texto-mini); }
 
 /* HISTORIAL */
-.h-item { padding:12px 0; border-bottom:1px solid var(--crema); }
+.h-item { padding:10px 0; border-bottom:1px solid var(--crema); }
 .h-item:last-child { border-bottom:none; }
-.h-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-.h-producto { font-size:14px; font-weight:700; color:var(--texto); }
+.h-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:1px; }
+.h-produto { font-size:14px; font-weight:700; color:var(--texto); line-height:1.2; }
 .h-cantidad { font-size:13px; color:var(--verde); font-weight:600; white-space:nowrap; }
-.h-cliente { font-size:12px; color:var(--texto-suave); margin-top:3px; }
+.h-cliente { font-size:12px; color:var(--texto-suave); margin-top:1px; }
 .h-hora { font-size:11px; color:var(--texto-mini); }
 .badge { display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; margin-top:5px; }
 .badge-verde { background:var(--verde-light); color:var(--verde); }
@@ -1863,7 +1863,7 @@ function renderVentas(datos){
           <button class="icon-btn" style="font-size:12px;background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarVenta(${v.idx},'${v.producto}','${v.cliente}')">🗑</button>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${fechaReg}</div>
+      <div style="font-size:11px;color:var(--texto-mini);margin-top:1px;">Creación: ${fechaReg}</div>
       <div class="h-cliente" style="margin-top:3px;">${v.cliente?'👤 '+v.cliente:''} ${v.telefono?'· '+v.telefono:''}</div>
       <div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span class="badge ${v.entrega==='domicilio'?'badge-rosado':'badge-verde'}">${v.entrega==='domicilio'?'🚚 Domicilio':'🏪 Recogida'}</span>
