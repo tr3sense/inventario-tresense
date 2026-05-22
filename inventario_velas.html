@@ -1143,7 +1143,9 @@ function mostrarSkeleton(){
 
 window.cargarInventario=async()=>{
   const cache=sessionStorage.getItem('inv_cache');
-  if(cache)renderProductos(JSON.parse(cache));else mostrarSkeleton();
+  // Verificar que el caché es del inventario nuevo (tiene columna Foto en [4], no en [13])
+  const cacheValido=cache&&JSON.parse(cache)[1]&&JSON.parse(cache)[1].length<=6;
+  if(cacheValido)renderProductos(JSON.parse(cache));else mostrarSkeleton();
   document.getElementById('alerta-banner').style.display='none';
   try{
     const r=await fetch(API,{redirect:'follow'});
