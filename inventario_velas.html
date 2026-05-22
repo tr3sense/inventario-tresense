@@ -1006,8 +1006,9 @@ function renderHistorial(){
     if(v.fechaEnt){const fe=new Date(v.fechaEnt.substring(0,10)+'T12:00:00');etq+=' · '+fe.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});}
     html+=`<div class="h-item">
       <div class="h-top"><span class="h-producto">${v.producto}</span><span class="h-cantidad">-${v.cantidad} uds</span></div>
-      <div class="h-cliente">${v.cliente?'👤 '+v.cliente:''} ${v.telefono?'· '+v.telefono:''}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span class="badge ${v.entrega==='domicilio'?'badge-rosado':'badge-verde'}">${etq}</span><span class="h-hora">${hora}</span></div>
+      <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${hora}</div>
+      <div class="h-cliente" style="margin-top:3px;">${v.cliente?'👤 '+v.cliente:''} ${v.telefono?'· '+v.telefono:''}</div>
+      <div style="margin-top:4px;"><span class="badge ${v.entrega==='domicilio'?'badge-rosado':'badge-verde'}">${etq}</span></div>
       ${v.direccion?`<div style="font-size:12px;color:var(--texto-suave);margin-top:3px;">📍 ${v.direccion}</div>`:''}
       ${v.precio>0?`<div class="h-financiero">Precio unit.: ${fmt(v.precio)} · Subtotal: ${fmt(sub)}${v.costoDom>0?' · Domicilio: '+fmt(v.costoDom):''}<br><strong>Total: ${fmt(tot)}</strong></div>`:''}
     </div>`;
