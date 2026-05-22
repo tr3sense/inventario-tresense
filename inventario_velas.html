@@ -1838,6 +1838,7 @@ window.guardarNotaDomicilio=async()=>{
 
 window.abrirGestionarDomPorNombre=function(prod, cli){
   const src=window._dinvDatos||datosInv;
+  alert('Buscando: prod='+prod+' cli='+cli+' en '+src.length+' filas. Fila1='+JSON.stringify(src[1]?[src[1][0],src[1][5]]:'null'));
   let d=null;
   for(let i=1;i<src.length;i++){
     if(src[i][0]===prod&&src[i][5]===cli){d=src[i];break;}
