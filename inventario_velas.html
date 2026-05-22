@@ -1790,7 +1790,7 @@ function renderProduccion(datos){
     const colorFecha=esPasado?'#c9908a':esHoy?'var(--verde)':'var(--texto-suave)';
     const btn=esListo
       ?`<span class="badge badge-verde" style="padding:6px 12px;font-size:12px;">📦 En cola para Julian</span>`
-      :`<button class="icon-btn" style="background:var(--amarillo);color:var(--verde);border-color:var(--amarillo);" onclick="marcarProducido(${p.idx})">✅ Listo</button>`;
+      :`<button class="icon-btn" style="background:var(--amarillo);color:var(--verde);border-color:var(--amarillo);transition:all 0.2s;" onmousedown="this.style.transform='scale(0.95)';this.style.opacity='0.8';" onmouseup="this.style.transform='';this.style.opacity='1';" onclick="this.textContent='⏳ Guardando...';this.disabled=true;marcarProducido(${p.idx})">✅ Listo</button>`;
     return `<div class="h-item">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
         <div>
@@ -1916,8 +1916,8 @@ function renderDinvPendientes(){
         <div id="panel-dom-${i}" style="display:none;margin-top:8px;background:var(--crema);border-radius:12px;padding:12px;">
           <div class="form-group" style="margin-bottom:8px;"><label class="form-label" style="font-size:12px;">📝 Nota para el domiciliario</label><textarea id="nota-dom-${i}" style="width:100%;padding:10px;border:1.5px solid var(--borde);border-radius:10px;font-size:14px;resize:none;height:60px;background:var(--blanco);font-family:inherit;">${datosInv[i][15]||''}</textarea></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${tipoEnt==='domicilio'&&estado==='Pendiente'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaListoEnviar('+i+')\">📦 Listo para enviar</button>':''}
-            ${tipoEnt==='recogida'&&estado==='Pendiente'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaEntregado('+i+')\">✅ Entregado</button>':''}
+            ${tipoEnt==='domicilio'&&estado!=='Entregado'&&estado!=='En camino'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaListoEnviar('+i+')\">📦 Listo para enviar</button>':''}
+            ${tipoEnt==='recogida'&&estado!=='Entregado'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaEntregado('+i+')\">✅ Entregado</button>':''}
             <button class="btn btn-crema" style="margin-top:0;padding:10px;" onclick="soloNota(${i})">💾 Guardar nota</button>
             <button class="icon-btn" onclick="document.getElementById('panel-dom-${i}').style.display='none'">✕</button>
           </div>
@@ -2029,21 +2029,23 @@ window.soloNota=async function(i){
 window.guardarNotaListoEnviar=async function(i){
   var d=datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  if(nota) await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
   await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  clearCacheC('domicilios_inv'); clearCacheC('domicilios');
+  if(nota&&datosInv[i]) datosInv[i][15]=nota;
+  clearCacheC('domicilios_inv'); clearCacheC('domicilios'); clearCacheC('produccion');
   await cargarDomiciliosInv(true);
-  toast('Listo para enviar','success');
+  toast('📦 Nota guardada y listo para enviar','success');
 };
 
 window.guardarNotaEntregado=async function(i){
   var d=datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+  if(nota) await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
   await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  clearCacheC('domicilios_inv'); clearCacheC('domicilios');
+  if(nota&&datosInv[i]) datosInv[i][15]=nota;
+  clearCacheC('domicilios_inv'); clearCacheC('domicilios'); clearCacheC('produccion');
   await cargarDomiciliosInv(true);
-  toast('Entregado','success');
+  toast('✅ Nota guardada y entregado','success');
 };
 
 window.marcarListoEnviarLegacy=async(idx,producto,cliente)=>{
