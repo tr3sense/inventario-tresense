@@ -1022,18 +1022,12 @@ function resetInact(){
 }
 document.addEventListener('touchstart',resetInact);
 
-// Delegación de eventos para botón nota domicilio
+// Delegación de eventos para botón gestionar domicilio
 document.addEventListener('click', function(e){
-  const btn = e.target.closest('.btn-nota-dom');
+  const btn = e.target.closest('.btn-gestionar');
   if(!btn) return;
-  const prod = btn.getAttribute('data-prod');
-  const cli = btn.getAttribute('data-cli');
-  const nota = btn.getAttribute('data-nota') || '';
-  document.getElementById('nota-dom-producto').value = prod;
-  document.getElementById('nota-dom-cliente').value = cli;
-  document.getElementById('nota-dom-title').textContent = 'Nota — ' + cli;
-  document.getElementById('nota-dom-texto').value = nota;
-  document.getElementById('modal-nota-dom').style.display = 'flex';
+  const i = parseInt(btn.getAttribute('data-i'));
+  abrirGestionarDom(i);
 });
 document.addEventListener('click',resetInact);
 
@@ -1770,7 +1764,7 @@ function renderDinvPendientes(){
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
       ${datosInv[i][18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][18]}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);padding:10px 16px;" onclick="abrirGestionarDom(${i})">⚙️ Gestionar</button>
+        <button class="icon-btn btn-gestionar" data-i="${i}" style="background:var(--verde);color:#fff;border-color:var(--verde);padding:10px 16px;">⚙️ Gestionar</button>
 
       </div>
     </div>`;
