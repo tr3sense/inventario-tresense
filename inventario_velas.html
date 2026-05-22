@@ -502,8 +502,9 @@ textarea { resize:none; height:70px; font-size:14px; }
 
   <div class="card">
     <div class="tabs">
-      <button class="tab-btn active" id="tab-stock" onclick="mostrarTab('stock')">Stock actual</button>
+      <button class="tab-btn active" id="tab-stock" onclick="mostrarTab('stock')">Stock</button>
       <button class="tab-btn" id="tab-ventas" onclick="mostrarTab('ventas')">Ventas</button>
+      <button class="tab-btn" id="tab-domicilios-inv" onclick="mostrarTab('domicilios-inv')">Domicilios</button>
       <button class="tab-btn" id="tab-historial" onclick="mostrarTab('historial')">Historial</button>
     </div>
     <div id="panel-stock">
@@ -513,6 +514,26 @@ textarea { resize:none; height:70px; font-size:14px; }
     </div>
     <div id="panel-ventas" style="display:none;">
       <div class="scroll-box" id="lista-ventas"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+    </div>
+
+    <div id="panel-domicilios-inv" style="display:none;">
+      <div style="display:flex;gap:4px;margin-bottom:12px;background:var(--crema);border-radius:12px;padding:4px;">
+        <button class="tab-btn active" id="dinv-tab-pendientes" onclick="setDinvTab('pendientes')" style="font-size:11px;">Pendientes</button>
+        <button class="tab-btn" id="dinv-tab-historial" onclick="setDinvTab('historial')" style="font-size:11px;">Historial</button>
+      </div>
+      <div id="dinv-panel-pendientes">
+        <div class="scroll-box" id="dinv-lista-pendientes"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+      </div>
+      <div id="dinv-panel-historial" style="display:none;">
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+          <div class="toggle-btn active" id="dinv-filtro-hoy" onclick="setDinvFiltro('hoy')" style="min-width:50px;padding:7px;font-size:11px;">Hoy</div>
+          <div class="toggle-btn" id="dinv-filtro-semana" onclick="setDinvFiltro('semana')" style="min-width:50px;padding:7px;font-size:11px;">7 días</div>
+          <div class="toggle-btn" id="dinv-filtro-mes" onclick="setDinvFiltro('mes')" style="min-width:50px;padding:7px;font-size:11px;">Mes</div>
+          <div class="toggle-btn" id="dinv-filtro-todo" onclick="setDinvFiltro('todo')" style="min-width:50px;padding:7px;font-size:11px;">Todo</div>
+        </div>
+        <div class="scroll-box" id="dinv-lista-historial"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+        <div id="dinv-resumen"></div>
+      </div>
     </div>
 
     <div id="panel-historial" style="display:none;">
@@ -972,12 +993,13 @@ document.addEventListener('click',resetInact);
 
 // INVENTARIO TABS
 window.mostrarTab=tab=>{
-  ['stock','ventas','historial'].forEach(t=>{
+  ['stock','ventas','domicilios-inv','historial'].forEach(t=>{
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
     document.getElementById('panel-'+t).style.display=t===tab?'block':'none';
   });
   if(tab==='historial') renderHistorial();
   if(tab==='ventas') cargarVentas();
+  if(tab==='domicilios-inv') cargarDomiciliosInv();
 };
 
 const fmt=n=>'$'+Math.round(n).toLocaleString('es-CO');
@@ -1640,6 +1662,111 @@ function clearCacheC(key){
 }
 window.cerrarModal=id=>document.getElementById(id).style.display='none';
 
+// DOMICILIOS EN INVENTARIO
+let dinvTab='pendientes', dinvFiltro='hoy';
+
+window.setDinvTab=tab=>{
+  dinvTab=tab;
+  ['pendientes','historial'].forEach(t=>{
+    document.getElementById('dinv-tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('dinv-panel-'+t).style.display=t===tab?'block':'none';
+  });
+  if(tab==='pendientes') renderDinvPendientes();
+  if(tab==='historial') renderDinvHistorial();
+};
+
+window.setDinvFiltro=filtro=>{
+  dinvFiltro=filtro;
+  ['hoy','semana','mes','todo'].forEach(f=>{
+    document.getElementById('dinv-filtro-'+f).classList.toggle('active',f===filtro);
+  });
+  renderDinvHistorial();
+};
+
+window.cargarDomiciliosInv=async(force)=>{
+  if(datosInv.length&&!force){renderDinvPendientes();return;}
+  document.getElementById('dinv-lista-pendientes').innerHTML=spinnerHtml('Cargando...');
+  try{
+    const r=await fetch(API,{redirect:'follow'});
+    const d=await r.json();
+    datosInv=d;
+    renderDinvPendientes();
+  }catch(e){document.getElementById('dinv-lista-pendientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
+};
+
+function renderDinvPendientes(){
+  const estados=['Pendiente','Listo para enviar','En camino'];
+  let html='', count=0;
+  for(let i=1;i<datosInv.length;i++){
+    if(!datosInv[i][0]||datosInv[i][7]!=='domicilio')continue;
+    const estado=datosInv[i][14]||'Pendiente';
+    if(estado==='Entregado')continue;
+    count++;
+    const fechaEnt=datosInv[i][12]?new Date(datosInv[i][12].toString().substring(0,10)+'T12:00:00'):null;
+    const fechaLabel=fechaEnt?fechaEnt.toLocaleDateString('es-CO',{weekday:'short',day:'2-digit',month:'short'}):'Sin fecha';
+    const esHoy=fechaEnt&&fechaEnt.toDateString()===new Date().toDateString();
+    const badgeColor=estado==='Listo para enviar'?'badge-verde':estado==='En camino'?'badge-amarillo':'badge-rosado';
+    html+=`<div class="h-item">
+      <div class="h-top">
+        <span class="h-producto">${datosInv[i][5]||'Cliente'}</span>
+        <span class="badge ${badgeColor}">${estado}</span>
+      </div>
+      <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">🕯️ ${datosInv[i][0]} · ${datosInv[i][4]} uds</div>
+      <div style="font-size:12px;color:var(--texto-suave);">📞 ${datosInv[i][6]||''}</div>
+      <div style="font-size:12px;color:var(--verde);margin-top:3px;">📍 ${datosInv[i][8]||''} · 🗺 ${datosInv[i][11]||''}</div>
+      <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+        ${estado==='Pendiente'?`<button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="marcarListoEnviar(${i},'${datosInv[i][0]}','${datosInv[i][5]}')">✅ Listo para enviar</button>`:''}
+        ${estado==='Listo para enviar'?`<span style="font-size:12px;color:var(--verde);font-weight:600;">📦 Esperando domiciliario</span>`:''}
+        ${estado==='En camino'?`<span style="font-size:12px;color:#9a7d1a;font-weight:600;">🚚 En camino</span>`:''}
+      </div>
+    </div>`;
+  }
+  document.getElementById('dinv-lista-pendientes').innerHTML=count>0?html:'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin domicilios pendientes.</div>';
+}
+
+function renderDinvHistorial(){
+  const ahora=new Date();
+  const hoy=ahora.toDateString();
+  let html='', totalEntregas=0, totalDom=0;
+  for(let i=1;i<datosInv.length;i++){
+    if(!datosInv[i][0]||datosInv[i][7]!=='domicilio')continue;
+    if((datosInv[i][14]||'')!=='Entregado')continue;
+    const fv=new Date(datosInv[i][3]);
+    if(dinvFiltro==='hoy'&&fv.toDateString()!==hoy)continue;
+    if(dinvFiltro==='semana'&&(ahora-fv)/(1000*60*60*24)>7)continue;
+    if(dinvFiltro==='mes'&&(ahora-fv)/(1000*60*60*24)>30)continue;
+    totalEntregas++;
+    totalDom+=datosInv[i][10]||0;
+    const fecha=fv.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});
+    html+=`<div class="h-item">
+      <div class="h-top"><span class="h-producto">${datosInv[i][5]||'Cliente'}</span><span class="badge badge-verde">✅ Entregado</span></div>
+      <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">🕯️ ${datosInv[i][0]} · 📅 ${fecha}</div>
+      <div style="font-size:12px;color:var(--texto-suave);">📍 ${datosInv[i][8]||''} · 🗺 ${datosInv[i][11]||''}</div>
+      <div style="font-size:12px;color:var(--verde);margin-top:2px;">💰 Domicilio: ${fmt(datosInv[i][10]||0)}</div>
+    </div>`;
+  }
+  document.getElementById('dinv-lista-historial').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas en este periodo.</div>';
+  const labels={hoy:'hoy',semana:'últimos 7 días',mes:'este mes',todo:'total'};
+  document.getElementById('dinv-resumen').innerHTML=totalEntregas>0?`<div class="resumen-dia-box" style="margin-top:8px;">🚚 ${totalEntregas} entregas ${labels[dinvFiltro]} · <strong>$${Math.round(totalDom).toLocaleString('es-CO')}</strong></div>`:'';
+}
+
+window.marcarListoEnviar=async(idx,producto,cliente)=>{
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'actualizarEstadoDomicilio',
+      estado:'Listo para enviar',
+      producto, cliente, telefono:'', direccion:'', zona:'',
+      fotoBase64:'', registradoPor:usuarioActual?usuarioActual.nombre:''
+    })});
+    sessionStorage.removeItem('inv_cache');
+    clearCacheC('domicilios');
+    await cargarInventario();
+    renderDinvPendientes();
+    toast('Marcado como listo para enviar','success');
+  }catch(e){toast('Error','error');}
+};
+
 // VENTAS
 window.cargarVentas=async(force)=>{
   // Usar datosInv si ya está cargado
@@ -1854,7 +1981,7 @@ function renderPendientes(datos){
   for(let i=1;i<datos.length;i++){
     if(!datos[i][0]||datos[i][7]!=='domicilio')continue;
     const estado=datos[i][14]||'';
-    if(estado==='Entregado')continue;
+    if(estado==='Entregado'||estado==='Pendiente')continue;
     const fechaEnt=datos[i][12]?new Date(datos[i][12].substring(0,10)+'T12:00:00'):null;
     if(!fechaEnt)continue;
     const diaIdx=dias.findIndex(d=>d.fecha.toDateString()===fechaEnt.toDateString());
