@@ -342,7 +342,12 @@ textarea { resize:none; height:70px; font-size:14px; }
   <div id="panel-login" style="display:none;width:100%;max-width:320px;">
     <div class="login-card">
       <div class="login-group"><label class="login-label">Usuario</label><input type="text" id="login-usuario" class="login-input" placeholder="usuario" autocomplete="username"></div>
-      <div class="login-group"><label class="login-label">Contraseña</label><input type="password" id="login-password" class="login-input" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="login-group"><label class="login-label">Contraseña</label>
+  <div style="position:relative;">
+    <input type="password" id="login-password" class="login-input" placeholder="••••••••" autocomplete="current-password" style="padding-right:44px;">
+    <button type="button" onclick="var i=document.getElementById('login-password');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈';" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:0;">👁</button>
+  </div>
+</div>
       <button class="login-btn" onclick="iniciarSesionConta()">Entrar</button>
       <p class="login-error" id="login-error"></p>
     </div>
