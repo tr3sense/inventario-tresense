@@ -1999,27 +1999,24 @@ window.eliminarVenta=async(idx,producto,cliente)=>{
 };
 
 window.abrirEditarVenta=idx=>{
+  // Nueva hoja Ventas: [0]=Fecha [1]=Producto [2]=Cantidad [3]=Cliente [4]=Tel
+  // [5]=Tipo [6]=Dir [7]=Zona [8]=FechaEnt [9]=Precio [10]=CostoDom
+  // [11]=Estado [12]=FechaConf [13]=RegPor [14]=Nota [15]=NotaDom
   const d=datosVentas[idx];
-  if(!d){toast('Error','error');return;}
-  if(!d)return;
+  if(!d){toast('Error cargando venta','error');return;}
   document.getElementById('edit-venta-idx').value=idx;
-  document.getElementById('modal-venta-title').textContent='Editar — '+d[0];
-  document.getElementById('edit-venta-cantidad').value=d[4]||1;
-  document.getElementById('edit-venta-cliente').value=d[5]||'';
-  document.getElementById('edit-venta-telefono').value=d[6]||'';
-  const fechaActual=d[12]?d[12].toString().substring(0,10):'';
-  document.getElementById('edit-venta-fecha').value=fechaActual;
-  // Nota está en columna índice 13 que es FOTO — la nota real necesita columna propia
-  // Por ahora limpiar el campo nota
-  document.getElementById('edit-venta-nota').value=d[17]||'';
-  // Tipo entrega
-  const entrega=d[7]||'recogida';
+  document.getElementById('modal-venta-title').textContent='Editar — '+d[1];
+  document.getElementById('edit-venta-cantidad').value=d[2]||1;
+  document.getElementById('edit-venta-cliente').value=d[3]||'';
+  document.getElementById('edit-venta-telefono').value=d[4]||'';
+  const fechaRaw=d[8]?d[8].toString():'';
+  document.getElementById('edit-venta-fecha').value=fechaRaw.length>=10?fechaRaw.substring(0,10):'';
+  document.getElementById('edit-venta-nota').value=d[14]||'';
+  const entrega=d[5]||'recogida';
   setEditEntrega(entrega);
-  // Zona
-  const zonaTexto=d[11]||'';
-  const zonaVal=ZONAS_VAL[zonaTexto]||'';
+  const zonaVal=ZONAS_VAL[d[7]||'']||'';
   document.getElementById('edit-venta-zona').value=zonaVal;
-  document.getElementById('edit-venta-direccion').value=d[8]||'';
+  document.getElementById('edit-venta-direccion').value=d[6]||'';
   abrirModal('modal-editar-venta');
 };
 
