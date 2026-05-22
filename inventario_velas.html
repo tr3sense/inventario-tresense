@@ -961,11 +961,12 @@ document.addEventListener('click',resetInact);
 
 // INVENTARIO TABS
 window.mostrarTab=tab=>{
-  ['stock','historial'].forEach(t=>{
+  ['stock','ventas','historial'].forEach(t=>{
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
     document.getElementById('panel-'+t).style.display=t===tab?'block':'none';
   });
-  if(tab==='historial')renderHistorial();
+  if(tab==='historial') renderHistorial();
+  if(tab==='ventas') cargarVentas();
 };
 
 const fmt=n=>'$'+Math.round(n).toLocaleString('es-CO');
