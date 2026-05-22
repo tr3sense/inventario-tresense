@@ -1699,7 +1699,7 @@ function renderDinvPendientes(){
   let html='', count=0;
   for(let i=1;i<datosInv.length;i++){
     if(!datosInv[i][0]||datosInv[i][7]!=='domicilio')continue;
-    const estado=datosInv[i][15]||'Pendiente';
+    const estado=(datosInv[i][15]&&typeof datosInv[i][15]==='string'&&datosInv[i][15].indexOf('T')===-1)?datosInv[i][15]:'Pendiente';
     if(estado==='Entregado')continue;
     count++;
     const fechaEnt=datosInv[i][12]?new Date(datosInv[i][12].toString().substring(0,10)+'T12:00:00'):null;
@@ -1731,7 +1731,8 @@ function renderDinvHistorial(){
   let html='', totalEntregas=0, totalDom=0;
   for(let i=1;i<datosInv.length;i++){
     if(!datosInv[i][0]||datosInv[i][7]!=='domicilio')continue;
-    if((datosInv[i][15]||'')!=='Entregado')continue;
+    const estadoH=(datosInv[i][15]&&typeof datosInv[i][15]==='string'&&datosInv[i][15].indexOf('T')===-1)?datosInv[i][15]:'';
+    if(estadoH!=='Entregado')continue;
     const fv=new Date(datosInv[i][3]);
     if(dinvFiltro==='hoy'&&fv.toDateString()!==hoy)continue;
     if(dinvFiltro==='semana'&&(ahora-fv)/(1000*60*60*24)>7)continue;
@@ -1980,7 +1981,7 @@ function renderPendientes(datos){
   }
   for(let i=1;i<datos.length;i++){
     if(!datos[i][0]||datos[i][7]!=='domicilio')continue;
-    const estado=datos[i][15]||'';
+    const estado=(datos[i][15]&&typeof datos[i][15]==='string'&&datos[i][15].indexOf('T')===-1)?datos[i][15]:'';
     if(estado==='Entregado'||estado==='Pendiente')continue;
     const fechaEnt=datos[i][12]?new Date(datos[i][12].substring(0,10)+'T12:00:00'):null;
     if(!fechaEnt)continue;
@@ -2057,7 +2058,7 @@ function renderHistorialDom(){
   let html='', count=0, totalDom=0, totalEntregas=0;
   for(let i=1;i<domDatosGlobal.length;i++){
     if(!domDatosGlobal[i][0]||domDatosGlobal[i][7]!=='domicilio')continue;
-    const estado=domDatosGlobal[i][15]||'';
+    const estado=(domDatosGlobal[i][15]&&typeof domDatosGlobal[i][15]==='string'&&domDatosGlobal[i][15].indexOf('T')===-1)?domDatosGlobal[i][15]:'';
     if(estado!=='Entregado')continue;
     const fv=new Date(domDatosGlobal[i][3]);
     if(filtroDom==='hoy'&&fv.toDateString()!==hoy)continue;
