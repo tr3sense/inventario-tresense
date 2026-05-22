@@ -1920,15 +1920,13 @@ window.marcarListoEnviarLegacy=async(idx,producto,cliente)=>{
 
 // VENTAS
 window.cargarVentas=async(force)=>{
-  // Usar datosInv si ya está cargado
-  if(datosInv.length&&!force){renderVentas(datosInv);return;}
   const cached=getCacheC('ventas');
-  if(cached&&!force){datosInv=cached;renderVentas(cached);return;}
+  if(cached&&!force){datosVentas=cached;renderVentas(cached);return;}
   document.getElementById('lista-ventas').innerHTML=spinnerHtml('Cargando ventas...');
   try{
-    const r=await fetch(API,);
+    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
     const d=await r.json();
-    datosInv=d;
+    datosVentas=d;
     setCacheC('ventas',d);
     renderVentas(d);
   }catch(e){document.getElementById('lista-ventas').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
@@ -1938,11 +1936,11 @@ function renderVentas(datos){
   let html='';
   const ventas=[];
   for(let i=1;i<datos.length;i++){
-    if(!datos[i][0]||!datos[i][3]||!datos[i][4])continue;
-    ventas.push({idx:i, producto:datos[i][0], cantidad:datos[i][4], fecha:datos[i][3],
-      cliente:datos[i][5]||'', telefono:datos[i][6]||'', entrega:datos[i][7]||'',
-      direccion:datos[i][8]||'', zona:datos[i][11]||'', fechaEnt:datos[i][12]||'',
-      nota:datos[i][17]||'', precio:datos[i][9]||0, costoDom:datos[i][10]||0});
+    if(!datos[i][0]||!datos[i][1]||!datos[i][2])continue;
+    ventas.push({idx:i, producto:datos[i][1], cantidad:datos[i][2], fecha:datos[i][0],
+      cliente:datos[i][3]||'', telefono:datos[i][4]||'', entrega:datos[i][5]||'',
+      direccion:datos[i][6]||'', zona:datos[i][7]||'', fechaEnt:datos[i][8]||'',
+      nota:datos[i][14]||'', precio:datos[i][9]||0, costoDom:datos[i][10]||0});
   }
   const ahora=new Date();
   const ventasFiltradas=ventas.filter(v=>{
