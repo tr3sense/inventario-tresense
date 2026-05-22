@@ -1705,7 +1705,7 @@ window.abrirEditarVenta=idx=>{
   document.getElementById('edit-venta-fecha').value=fechaActual;
   // Nota está en columna índice 13 que es FOTO — la nota real necesita columna propia
   // Por ahora limpiar el campo nota
-  document.getElementById('edit-venta-nota').value='';
+  document.getElementById('edit-venta-nota').value=d[17]||'';
   // Tipo entrega
   const entrega=d[7]||'recogida';
   setEditEntrega(entrega);
