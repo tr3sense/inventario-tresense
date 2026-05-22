@@ -1027,9 +1027,11 @@ document.addEventListener('click', function(e){
   const btn = e.target.closest('.btn-gestionar');
   if(!btn) return;
   e.stopPropagation();
-  const prod = btn.getAttribute('data-prod');
-  const cli = btn.getAttribute('data-cli');
-  abrirGestionarDomPorNombre(prod, cli);
+  const row = parseInt(btn.getAttribute('data-row'));
+  const src = window._dinvDatos||datosInv;
+  const d = src[row];
+  if(!d){toast('Error cargando pedido','error');return;}
+  abrirGestionarDomConDatos(d);
 });
 document.addEventListener('click',resetInact);
 
@@ -1766,7 +1768,7 @@ function renderDinvPendientes(){
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
       ${datosInv[i][18]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][18]}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="icon-btn btn-gestionar" data-prod="${datosInv[i][0]}" data-cli="${datosInv[i][5]}" style="background:var(--verde);color:#fff;border-color:var(--verde);padding:10px 16px;">⚙️ Gestionar</button>
+        <button class="icon-btn btn-gestionar" data-row="${i}" style="background:var(--verde);color:#fff;border-color:var(--verde);padding:10px 16px;">⚙️ Gestionar</button>
 
       </div>
     </div>`;
@@ -1836,18 +1838,11 @@ window.guardarNotaDomicilio=async()=>{
   }catch(e){toast('Error al guardar','error');}
 };
 
-window.abrirGestionarDomPorNombre=function(prod, cli){
-  const src=window._dinvDatos||datosInv;
-  alert('Buscando: prod='+prod+' cli='+cli+' en '+src.length+' filas. Fila1='+JSON.stringify(src[1]?[src[1][0],src[1][5]]:'null'));
-  let d=null;
-  for(let i=1;i<src.length;i++){
-    if(src[i][0]===prod&&src[i][5]===cli){d=src[i];break;}
-  }
-  if(!d){toast('Pedido no encontrado','error');return;}
+window.abrirGestionarDomConDatos=function(d){
+  if(!d){toast('Error cargando pedido','error');return;}
   const estado=(d[15]&&typeof d[15]==='string'&&d[15].indexOf('T')===-1)?d[15]:'Pendiente';
   const tipoEnt=d[7]||'';
-  document.getElementById('gestionar-dom-idx').setAttribute('data-prod',d[0]||'');
-  document.getElementById('gestionar-dom-idx').setAttribute('data-cli',d[5]||'');
+  window._gestionarDom=d;
   document.getElementById('gestionar-dom-title').textContent=(d[5]||'Cliente')+' — '+d[0];
   document.getElementById('gestionar-dom-detalle').innerHTML=
     '🕯️ '+d[0]+' · '+d[4]+' uds<br>'+
@@ -1871,11 +1866,7 @@ window.abrirGestionarDomPorNombre=function(prod, cli){
 };
 
 function getGestionarData(){
-  const prod=document.getElementById('gestionar-dom-idx').getAttribute('data-prod')||'';
-  const cli=document.getElementById('gestionar-dom-idx').getAttribute('data-cli')||'';
-  const src=window._dinvDatos||datosInv;
-  let d=null;
-  for(let i=1;i<src.length;i++){if(src[i][0]===prod&&src[i][5]===cli){d=src[i];break;}}
+  const d=window._gestionarDom;
   const nota=document.getElementById('gestionar-dom-nota').value.trim();
   return {d,nota};
 }
