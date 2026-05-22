@@ -1769,7 +1769,7 @@ function renderDinvPendientes(){
       </div>
       <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">🕯️ ${datosInv[i][1]} · ${datosInv[i][2]} uds</div>
       <div style="font-size:12px;color:var(--texto-suave);">📞 ${datosInv[i][4]||''}</div>
-      ${(datosInv[i][8]||datosInv[i][11])?`<div style="font-size:12px;color:var(--verde);margin-top:3px;">📍 ${datosInv[i][8]||''} ${datosInv[i][11]?'· 🗺 '+datosInv[i][11]:''}</div>`:''}
+      ${(datosInv[i][6]||datosInv[i][7])?`<div style="font-size:12px;color:var(--verde);margin-top:3px;">📍 ${datosInv[i][6]||''} ${datosInv[i][7]?'· 🗺 '+datosInv[i][7]:''}</div>`:''}
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
       ${datosInv[i][15]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${datosInv[i][15]}</div>`:''}
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
