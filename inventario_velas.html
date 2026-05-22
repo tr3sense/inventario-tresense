@@ -541,10 +541,17 @@ textarea { resize:none; height:70px; font-size:14px; }
 
     <div id="panel-produccion" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div class="card-title" style="margin-bottom:0;">Por producir</div>
+        <div class="card-title" style="margin-bottom:0;">Producción</div>
         <button class="icon-btn" onclick="cargarProduccion(true)">↻ Actualizar</button>
       </div>
-      <div class="scroll-box" id="lista-produccion"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+      <!-- Por producir -->
+      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-left:2px;">🔨 Por producir</div>
+      <div id="lista-por-producir"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
+      <!-- Separador -->
+      <div style="height:1px;background:var(--borde);margin:16px 0;"></div>
+      <!-- Listos -->
+      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-left:2px;">✅ Listos — esperando envío</div>
+      <div id="lista-listos-prod"></div>
     </div>
 
     <div id="panel-domicilios-inv" style="display:none;">
@@ -1755,52 +1762,76 @@ window.cargarProduccion=async(force)=>{
 };
 
 function renderProduccion(datos){
-  const pedidos=[];
+  const porProducir=[], listos=[];
+  const hoy=new Date();
+  
   for(let i=1;i<datos.length;i++){
     const d=datos[i];
     if(!d[0]||!d[1]||!d[2])continue;
     const estado=(d[11]&&typeof d[11]==='string'&&d[11].indexOf('T')===-1)?d[11]:'Pendiente';
-    if(estado==='Entregado'||estado==='Listo para enviar')continue;
+    if(estado==='Entregado'||estado==='En camino')continue;
     const fechaEntRaw=d[8]?d[8].toString():'';
     const fechaEnt=fechaEntRaw?new Date(fechaEntRaw.substring(0,10)+'T12:00:00'):null;
-    pedidos.push({idx:i, producto:d[1], cantidad:d[2], cliente:d[3]||'', fechaEnt, nota:d[14]||'', estado});
+    const item={idx:i, producto:d[1], cantidad:d[2], cliente:d[3]||'', fechaEnt, nota:d[14]||'', estado};
+    if(estado==='Listo para enviar') listos.push(item);
+    else porProducir.push(item);
   }
-  // Ordenar por fecha de entrega más próxima
-  pedidos.sort((a,b)=>{
-    if(!a.fechaEnt) return 1;
-    if(!b.fechaEnt) return -1;
-    return a.fechaEnt - b.fechaEnt;
-  });
-  const hoy=new Date();
-  let html='';
-  pedidos.forEach(p=>{
-    const fechaLabel=p.fechaEnt?p.fechaEnt.toLocaleDateString('es-CO',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}):'Sin fecha';
+  
+  // Ordenar por fecha más próxima
+  const sortFn=(a,b)=>(!a.fechaEnt?1:!b.fechaEnt?-1:a.fechaEnt-b.fechaEnt);
+  porProducir.sort(sortFn);
+  listos.sort(sortFn);
+
+  function buildCard(p, esListo){
+    const fechaLabel=p.fechaEnt?p.fechaEnt.toLocaleDateString('es-CO',{weekday:'short',day:'2-digit',month:'short'}):'Sin fecha';
     const esHoy=p.fechaEnt&&p.fechaEnt.toDateString()===hoy.toDateString();
     const esPasado=p.fechaEnt&&p.fechaEnt<hoy&&!esHoy;
     const colorFecha=esPasado?'#c9908a':esHoy?'var(--verde)':'var(--texto-suave)';
-    html+=`<div class="h-item">
+    const btn=esListo
+      ?`<button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="marcarListoEnviarProd(${p.idx})">📦 Listo para enviar a Julian</button>`
+      :`<button class="icon-btn" style="background:var(--amarillo);color:var(--verde);border-color:var(--amarillo);" onclick="marcarProducido(${p.idx})">✅ Listo</button>`;
+    return `<div class="h-item">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
         <div>
           <div class="h-producto">${p.producto}</div>
-          <div style="font-size:13px;color:var(--verde);font-weight:600;">× ${p.cantidad} unidades</div>
+          <div style="font-size:13px;color:var(--verde);font-weight:600;">× ${p.cantidad} uds · 👤 ${p.cliente}</div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:12px;color:${colorFecha};font-weight:600;">📅 ${fechaLabel}</div>
-          ${esHoy?'<span class="badge badge-verde" style="margin-top:4px;">Hoy</span>':''}
-          ${esPasado?'<span class="badge badge-rosado" style="margin-top:4px;">Vencido</span>':''}
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:11px;color:${colorFecha};font-weight:600;">📅 ${fechaLabel}</div>
+          ${esHoy?'<span class="badge badge-verde">Hoy</span>':''}
+          ${esPasado?'<span class="badge badge-rosado">Vencido</span>':''}
         </div>
       </div>
-      <div style="font-size:12px;color:var(--texto-suave);margin-top:3px;">👤 ${p.cliente}</div>
       ${p.nota?`<div style="font-size:12px;color:var(--texto-suave);margin-top:3px;font-style:italic;">📝 ${p.nota}</div>`:''}
-      <div style="margin-top:8px;">
-        <button class="btn btn-verde" style="padding:10px;margin-top:0;" onclick="marcarListoProduccion(${p.idx})">📦 Listo para enviar</button>
-      </div>
+      <div style="margin-top:8px;">${btn}</div>
     </div>`;
-  });
-  document.getElementById('lista-produccion').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin pedidos pendientes de producción.</div>';
+  }
+
+  const htmlProd=porProducir.map(p=>buildCard(p,false)).join('');
+  const htmlList=listos.map(p=>buildCard(p,true)).join('');
+  
+  document.getElementById('lista-por-producir').innerHTML=htmlProd||'<div style="text-align:center;padding:16px;color:var(--texto-mini);">Sin pedidos por producir.</div>';
+  document.getElementById('lista-listos-prod').innerHTML=htmlList||'<div style="text-align:center;padding:12px;color:var(--texto-mini);">Ninguno listo aún.</div>';
 }
 
-window.marcarListoProduccion=async function(i){
+window.marcarProducido=async function(i){
+  const d=prodDatos[i];
+  if(!d){toast('Error','error');return;}
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'actualizarEstadoDomicilio',
+      estado:'Producido',
+      producto:d[1], cliente:d[3], telefono:d[4]||'',
+      direccion:d[6]||'', zona:d[7]||'',
+      fotoBase64:'', registradoPor:usuarioActual?usuarioActual.nombre:''
+    })});
+    clearCacheC('produccion');
+    await cargarProduccion(true);
+    toast('✅ Marcado como listo','success');
+  }catch(e){toast('Error','error');}
+};
+
+window.marcarListoEnviarProd=async function(i){
   const d=prodDatos[i];
   if(!d){toast('Error','error');return;}
   try{
@@ -1813,7 +1844,7 @@ window.marcarListoProduccion=async function(i){
     })});
     clearCacheC('produccion'); clearCacheC('domicilios_inv'); clearCacheC('domicilios');
     await cargarProduccion(true);
-    toast('Marcado como listo para enviar','success');
+    toast('📦 Listo para enviar a Julian','success');
   }catch(e){toast('Error','error');}
 };
 
