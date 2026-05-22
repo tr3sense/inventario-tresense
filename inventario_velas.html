@@ -382,15 +382,25 @@ textarea { resize:none; height:70px; font-size:14px; }
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-venta-title">Editar venta</div>
     <input type="hidden" id="edit-venta-idx">
-    <div id="edit-venta-detalle" style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--texto);"></div>
-    <div class="form-group">
-      <label class="form-label">Fecha de entrega</label>
-      <input type="date" id="edit-venta-fecha">
+    <div class="form-group"><label class="form-label">Cliente</label><input type="text" id="edit-venta-cliente"></div>
+    <div class="form-group"><label class="form-label">Teléfono</label><input type="tel" id="edit-venta-telefono"></div>
+    <div class="form-group"><label class="form-label">Fecha de entrega</label><input type="date" id="edit-venta-fecha"></div>
+    <div class="form-group"><label class="form-label">Tipo de entrega</label>
+      <div class="toggle-group">
+        <div class="toggle-btn" id="edit-btn-recogida" onclick="setEditEntrega('recogida')">🏪 Recogida</div>
+        <div class="toggle-btn" id="edit-btn-domicilio" onclick="setEditEntrega('domicilio')">🚚 Domicilio</div>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Nota</label>
-      <textarea id="edit-venta-nota" placeholder="Ej: pago contraentrega..."></textarea>
+    <div id="edit-zona-group" class="form-group" style="display:none;"><label class="form-label">Zona</label>
+      <select id="edit-venta-zona">
+        <option value="">Selecciona...</option>
+        <option value="medellin">Medellín — $13.000</option>
+        <option value="area1">Bello, Envigado, Itagüí, Sabaneta — $15.000</option>
+        <option value="otras">Otras zonas del área metropolitana — $18.000</option>
+      </select>
     </div>
+    <div id="edit-dir-group" class="form-group" style="display:none;"><label class="form-label">Dirección</label><input type="text" id="edit-venta-direccion"></div>
+    <div class="form-group"><label class="form-label">Nota</label><textarea id="edit-venta-nota" placeholder="Ej: pago contraentrega..."></textarea></div>
     <button class="btn btn-verde" onclick="guardarEdicionVenta()">Guardar</button>
     <button class="btn btn-crema" onclick="cerrarModal('modal-editar-venta')">Cancelar</button>
   </div>
@@ -1673,35 +1683,65 @@ function renderVentas(datos){
       </div>
       ${v.direccion?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;">📍 ${v.direccion}</div>`:''}
       ${total>0?`<div class="h-financiero" style="margin-top:6px;">Subtotal: ${fmt(subtotal)}${v.costoDom>0?' · Domicilio: '+fmt(v.costoDom):''}<br><strong>Total: ${fmt(total)}</strong></div>`:''}
+      ${v.nota?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;">📝 ${v.nota}</div>`:''}
     </div>`;
   });
   document.getElementById('lista-ventas').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin ventas registradas.</div>';
 }
+
+const ZONAS_VAL={'Medellín':'medellin','Bello/Envigado/Itagüí/Sabaneta':'area1','Otras zonas':'otras'};
 
 window.abrirEditarVenta=idx=>{
   const d=datosInv[idx];
   if(!d)return;
   document.getElementById('edit-venta-idx').value=idx;
   document.getElementById('modal-venta-title').textContent='Editar — '+d[0];
-  document.getElementById('edit-venta-detalle').innerHTML=`
-    <strong>${d[0]}</strong> · ${d[4]} uds<br>
-    👤 ${d[5]||''} · 📞 ${d[6]||''}<br>
-    ${d[7]==='domicilio'?'🚚 Domicilio · '+d[11]+'<br>📍 '+(d[8]||''):'🏪 Recogida'}`;
+  document.getElementById('edit-venta-cliente').value=d[5]||'';
+  document.getElementById('edit-venta-telefono').value=d[6]||'';
   const fechaActual=d[12]?d[12].toString().substring(0,10):'';
   document.getElementById('edit-venta-fecha').value=fechaActual;
-  document.getElementById('edit-venta-nota').value=d[13]||'';
+  // Nota está en columna índice 13 que es FOTO — la nota real necesita columna propia
+  // Por ahora limpiar el campo nota
+  document.getElementById('edit-venta-nota').value='';
+  // Tipo entrega
+  const entrega=d[7]||'recogida';
+  setEditEntrega(entrega);
+  // Zona
+  const zonaTexto=d[11]||'';
+  const zonaVal=ZONAS_VAL[zonaTexto]||'';
+  document.getElementById('edit-venta-zona').value=zonaVal;
+  document.getElementById('edit-venta-direccion').value=d[8]||'';
   abrirModal('modal-editar-venta');
+};
+
+window.setEditEntrega=tipo=>{
+  document.getElementById('edit-btn-recogida').classList.toggle('active',tipo==='recogida');
+  document.getElementById('edit-btn-domicilio').classList.toggle('active',tipo==='domicilio');
+  document.getElementById('edit-zona-group').style.display=tipo==='domicilio'?'block':'none';
+  document.getElementById('edit-dir-group').style.display=tipo==='domicilio'?'block':'none';
 };
 
 window.guardarEdicionVenta=async()=>{
   const idx=parseInt(document.getElementById('edit-venta-idx').value);
-  const fecha=document.getElementById('edit-venta-fecha').value;
-  const nota=document.getElementById('edit-venta-nota').value.trim();
   const d=datosInv[idx];
+  const entrega=document.getElementById('edit-btn-domicilio').classList.contains('active')?'domicilio':'recogida';
+  const zonaVal=document.getElementById('edit-venta-zona').value;
+  const zonaTexto=zonaVal?ZONAS_N[zonaVal]:'';
+  const costoDom=zonaVal?ZONAS[zonaVal]:0;
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
-      accion:'editarVenta', producto:d[0], cliente:d[5],
-      fechaEntrega:fecha, nota, registradoPor:usuarioActual?usuarioActual.nombre:'',
+      accion:'editarVenta',
+      producto:d[0],
+      clienteOriginal:d[5],
+      cliente:document.getElementById('edit-venta-cliente').value.trim(),
+      telefono:document.getElementById('edit-venta-telefono').value.trim(),
+      fechaEntrega:document.getElementById('edit-venta-fecha').value,
+      nota:document.getElementById('edit-venta-nota').value.trim(),
+      tipoEntrega:entrega,
+      zonaEntrega:zonaTexto,
+      direccion:document.getElementById('edit-venta-direccion').value.trim(),
+      costoDomicilio:costoDom,
+      registradoPor:usuarioActual?usuarioActual.nombre:'',
       filaInv:idx
     })});
     cerrarModal('modal-editar-venta');
