@@ -1021,6 +1021,20 @@ function resetInact(){
   timerInact=setTimeout(()=>{cerrarInventario();toast('Sesión cerrada por inactividad','error');},INACT);
 }
 document.addEventListener('touchstart',resetInact);
+
+// Delegación de eventos para botón nota domicilio
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.btn-nota-dom');
+  if(!btn) return;
+  const prod = btn.getAttribute('data-prod');
+  const cli = btn.getAttribute('data-cli');
+  const nota = btn.getAttribute('data-nota') || '';
+  document.getElementById('nota-dom-producto').value = prod;
+  document.getElementById('nota-dom-cliente').value = cli;
+  document.getElementById('nota-dom-title').textContent = 'Nota — ' + cli;
+  document.getElementById('nota-dom-texto').value = nota;
+  document.getElementById('modal-nota-dom').style.display = 'flex';
+});
 document.addEventListener('click',resetInact);
 
 // INVENTARIO TABS
@@ -1760,7 +1774,7 @@ function renderDinvPendientes(){
         ${tipoEnt==='domicilio'&&estado==='Listo para enviar'?`<span style="font-size:12px;color:var(--verde);font-weight:600;">📦 Esperando domiciliario</span>`:''}
         ${tipoEnt==='domicilio'&&estado==='En camino'?`<span style="font-size:12px;color:#9a7d1a;font-weight:600;">🚚 En camino</span>`:''}
         ${tipoEnt==='recogida'&&estado==='Pendiente'?`<button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);" onclick="marcarEntregadoRecogida(${i},'${datosInv[i][0]}','${datosInv[i][5]}')">✅ Entregado</button>`:''}
-        <button class="icon-btn" data-idx="${i}" data-prod="${datosInv[i][0]}" data-cli="${datosInv[i][5]}" data-nota="${datosInv[i][18]||''}" onclick="this.getAttribute('data-idx');document.getElementById('nota-dom-producto').value=this.getAttribute('data-prod');document.getElementById('nota-dom-cliente').value=this.getAttribute('data-cli');document.getElementById('nota-dom-title').textContent='Nota — '+this.getAttribute('data-cli');document.getElementById('nota-dom-texto').value=this.getAttribute('data-nota');document.getElementById('modal-nota-dom').style.display='flex';">📝 Nota</button>
+        <button class="icon-btn btn-nota-dom" data-prod="${datosInv[i][0]}" data-cli="${datosInv[i][5]}" data-nota="${datosInv[i][18]||''}" >📝 Nota</button>
       </div>
     </div>`;
   }
