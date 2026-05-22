@@ -1718,6 +1718,7 @@ function renderDinvPendientes(){
         </div>
       </div>
       <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">🕯️ ${datosInv[i][0]} · ${datosInv[i][4]} uds</div>
+      <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${new Date(datosInv[i][3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
       <div style="font-size:12px;color:var(--texto-suave);">📞 ${datosInv[i][6]||''}</div>
       ${(datosInv[i][8]||datosInv[i][11])?`<div style="font-size:12px;color:var(--verde);margin-top:3px;">📍 ${datosInv[i][8]||''} ${datosInv[i][11]?'· 🗺 '+datosInv[i][11]:''}</div>`:''}
       <div style="font-size:12px;color:var(--texto-suave);">📅 ${fechaLabel}${esHoy?' · <strong style="color:var(--verde);">Hoy</strong>':''}</div>
@@ -1751,6 +1752,7 @@ function renderDinvHistorial(){
     const fecha=fv.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});
     html+=`<div class="h-item">
       <div class="h-top"><span class="h-producto">${datosInv[i][5]||'Cliente'}</span><span class="badge badge-verde">✅ Entregado</span></div>
+      <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${new Date(datosInv[i][3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
       <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">🕯️ ${datosInv[i][0]} · ${tipoH==='domicilio'?'🚚 Domicilio':'🏪 Recogida'} · 📅 ${fecha}</div>
       ${tipoH==='domicilio'?`<div style="font-size:12px;color:var(--texto-suave);">📍 ${datosInv[i][8]||''} · 🗺 ${datosInv[i][11]||''}</div><div style="font-size:12px;color:var(--verde);margin-top:2px;">💰 Domicilio: ${fmt(datosInv[i][10]||0)}</div>`:''}
     </div>`;
@@ -2038,7 +2040,8 @@ function renderPendientes(datos){
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
             <div>
               <div style="font-size:14px;font-weight:700;color:var(--texto);">${d[5]||'Cliente'}</div>
-              <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${d[6]||''}</div>
+              <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${new Date(d[3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+          <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${d[6]||''}</div>
             </div>
             <span class="badge ${d[15]==='En camino'?'badge-amarillo':'badge-rosado'}">${d[15]||'Pendiente'}</span>
           </div>
@@ -2095,6 +2098,7 @@ function renderHistorialDom(){
     const fecha=fv.toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     html+=`<div class="h-item">
       <div class="h-top"><span class="h-producto">${domDatosGlobal[i][5]||'Cliente'}</span><span class="badge badge-verde">✅ Entregado</span></div>
+      <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${new Date(domDatosGlobal[i][3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
       <div class="h-cliente">🕯️ ${domDatosGlobal[i][0]} · 📅 ${fecha}</div>
       <div style="font-size:12px;color:var(--texto-suave);margin-top:3px;">📍 ${domDatosGlobal[i][8]||''}</div>
       <div style="font-size:12px;color:var(--verde);margin-top:3px;">🚚 ${domDatosGlobal[i][11]||''} · 💰 $${Math.round(costoDom).toLocaleString('es-CO')}</div>
