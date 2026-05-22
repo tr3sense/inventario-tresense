@@ -2135,7 +2135,8 @@ function renderPendientes(datos){
     if(!datos[i][0]||datos[i][5]!=='domicilio')continue;
     const estado=(datos[i][11]&&typeof datos[i][11]==='string'&&datos[i][11].indexOf('T')===-1)?datos[i][11]:'';
     if(estado!=='Listo para enviar'&&estado!=='En camino')continue;
-    const fechaEnt=datos[i][8]?new Date(datos[i][8].toString().substring(0,10)+'T12:00:00'):null;
+    const fechaRawJ=datos[i][8]?datos[i][8].toString():'';
+    const fechaEnt=fechaRawJ?new Date(fechaRawJ.substring(0,10)+'T12:00:00'):null;
     if(!fechaEnt)continue;
     const diaIdx=dias.findIndex(d=>d.fecha.toDateString()===fechaEnt.toDateString());
     if(diaIdx>=0) dias[diaIdx].entregas.push({i,d:datos[i]});
@@ -2165,7 +2166,7 @@ function renderPendientes(datos){
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
             <div>
               <div style="font-size:14px;font-weight:700;color:var(--texto);">${d[3]||'Cliente'}</div>
-              <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${new Date(d[3]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+              <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${(function(){try{return new Date(d[0]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){return '';}})()}</div>
           <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">📞 ${d[4]||''}</div>
             </div>
             <span class="badge ${d[11]==='En camino'?'badge-amarillo':'badge-rosado'}">${d[15]||'Pendiente'}</span>
