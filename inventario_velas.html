@@ -1602,6 +1602,19 @@ function renderDesarrollo(d){
   document.getElementById('lista-desarrollo').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin productos en desarrollo.</div>';
 }
 
+window.eliminarDesarrollo=async producto=>{
+  if(!confirm('¿Eliminar "'+producto+'" del desarrollo? Esta acción no se puede deshacer.'))return;
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'eliminarDesarrollo', producto,
+      usuario:usuarioActual?usuarioActual.nombre:''
+    })});
+    clearCacheC('desarrollo');
+    cargarDesarrollo(true);
+    toast('Producto eliminado','success');
+  }catch(e){toast('Error al eliminar','error');}
+};
+
 window.aprobarProducto=async producto=>{
   if(!confirm(`¿Aprobar "${producto}" y pasarlo al inventario con stock 0?`))return;
   try{
