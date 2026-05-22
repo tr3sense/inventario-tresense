@@ -1982,7 +1982,7 @@ function renderPendientes(datos){
   for(let i=1;i<datos.length;i++){
     if(!datos[i][0]||datos[i][7]!=='domicilio')continue;
     const estado=(datos[i][15]&&typeof datos[i][15]==='string'&&datos[i][15].indexOf('T')===-1)?datos[i][15]:'';
-    if(estado==='Entregado'||estado==='Pendiente')continue;
+    if(estado!=='Listo para enviar'&&estado!=='En camino')continue;
     const fechaEnt=datos[i][12]?new Date(datos[i][12].substring(0,10)+'T12:00:00'):null;
     if(!fechaEnt)continue;
     const diaIdx=dias.findIndex(d=>d.fecha.toDateString()===fechaEnt.toDateString());
