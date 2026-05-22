@@ -1681,7 +1681,10 @@ function renderVentas(datos){
     html+=`<div class="h-item">
       <div class="h-top">
         <span class="h-producto">${v.producto} <span style="font-size:13px;color:var(--verde);font-weight:600;">· ${v.cantidad} uds</span></span>
-        <button class="icon-btn" style="font-size:12px;" onclick="abrirEditarVenta(${v.idx})">✏️</button>
+        <div style="display:flex;gap:6px;">
+          <button class="icon-btn" style="font-size:12px;" onclick="abrirEditarVenta(${v.idx})">✏️</button>
+          <button class="icon-btn" style="font-size:12px;background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarVenta(${v.idx},'${v.producto}','${v.cliente}')">🗑</button>
+        </div>
       </div>
       <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${fechaReg}</div>
       <div class="h-cliente" style="margin-top:3px;">${v.cliente?'👤 '+v.cliente:''} ${v.telefono?'· '+v.telefono:''}</div>
@@ -1698,6 +1701,21 @@ function renderVentas(datos){
 }
 
 const ZONAS_VAL={'Medellín':'medellin','Bello/Envigado/Itagüí/Sabaneta':'area1','Otras zonas':'otras'};
+
+window.eliminarVenta=async(idx,producto,cliente)=>{
+  if(!confirm(`¿Eliminar la venta de ${producto} — ${cliente}?\nEsta acción no se puede deshacer.`))return;
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'eliminarVenta', producto, cliente,
+      registradoPor:usuarioActual?usuarioActual.nombre:'', filaInv:idx
+    })});
+    clearCacheC('ventas'); clearCacheC('domicilios');
+    sessionStorage.removeItem('inv_cache');
+    await cargarInventario();
+    cargarVentas(true);
+    toast('Venta eliminada','success');
+  }catch(e){toast('Error al eliminar','error');}
+};
 
 window.abrirEditarVenta=idx=>{
   const d=datosInv[idx];
