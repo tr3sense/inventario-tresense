@@ -1749,8 +1749,8 @@ window.cerrarModal=id=>document.getElementById(id).style.display='none';
 let prodDatos=[];
 
 window.cargarProduccion=async(force)=>{
-  const cached=getCacheC('produccion');
-  if(cached&&!force){prodDatos=cached;renderProduccion(cached);return;}
+  // No usar caché en producción para siempre tener datos frescos
+  if(false&&getCacheC('produccion')){}
   document.getElementById('lista-por-producir').innerHTML=spinnerHtml('Cargando pedidos...');
   document.getElementById('lista-listos-prod').innerHTML='';
   try{
