@@ -1770,11 +1770,11 @@ function renderProduccion(datos){
     const d=datos[i];
     if(!d[0]||!d[1]||!d[2])continue;
     const estado=(d[11]&&typeof d[11]==='string'&&d[11].indexOf('T')===-1)?d[11]:'Pendiente';
-    if(estado==='Entregado'||estado==='En camino'||estado==='Listo para enviar')continue;
+    if(estado==='Entregado'||estado==='En camino')continue;
     const fechaEntRaw=d[8]?d[8].toString():'';
     const fechaEnt=fechaEntRaw?new Date(fechaEntRaw.substring(0,10)+'T12:00:00'):null;
     const item={idx:i, producto:d[1], cantidad:d[2], cliente:d[3]||'', fechaEnt, nota:d[14]||'', estado};
-    if(estado==='Producido') listos.push(item);
+    if(estado==='Producido'||estado==='Listo para enviar') listos.push(item);
     else porProducir.push(item);
   }
   
@@ -1891,7 +1891,7 @@ function renderDinvPendientes(){
     const tipoEnt=datosInv[i][5]||'';
     if(tipoEnt!=='domicilio'&&tipoEnt!=='recogida')continue;
     const estado=(datosInv[i][11]&&typeof datosInv[i][11]==='string'&&datosInv[i][11].indexOf('T')===-1)?datosInv[i][11]:'Pendiente';
-    if(estado==='Entregado'||estado==='Listo para enviar')continue;
+    if(estado==='Entregado')continue;
     count++;
     const fechaEnt=datosInv[i][8]?new Date(datosInv[i][8].toString().substring(0,10)+'T12:00:00'):null;
     const fechaLabel=fechaEnt?fechaEnt.toLocaleDateString('es-CO',{weekday:'short',day:'2-digit',month:'short'}):'Sin fecha';
