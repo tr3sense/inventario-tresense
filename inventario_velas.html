@@ -1788,14 +1788,18 @@ function renderProduccion(datos){
     const esHoy=p.fechaEnt&&p.fechaEnt.toDateString()===hoy.toDateString();
     const esPasado=p.fechaEnt&&p.fechaEnt<hoy&&!esHoy;
     const colorFecha=esPasado?'#c9908a':esHoy?'var(--verde)':'var(--texto-suave)';
+    const badgeListo=p.tipo==='domicilio'
+      ?`<span class="badge badge-verde" style="padding:6px 12px;font-size:12px;">📦 En cola para envío</span>`
+      :`<span class="badge badge-amarillo" style="padding:6px 12px;font-size:12px;">🏪 Lista para recogida</span>`;
     const btn=esListo
-      ?`<span class="badge badge-verde" style="padding:6px 12px;font-size:12px;">📦 En cola para Julian</span>`
+      ?badgeListo
       :`<button class="icon-btn" style="background:var(--amarillo);color:var(--verde);border-color:var(--amarillo);transition:all 0.2s;" onmousedown="this.style.transform='scale(0.95)';this.style.opacity='0.8';" onmouseup="this.style.transform='';this.style.opacity='1';" onclick="this.textContent='⏳ Guardando...';this.disabled=true;marcarProducido(${p.idx})">✅ Listo</button>`;
     return `<div class="h-item">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
         <div>
           <div class="h-producto">${p.producto}</div>
-          <div style="font-size:13px;color:var(--verde);font-weight:600;">× ${p.cantidad} uds · 👤 ${p.cliente}</div>
+          <div style="font-size:13px;color:var(--verde);font-weight:600;">× ${p.cantidad} uds</div>
+          <div style="font-size:12px;color:var(--texto-suave);margin-top:1px;">👤 ${p.cliente} · ${p.tipo==='domicilio'?'🚚 Domicilio':'🏪 Recogida'}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-size:11px;color:${colorFecha};font-weight:600;">📅 ${fechaLabel}</div>
