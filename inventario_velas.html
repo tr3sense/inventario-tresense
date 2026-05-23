@@ -550,7 +550,7 @@ textarea { resize:none; height:70px; font-size:14px; }
       <!-- Separador -->
       <div style="height:1px;background:var(--borde);margin:16px 0;"></div>
       <!-- Listos -->
-      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-left:2px;">✅ Listos — esperando envío</div>
+      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-left:2px;">✅ Listos — Pendiente de envío</div>
       <div id="lista-listos-prod"></div>
     </div>
 
@@ -1770,11 +1770,11 @@ function renderProduccion(datos){
     const d=datos[i];
     if(!d[0]||!d[1]||!d[2])continue;
     const estado=(d[11]&&typeof d[11]==='string'&&d[11].indexOf('T')===-1)?d[11]:'Pendiente';
-    if(estado==='Entregado'||estado==='En camino')continue;
+    if(estado==='Entregado'||estado==='En camino'||estado==='Listo para enviar')continue;
     const fechaEntRaw=d[8]?d[8].toString():'';
     const fechaEnt=fechaEntRaw?new Date(fechaEntRaw.substring(0,10)+'T12:00:00'):null;
     const item={idx:i, producto:d[1], cantidad:d[2], cliente:d[3]||'', fechaEnt, nota:d[14]||'', estado};
-    if(estado==='Listo para enviar') listos.push(item);
+    if(estado==='Producido') listos.push(item);
     else porProducir.push(item);
   }
   
@@ -1821,14 +1821,14 @@ window.marcarProducido=async function(i){
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'actualizarEstadoDomicilio',
-      estado:'Listo para enviar',
+      estado:'Producido',
       producto:d[1], cliente:d[3], telefono:d[4]||'',
       direccion:d[6]||'', zona:d[7]||'',
       fotoBase64:'', registradoPor:usuarioActual?usuarioActual.nombre:''
     })});
     clearCacheC('produccion'); clearCacheC('domicilios_inv'); clearCacheC('domicilios');
     await cargarProduccion(true);
-    toast('✅ Listo — pasado a domicilios','success');
+    toast('✅ Listo — pendiente de envío','success');
   }catch(e){toast('Error','error');}
 };
 
@@ -1891,12 +1891,13 @@ function renderDinvPendientes(){
     const tipoEnt=datosInv[i][5]||'';
     if(tipoEnt!=='domicilio'&&tipoEnt!=='recogida')continue;
     const estado=(datosInv[i][11]&&typeof datosInv[i][11]==='string'&&datosInv[i][11].indexOf('T')===-1)?datosInv[i][11]:'Pendiente';
-    if(estado==='Entregado')continue;
+    if(estado==='Entregado'||estado==='Listo para enviar')continue;
     count++;
     const fechaEnt=datosInv[i][8]?new Date(datosInv[i][8].toString().substring(0,10)+'T12:00:00'):null;
     const fechaLabel=fechaEnt?fechaEnt.toLocaleDateString('es-CO',{weekday:'short',day:'2-digit',month:'short'}):'Sin fecha';
     const esHoy=fechaEnt&&fechaEnt.toDateString()===new Date().toDateString();
-    const badgeColor=estado==='Listo para enviar'?'badge-verde':estado==='En camino'?'badge-amarillo':'badge-rosado';
+    const badgeColor=estado==='Producido'?'badge-amarillo':estado==='En camino'?'badge-amarillo':'badge-rosado';
+    const estadoLabel=estado==='Producido'?'✅ Listo':estado;
     const tipoLabel=tipoEnt==='domicilio'?'🚚 Domicilio':'🏪 Recogida';
     html+=`<div class="h-item">
       <div style="font-size:10px;color:var(--texto-mini);margin-bottom:0;">Creación: ${new Date(datosInv[i][0]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
@@ -1904,7 +1905,7 @@ function renderDinvPendientes(){
         <span class="h-producto">${datosInv[i][3]||'Cliente'}</span>
         <div style="display:flex;flex-direction:row;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
           <span class="badge ${tipoEnt==='domicilio'?'badge-rosado':'badge-verde'}">${tipoLabel}</span>
-          <span class="badge ${badgeColor}">${estado}</span>
+          <span class="badge ${badgeColor}">${estadoLabel||estado}</span>
         </div>
       </div>
       <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;">🕯️ ${datosInv[i][1]} · ${datosInv[i][2]} uds</div>
