@@ -1773,7 +1773,7 @@ function renderProduccion(datos){
     if(estado==='Entregado'||estado==='En camino')continue;
     const fechaEntRaw=d[8]?d[8].toString():'';
     const fechaEnt=fechaEntRaw?new Date(fechaEntRaw.substring(0,10)+'T12:00:00'):null;
-    const item={idx:i, producto:d[1], cantidad:d[2], cliente:d[3]||'', fechaEnt, nota:d[14]||'', estado};
+    const item={idx:i, producto:d[1], cantidad:d[2], cliente:d[3]||'', fechaEnt, nota:d[14]||'', estado, tipo:d[5]||''};
     if(estado==='Producido'||estado==='Listo para enviar') listos.push(item);
     else porProducir.push(item);
   }
