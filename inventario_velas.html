@@ -1384,12 +1384,24 @@ window.limpiarProductoActivo=()=>{
   document.getElementById('prod-activo-wrap').style.display='none';
 };
 
-async function cargarIngredientesProducto(){
+async function cargarIngredientesProducto(force){
   if(!prodActivo)return;
+  document.getElementById('lista-ingredientes').innerHTML=spinnerHtml('Cargando...');
+  const cacheKey='costeo_'+prodActivo.replace(/\s/g,'_');
+  if(!force){
+    const cached=getCacheC(cacheKey);
+    if(cached){cpDatos=cached;renderIngredientesProducto(cached);return;}
+  }
   try{
-    const r=await fetch(API+'?accion=costeoporproducto',);
+    const r=await fetch(API+'?accion=costeoporproducto',{redirect:'follow'});
     const d=await r.json();
+    setCacheC(cacheKey,d);
     cpDatos=d;
+    renderIngredientesProducto(d);
+  }catch(e){document.getElementById('lista-ingredientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
+}
+
+function renderIngredientesProducto(d){
     let html='';
     mpTotal=0;cifTotal=0;
     for(let i=1;i<d.length;i++){
@@ -1469,8 +1481,13 @@ window.guardarIngrediente=async()=>{
   if(!insumo||!cant){toast('Completa los campos','error');return;}
   const p={accion:ingEdicion?'editarCosteoProducto':'agregarCosteoProducto',producto:prodActivo,insumo,cantidad:cant,unidad:document.getElementById('ing-unidad').value};
   if(ingEdicion)p.fila=ingFila;
-  try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-ingrediente');await cargarIngredientesProducto();toast('Guardado','success');}
-  catch(e){toast('Error','error');}
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify(p)});
+    cerrarModal('modal-ingrediente');
+    clearCacheC('costeo_'+prodActivo);
+    await cargarIngredientesProducto(true);
+    toast('Guardado','success');
+  }catch(e){toast('Error','error');}
 };
 window.eliminarIngrediente=async()=>{
   if(!confirm('¿Eliminar este ingrediente?'))return;
