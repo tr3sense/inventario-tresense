@@ -697,7 +697,7 @@ textarea { resize:none; height:70px; font-size:14px; }
           </div>
         </div>
         <div id="panel-horas">
-          <div class="form-group"><label class="form-label">Horas trabajadas</label><input type="number" id="input-horas" step="0.5" placeholder="Ej: 2" oninput="calcMOE()"></div>
+          <div class="form-group"><label class="form-label">Horas trabajadas</label><input type="number" id="input-horas" step="0.25" placeholder="Ej: 2" oninput="calcMOE()"></div>
           <div class="info-box">
             M.O: <strong id="moe-mo">$0</strong> · Energía: <strong id="moe-energia">$0</strong><br>
             Total M.O + E: <strong id="moe-total">$0</strong>
@@ -736,7 +736,10 @@ textarea { resize:none; height:70px; font-size:14px; }
   <!-- DESARROLLO -->
   <div id="cpanel-desarrollo" style="display:none;">
     <div class="card">
-      <div class="card-title">Productos en desarrollo</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="card-title" style="margin-bottom:0;">Productos en desarrollo</div>
+        <button class="icon-btn" onclick="cargarDesarrollo(true)">↻ Actualizar</button>
+      </div>
       <div id="lista-desarrollo"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
     </div>
   </div>
@@ -1537,9 +1540,11 @@ window.enviarADesarrollo=async()=>{
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv,pvu,margen,estado:'En desarrollo'})});
     localStorage.removeItem(borradorKey);
+    const nombreProd=prodActivo;
     limpiarProductoActivo();
+    clearCacheC('desarrollo');
     mostrarTabConta('desarrollo');
-    toast(prodActivo+' enviado a Desarrollo','success');
+    toast(nombreProd+' enviado a Desarrollo','success');
   }catch(e){toast('Error','error');}
 };
 
