@@ -1573,59 +1573,37 @@ async function cargarDesarrollo(force){
     const r=await fetch(API+'?accion=desarrollo',);
     const d=await r.json();
     setCacheC('desarrollo',d);
-    const ahora=new Date();
-    let html='';
-    for(let i=1;i<d.length;i++){
-      if(!d[i][0])continue;
-      const mp=d[i][1]||0,cif=d[i][2]||0,moe=d[i][6]||0,cmv=d[i][3]||0,pvu=d[i][4]||0;
-      const margen=pvu>0?Math.round(((pvu-cmv)/pvu)*100):0;
-      const estado=d[i][5]||'En desarrollo';
-      const aprobado=estado==='Aprobado';
-      // Ocultar en app si lleva más de 7 días sin aprobar (no borrar del sheet)
-      if(!aprobado && d[i][7]){
-        const fechaCreacion=new Date(d[i][7]);
-        const diasTranscurridos=(ahora-fechaCreacion)/(1000*60*60*24);
-        if(diasTranscurridos>7) continue;
-      }
-      html+=`<div class="des-card">
-        <div class="des-card-header">
-          <div class="des-card-nombre">${d[i][0]}</div>
-          <span class="badge ${aprobado?'badge-verde':'badge-amarillo'}">${estado}</span>
-        </div>
-        <div class="res-costeo">
-          <div class="res-costeo-row"><span>M.P</span><span>${fmt(mp)}</span></div>
-          <div class="res-costeo-row"><span>CIF</span><span>${fmt(cif)}</span></div>
-          <div class="res-costeo-row"><span>M.O + Energía</span><span>${fmt(moe)}</span></div>
-          <div class="res-costeo-row h"><span>CMV Total</span><span>${fmt(cmv)}</span></div>
-          <div class="res-costeo-row" style="margin-top:6px;"><span>PVU</span><span>${fmt(pvu)}</span></div>
-          ${pvu>0?`<div class="res-costeo-row"><span>Margen</span><span>${margen}%</span></div>`:''}
-        </div>
-        <div class="des-card-acciones">
-          ${!aprobado?`<button class="icon-btn" onclick="aprobarProducto('${d[i][0]}')">✅ Aprobar → Inventario</button>`:''}
-          <button class="icon-btn" style="color:var(--texto-suave);" onclick="continuarCosteo('${d[i][0]}')">✏️ Editar</button>
-        </div>
-      </div>`;
-    }
     renderDesarrollo(d);
   }catch(e){document.getElementById('lista-desarrollo').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
 }
 
 function renderDesarrollo(d){
   const ahora=new Date();
-  let html='';
+  // Ordenar por fecha de creación más reciente (columna 7)
+  const items=[];
   for(let i=1;i<d.length;i++){
     if(!d[i][0])continue;
-    const mp=d[i][1]||0,cif=d[i][2]||0,moe=d[i][6]||0,cmv=d[i][3]||0,pvu=d[i][4]||0;
+    items.push({i, row:d[i]});
+  }
+  items.sort((a,b)=>{
+    const fa=a.row[7]?new Date(a.row[7]):new Date(0);
+    const fb=b.row[7]?new Date(b.row[7]):new Date(0);
+    return fb-fa;
+  });
+  let html='';
+  for(const {i, row: dRow} of items){
+    const d_i=dRow;
+    const mp=d_i[1]||0,cif=d_i[2]||0,moe=d_i[6]||0,cmv=d_i[3]||0,pvu=d_i[4]||0;
     const margen=pvu>0?Math.round(((pvu-cmv)/pvu)*100):0;
-    const estado=d[i][5]||'En desarrollo';
+    const estado=d_i[5]||'En desarrollo';
     const aprobado=estado==='Aprobado';
-    if(!aprobado&&d[i][7]){
-      const fc=new Date(d[i][7]);
+    if(!aprobado&&d_i[7]){
+      const fc=new Date(d_i[7]);
       if((ahora-fc)/(1000*60*60*24)>7)continue;
     }
     html+=`<div class="des-card">
       <div class="des-card-header">
-        <div class="des-card-nombre">${d[i][0]}</div>
+        <div class="des-card-nombre">${d_i[0]}</div>
         <span class="badge ${aprobado?'badge-verde':'badge-amarillo'}">${estado}</span>
       </div>
       <div class="res-costeo">
@@ -1637,9 +1615,9 @@ function renderDesarrollo(d){
         ${pvu>0?`<div class="res-costeo-row"><span>Margen</span><span>${margen}%</span></div>`:''}
       </div>
       <div class="des-card-acciones">
-        ${!aprobado?`<button class="icon-btn" onclick="aprobarProducto('${d[i][0]}')">✅ Aprobar → Inventario</button>`:''}
-        <button class="icon-btn" style="color:var(--texto-suave);" onclick="continuarCosteo('${d[i][0]}')">✏️ Editar costeo</button>
-        ${!aprobado?'<button class="icon-btn" style="background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarDesarrollo(\'${d[i][0]}\')">🗑 Eliminar</button>':''}
+        ${!aprobado?`<button class="icon-btn" onclick="aprobarProducto('${d_i[0]}')">✅ Aprobar → Inventario</button>`:''}
+        <button class="icon-btn" style="color:var(--texto-suave);" onclick="continuarCosteo('${d_i[0]}')">✏️ Editar costeo</button>
+        ${!aprobado?'<button class="icon-btn" style="background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarDesarrollo(\'${d_i[0]}\')">🗑 Eliminar</button>':''}
       </div>
     </div>`;
   }
