@@ -2873,6 +2873,13 @@ window.guardarPUVContadora=async()=>{
     clearCacheC('desarrollo');
     clearCacheC('desarrollo_puv');
     cargarDesarrolloPUV(true);
+    // Limpiar calculadora
+    document.getElementById('puv-select-prod').value='';
+    document.getElementById('puv-cuv').value='';
+    document.getElementById('puv-margen-pct').value='';
+    document.getElementById('puv-numerologia').value='';
+    document.getElementById('puv-resultado').style.display='none';
+    document.getElementById('puv-numerologia-resultado').style.display='none';
     toast('PUV guardado para '+producto,'success');
   }catch(e){toast('Error al guardar','error');}
 };
