@@ -425,13 +425,14 @@ textarea { resize:none; height:70px; font-size:14px; }
   </div>
 </div>
 
-<!-- MODAL INSUMO -->
+<!-- MODAL INSUMO / COMPRA -->
 <div class="modal-overlay" id="modal-insumo">
   <div class="modal-card">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-insumo-title">Insumo</div>
+    <div class="modal-title" id="modal-insumo-title">Compra</div>
     <input type="hidden" id="insumo-fila">
     <div class="form-group"><label class="form-label">Nombre</label><input type="text" id="insumo-nombre" placeholder="Ej: Cera Molde"></div>
+    <div class="form-group"><label class="form-label">Proveedor</label><input type="text" id="insumo-proveedor" placeholder="Ej: Distribuidora XYZ"></div>
     <div class="form-group"><label class="form-label">Q — cantidad del paquete</label><input type="number" id="insumo-q" step="0.01" oninput="calcInsUnit()" placeholder="Ej: 1000"></div>
     <div class="form-group"><label class="form-label">Valor total ($)</label><input type="number" id="insumo-valor" oninput="calcInsUnit()" placeholder="Ej: 40000"></div>
     <div class="form-group"><label class="form-label">Unidad</label>
@@ -440,6 +441,13 @@ textarea { resize:none; height:70px; font-size:14px; }
     <div class="form-group"><label class="form-label">Tipo</label>
       <select id="insumo-tipo"><option value="MP">MP — Materia Prima</option><option value="CIF">CIF — Costo Indirecto</option></select>
     </div>
+    <div class="form-group"><label class="form-label">Disponibilidad</label>
+      <div class="toggle-group">
+        <div class="toggle-btn active" id="ins-btn-existente" onclick="setInsumoDisp('existente')">✅ Existente</div>
+        <div class="toggle-btn" id="ins-btn-inexistente" onclick="setInsumoDisp('inexistente')">⛔ Inexistente</div>
+      </div>
+    </div>
+    <input type="hidden" id="insumo-disponibilidad" value="existente">
     <div class="info-box">Costo unitario: <strong id="ins-unit-preview">$0</strong></div>
     <button class="btn btn-verde" onclick="guardarInsumo()">Guardar</button>
     <button class="btn btn-crema" onclick="cerrarModal('modal-insumo')">Cancelar</button>
@@ -484,12 +492,20 @@ textarea { resize:none; height:70px; font-size:14px; }
 <div class="modal-overlay" id="modal-activo">
   <div class="modal-card">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-activo-title">Activo</div>
+    <div class="modal-title" id="modal-activo-title">Activo Fijo</div>
     <input type="hidden" id="activo-fila">
     <div class="form-group"><label class="form-label">Nombre</label><input type="text" id="activo-nombre" placeholder="Ej: Gramera"></div>
+    <div class="form-group"><label class="form-label">Proveedor</label><input type="text" id="activo-proveedor" placeholder="Ej: Homecenter"></div>
     <div class="form-group"><label class="form-label">Fecha compra</label><input type="date" id="activo-fecha"></div>
     <div class="form-group"><label class="form-label">Valor ($)</label><input type="number" id="activo-valor" placeholder="Ej: 20000"></div>
     <div class="form-group"><label class="form-label">Cantidad</label><input type="number" id="activo-cantidad" value="1" min="1"></div>
+    <div class="form-group"><label class="form-label">Disponibilidad</label>
+      <div class="toggle-group">
+        <div class="toggle-btn active" id="act-btn-existente" onclick="setActivoDisp('existente')">✅ Existente</div>
+        <div class="toggle-btn" id="act-btn-inexistente" onclick="setActivoDisp('inexistente')">⛔ Inexistente</div>
+      </div>
+    </div>
+    <input type="hidden" id="activo-disponibilidad" value="existente">
     <button class="btn btn-verde" onclick="guardarActivo()">Guardar</button>
     <button class="btn btn-crema" onclick="cerrarModal('modal-activo')">Cancelar</button>
   </div>
@@ -634,19 +650,23 @@ textarea { resize:none; height:70px; font-size:14px; }
 
   <div class="card" style="padding:8px 10px;">
     <div class="tabs">
-      <button class="tab-btn active" id="ctab-insumos" onclick="mostrarTabConta('insumos')">Insumos</button>
+      <button class="tab-btn active" id="ctab-insumos" onclick="mostrarTabConta('insumos')">Compras</button>
       <button class="tab-btn" id="ctab-costeo" onclick="mostrarTabConta('costeo')">Costeo</button>
+      <button class="tab-btn" id="ctab-puv" onclick="mostrarTabConta('puv')">PUV</button>
       <button class="tab-btn" id="ctab-desarrollo" onclick="mostrarTabConta('desarrollo')">Desarrollo</button>
-      <button class="tab-btn" id="ctab-activos" onclick="mostrarTabConta('activos')">Activos</button>
+      <button class="tab-btn" id="ctab-activos" onclick="mostrarTabConta('activos')">Activos Fijos</button>
     </div>
   </div>
 
-  <!-- INSUMOS -->
+  <!-- COMPRAS (antes Insumos) -->
   <div id="cpanel-insumos">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div class="card-title" style="margin-bottom:0;">Materias Primas & CIF</div>
-        <button class="icon-btn" onclick="abrirModalInsumo()">+ Agregar</button>
+        <div class="card-title" style="margin-bottom:0;">Compras</div>
+        <div style="display:flex;gap:8px;">
+          <button class="icon-btn" onclick="cargarInsumos(true)">↻ Actualizar</button>
+          <button class="icon-btn" onclick="abrirModalInsumo()">+ Agregar</button>
+        </div>
       </div>
       <div class="scroll-box" id="lista-insumos"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
     </div>
@@ -684,52 +704,78 @@ textarea { resize:none; height:70px; font-size:14px; }
       <!-- MOE -->
       <div class="card">
         <div class="card-title">Mano de Obra & Energía</div>
-        <div class="metodo-selector">
-          <div class="metodo-btn active" id="metodo-horas" onclick="setMetodo('horas')">
-            <span class="metodo-btn-icon">🕐</span>
-            <span class="metodo-btn-label">Por horas</span>
-            <div class="metodo-btn-sub">Horas × $7.959</div>
-          </div>
-          <div class="metodo-btn" id="metodo-pct" onclick="setMetodo('pct')">
-            <span class="metodo-btn-icon">📊</span>
-            <span class="metodo-btn-label">% del CIF</span>
-            <div class="metodo-btn-sub">3% estándar</div>
-          </div>
-        </div>
-        <div id="panel-horas">
-          <div class="form-group"><label class="form-label">Horas trabajadas</label><input type="number" id="input-horas" step="0.25" placeholder="Ej: 2" oninput="calcMOE()"></div>
-          <div class="info-box">
-            M.O: <strong id="moe-mo">$0</strong> · Energía: <strong id="moe-energia">$0</strong><br>
-            Total M.O + E: <strong id="moe-total">$0</strong>
-          </div>
-        </div>
-        <div id="panel-pct" style="display:none;">
-          <div class="info-box">
-            3% del CIF = <strong id="pct-valor">$0</strong><br>
-            <span style="font-size:11px;color:var(--texto-suave);">Se calcula automáticamente sobre el CIF total</span>
-          </div>
+        <div class="form-group"><label class="form-label">Horas trabajadas</label><input type="number" id="input-horas" step="0.25" placeholder="Ej: 2" oninput="calcMOE()"></div>
+        <div class="info-box">
+          M.O Directa: <strong id="moe-mo">$0</strong> · Energía: <strong id="moe-energia">$0</strong><br>
+          Total M.O + E: <strong id="moe-total">$0</strong>
         </div>
       </div>
 
-      <!-- PVU EN COSTEO -->
+      <!-- CUV RESUMEN EN COSTEO -->
       <div class="card">
-        <div class="card-title">Precio & Margen</div>
-        <div class="form-group"><label class="form-label">Precio de Venta Unitario — PVU ($)</label>
-          <input type="number" id="costeo-pvu" placeholder="Ej: 25000" oninput="calcCosteoResumen()">
-        </div>
+        <div class="card-title">Costo Unitario de Venta (CUV)</div>
         <div id="res-costeo-final" class="res-costeo" style="display:none;">
-          <div class="res-costeo-row"><span>M.P</span><span id="rcf-mp">$0</span></div>
-          <div class="res-costeo-row"><span>CIF</span><span id="rcf-cif">$0</span></div>
-          <div class="res-costeo-row"><span>M.O + Energía</span><span id="rcf-moe">$0</span></div>
-          <div class="res-costeo-row h"><span>CMV Total</span><span id="rcf-cmv">$0</span></div>
-          <div class="res-costeo-row" style="margin-top:8px;"><span>PVU</span><span id="rcf-pvu">$0</span></div>
-          <div class="res-costeo-row"><span>Margen</span><span id="rcf-margen">—</span></div>
+          <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Costo Primo</div>
+          <div class="res-costeo-row"><span>Materia Prima (MP)</span><span id="rcf-mp">$0</span></div>
+          <div class="res-costeo-row"><span>M.O Directa + Energía</span><span id="rcf-moe">$0</span></div>
+          <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;">CIF</div>
+          <div class="res-costeo-row"><span>Costos Indirectos</span><span id="rcf-cif">$0</span></div>
+          <div class="res-costeo-row h"><span>CUV Total</span><span id="rcf-cmv">$0</span></div>
         </div>
         <div style="display:flex;gap:8px;margin-top:12px;">
           <button class="btn btn-crema" onclick="guardarBorrador()" style="flex:1;margin-top:0;">💾 Borrador</button>
           <button class="btn btn-amarillo" onclick="enviarADesarrollo()" style="flex:1;margin-top:0;">Enviar → 🆕</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- PUV -->
+  <div id="cpanel-puv" style="display:none;">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="card-title" style="margin-bottom:0;">Precio Unitario de Venta</div>
+        <button class="icon-btn" onclick="cargarDesarrolloPUV(true)">↻ Actualizar</button>
+      </div>
+      <div id="lista-puv-productos"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
+    </div>
+
+    <!-- Calculadora PUV -->
+    <div class="card">
+      <div class="card-title">Calculadora PUV</div>
+      <div class="form-group">
+        <label class="form-label">Producto</label>
+        <select id="puv-select-prod" onchange="onPuvSelectProd()">
+          <option value="">Selecciona un producto...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">CUV del producto ($)</label>
+        <input type="number" id="puv-cuv" placeholder="Ej: 12000" oninput="calcPUV()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">% Margen de contribución</label>
+        <input type="number" id="puv-margen-pct" placeholder="Ej: 40" min="1" max="99" oninput="calcPUV()">
+      </div>
+      <div id="puv-resultado" class="res-costeo" style="display:none;margin-top:4px;">
+        <div class="res-costeo-row"><span>CUV</span><span id="puv-res-cuv">$0</span></div>
+        <div class="res-costeo-row"><span>Margen (%)</span><span id="puv-res-pct">0%</span></div>
+        <div class="res-costeo-row h"><span>PUV por producción</span><span id="puv-res-puv">$0</span></div>
+        <div class="res-costeo-row" style="margin-top:6px;"><span>Margen en $</span><span id="puv-res-margen-pesos">$0</span></div>
+      </div>
+
+      <div style="height:1px;background:var(--borde);margin:16px 0;"></div>
+
+      <div class="form-group">
+        <label class="form-label">PUV por numerología ($) <span style="font-size:11px;color:var(--texto-suave);">— precio que se envía a las socias</span></label>
+        <input type="number" id="puv-numerologia" placeholder="Ej: 28000" oninput="calcPUVNumerologia()">
+      </div>
+      <div id="puv-numerologia-resultado" class="info-box" style="display:none;">
+        PUV numerología: <strong id="puv-num-valor">$0</strong><br>
+        <span style="font-size:11px;color:var(--texto-suave);">Este es el precio final para el cliente</span>
+      </div>
+
+      <button class="btn btn-verde" onclick="guardarPUV()" style="margin-top:4px;">💾 Guardar PUV</button>
     </div>
   </div>
 
@@ -744,12 +790,15 @@ textarea { resize:none; height:70px; font-size:14px; }
     </div>
   </div>
 
-  <!-- ACTIVOS -->
+  <!-- ACTIVOS FIJOS -->
   <div id="cpanel-activos" style="display:none;">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <div class="card-title" style="margin-bottom:0;">Activos Fijos</div>
-        <button class="icon-btn" onclick="abrirModalActivo()">+ Agregar</button>
+        <div style="display:flex;gap:8px;">
+          <button class="icon-btn" onclick="cargarActivos(true)">↻ Actualizar</button>
+          <button class="icon-btn" onclick="abrirModalActivo()">+ Agregar</button>
+        </div>
       </div>
       <div class="scroll-box" id="lista-activos"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
       <div id="total-activos" style="margin-top:10px;font-size:14px;font-weight:700;color:var(--verde);"></div>
@@ -886,7 +935,7 @@ const HORA_BASE = 7959;
 let pinVal="",intentos=0,bloqueado=false,timerInact=null,usuarioActual=null,datosVentas=[];
 let tipoEntrega='recogida',prodReponer='',datosInv=[],precios={};
 let insumosG=[],prodActivo='',ingEdicion=false,ingFila=-1;
-let cpDatos=[],metodoMOE='horas';
+let cpDatos=[];
 let mpTotal=0,cifTotal=0,moeTotal=0;
 
 window.onload=()=>{
@@ -1267,11 +1316,12 @@ window.registrarVenta=async()=>{
 
 // CONTABILIDAD TABS
 window.mostrarTabConta=tab=>{
-  ['insumos','costeo','desarrollo','activos'].forEach(t=>{
+  ['insumos','costeo','puv','desarrollo','activos'].forEach(t=>{
     document.getElementById('ctab-'+t).classList.toggle('active',t===tab);
     document.getElementById('cpanel-'+t).style.display=t===tab?'block':'none';
   });
   if(tab==='insumos')cargarInsumos();
+  if(tab==='puv')cargarDesarrolloPUV();
   if(tab==='desarrollo')cargarDesarrollo();
   if(tab==='activos')cargarActivos();
 };
@@ -1298,21 +1348,30 @@ function renderInsumos(d){
   let html='';
   for(let i=1;i<d.length;i++){
     if(!d[i][0])continue;
-    html+=`<div class="insumo-card">
+    const disp=d[i][6]||'existente';
+    const inexistente=disp==='inexistente';
+    html+=`<div class="insumo-card" style="${inexistente?'opacity:0.55;':''}">
       <div class="insumo-card-top">
-        <div>
-          <div class="insumo-nombre">${d[i][0]}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="insumo-nombre">${d[i][0]}${d[i][7]?` <span style="font-size:11px;color:var(--texto-suave);font-weight:400;">· ${d[i][7]}</span>`:''}</div>
           <div class="insumo-detalle">Q: ${d[i][1]} ${d[i][3]} · Total: ${fmt(d[i][2]||0)} · Unit: ${fmt(d[i][5]||0)}/${d[i][3]}</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
           <span class="badge-tipo ${d[i][4]==='MP'?'badge-mp':'badge-cif'}">${d[i][4]}</span>
+          <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;${inexistente?'background:var(--rosado-light);color:#8a5550;':'background:var(--verde-light);color:var(--verde);'}">${inexistente?'Inexistente':'Existente'}</span>
           <button class="icon-btn" onclick="abrirModalInsumo(${i})">✏️</button>
         </div>
       </div>
     </div>`;
   }
-  document.getElementById('lista-insumos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin insumos.</div>';
+  document.getElementById('lista-insumos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin compras registradas.</div>';
 }
+
+window.setInsumoDisp=disp=>{
+  document.getElementById('insumo-disponibilidad').value=disp;
+  document.getElementById('ins-btn-existente').classList.toggle('active',disp==='existente');
+  document.getElementById('ins-btn-inexistente').classList.toggle('active',disp==='inexistente');
+};
 
 window.calcInsUnit=()=>{
   const q=parseFloat(document.getElementById('insumo-q').value)||0;
@@ -1328,13 +1387,16 @@ window.abrirModalInsumo=fila=>{
     document.getElementById('insumo-valor').value=d[2];
     document.getElementById('insumo-unidad').value=d[3];
     document.getElementById('insumo-tipo').value=d[4];
+    document.getElementById('insumo-proveedor').value=d[7]||'';
     document.getElementById('ins-unit-preview').textContent=fmt(d[5]||0);
-    document.getElementById('modal-insumo-title').textContent='Editar insumo';
+    document.getElementById('modal-insumo-title').textContent='Editar compra';
+    setInsumoDisp(d[6]||'existente');
   }else{
     document.getElementById('insumo-fila').value='';
-    ['insumo-nombre','insumo-q','insumo-valor'].forEach(id=>document.getElementById(id).value='');
+    ['insumo-nombre','insumo-q','insumo-valor','insumo-proveedor'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('ins-unit-preview').textContent='$0';
-    document.getElementById('modal-insumo-title').textContent='Agregar insumo';
+    document.getElementById('modal-insumo-title').textContent='Agregar compra';
+    setInsumoDisp('existente');
   }
   abrirModal('modal-insumo');
 };
@@ -1343,7 +1405,17 @@ window.guardarInsumo=async()=>{
   const nombre=document.getElementById('insumo-nombre').value.trim();
   const valor=parseFloat(document.getElementById('insumo-valor').value);
   if(!nombre||!valor){toast('Nombre y valor son obligatorios','error');return;}
-  const p={accion:fila?'editarInsumo':'agregarInsumo',nombre,q:parseFloat(document.getElementById('insumo-q').value)||0,valorTotal:valor,unidad:document.getElementById('insumo-unidad').value,tipo:document.getElementById('insumo-tipo').value};
+  const p={
+    accion:fila?'editarInsumo':'agregarInsumo',
+    nombre,
+    q:parseFloat(document.getElementById('insumo-q').value)||0,
+    valorTotal:valor,
+    unidad:document.getElementById('insumo-unidad').value,
+    tipo:document.getElementById('insumo-tipo').value,
+    proveedor:document.getElementById('insumo-proveedor').value.trim(),
+    disponibilidad:document.getElementById('insumo-disponibilidad').value,
+    usuario:usuarioActual?usuarioActual.nombre:''
+  };
   if(fila)p.fila=parseInt(fila);
   try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-insumo');clearCacheC('insumos');cargarInsumos(true);toast('Guardado','success');}
   catch(e){toast('Error','error');}
@@ -1494,67 +1566,45 @@ window.eliminarIngrediente=async()=>{
   catch(e){toast('Error','error');}
 };
 
-// MOE
-window.setMetodo=metodo=>{
-  metodoMOE=metodo;
-  document.getElementById('metodo-horas').classList.toggle('active',metodo==='horas');
-  document.getElementById('metodo-pct').classList.toggle('active',metodo==='pct');
-  document.getElementById('panel-horas').style.display=metodo==='horas'?'block':'none';
-  document.getElementById('panel-pct').style.display=metodo==='pct'?'block':'none';
-  calcMOE();
-};
+// MOE — solo por horas
 window.calcMOE=()=>{
-  if(metodoMOE==='horas'){
-    const horas=parseFloat(document.getElementById('input-horas').value)||0;
-    const mo=Math.round(horas*HORA_BASE);
-    const energia=Math.round(horas*HORA_BASE);
-    moeTotal=mo+energia;
-    document.getElementById('moe-mo').textContent=fmt(mo);
-    document.getElementById('moe-energia').textContent=fmt(energia);
-    document.getElementById('moe-total').textContent=fmt(moeTotal);
-  }else{
-    moeTotal=Math.round(cifTotal*0.03);
-    document.getElementById('pct-valor').textContent=fmt(moeTotal);
-  }
+  const horas=parseFloat(document.getElementById('input-horas').value)||0;
+  const mo=Math.round(horas*HORA_BASE);
+  const energia=Math.round(horas*HORA_BASE*0.1); // 10% del valor hora como energía
+  moeTotal=mo+energia;
+  document.getElementById('moe-mo').textContent=fmt(mo);
+  document.getElementById('moe-energia').textContent=fmt(energia);
+  document.getElementById('moe-total').textContent=fmt(moeTotal);
   calcCosteoResumen();
 };
 window.calcCosteoResumen=()=>{
-  const cmv=mpTotal+cifTotal+moeTotal;
-  const pvu=parseFloat(document.getElementById('costeo-pvu').value)||0;
-  const margen=pvu>0?Math.round(((pvu-cmv)/pvu)*100):0;
-  if(mpTotal>0||cifTotal>0||moeTotal>0||pvu>0){
+  const cuv=mpTotal+cifTotal+moeTotal;
+  if(mpTotal>0||cifTotal>0||moeTotal>0){
     document.getElementById('res-costeo-final').style.display='block';
     document.getElementById('rcf-mp').textContent=fmt(mpTotal);
     document.getElementById('rcf-cif').textContent=fmt(cifTotal);
     document.getElementById('rcf-moe').textContent=fmt(moeTotal);
-    document.getElementById('rcf-cmv').textContent=fmt(cmv);
-    document.getElementById('rcf-pvu').textContent=fmt(pvu);
-    document.getElementById('rcf-margen').textContent=pvu>0?margen+'%':'—';
+    document.getElementById('rcf-cmv').textContent=fmt(cuv);
   }
 };
 
 window.guardarBorrador=async()=>{
   if(!prodActivo){toast('Crea un producto primero','error');return;}
-  const pvu=parseFloat(document.getElementById('costeo-pvu').value)||0;
-  const cmv=mpTotal+cifTotal+moeTotal;
-  const margen=pvu>0?Math.round(((pvu-cmv)/pvu)*100):0;
-  const borrador={producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv,pvu,margen,metodo:metodoMOE,horas:document.getElementById('input-horas').value,fecha:new Date().toISOString()};
+  const cuv=mpTotal+cifTotal+moeTotal;
+  const borrador={producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cuv,metodo:'horas',horas:document.getElementById('input-horas').value,fecha:new Date().toISOString()};
   localStorage.setItem(borradorKey,JSON.stringify(borrador));
-  // Actualizar en sheet
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv,pvu,margen,estado:'Borrador'})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv:cuv,pvu:0,margen:0,estado:'Borrador'})});
     toast('Borrador guardado — puedes salir y continuar después','success');
   }catch(e){toast('Borrador guardado localmente','success');}
 };
 
 window.enviarADesarrollo=async()=>{
   if(!prodActivo){toast('Crea un producto primero','error');return;}
-  const pvu=parseFloat(document.getElementById('costeo-pvu').value)||0;
-  if(!pvu){toast('Define el PVU antes de enviar','error');return;}
-  const cmv=mpTotal+cifTotal+moeTotal;
-  const margen=pvu>0?Math.round(((pvu-cmv)/pvu)*100):0;
+  const cuv=mpTotal+cifTotal+moeTotal;
+  if(!cuv){toast('Agrega al menos un ingrediente o MOE','error');return;}
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv,pvu,margen,estado:'En desarrollo'})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv:cuv,pvu:0,margen:0,estado:'En desarrollo'})});
     localStorage.removeItem(borradorKey);
     const nombreProd=prodActivo;
     limpiarProductoActivo();
@@ -1676,25 +1726,36 @@ function renderActivos(d){
   for(let i=1;i<d.length;i++){
     if(!d[i][0])continue;
     const val=d[i][2]||0,cant=d[i][3]||1,fecha=d[i][1]?new Date(d[i][1]).toLocaleDateString('es-CO'):'—';
-    total+=val*cant;
-    html+=`<div class="activo-card">
+    const disp=d[i][5]||'existente';
+    const prov=d[i][4]||'';
+    const inexistente=disp==='inexistente';
+    if(!inexistente)total+=val*cant;
+    html+=`<div class="activo-card" style="${inexistente?'opacity:0.55;':''}">
       <div class="activo-info">
-        <div class="activo-nombre">${d[i][0]}</div>
+        <div class="activo-nombre">${d[i][0]}${prov?` <span style="font-size:11px;color:var(--texto-suave);font-weight:400;">· ${prov}</span>`:''}</div>
         <div class="activo-detalle">Cant: ${cant} · ${fmt(val)} · 📅 ${fecha}</div>
+        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:4px;display:inline-block;${inexistente?'background:var(--rosado-light);color:#8a5550;':'background:var(--verde-light);color:var(--verde);'}">${inexistente?'Inexistente':'Existente'}</span>
       </div>
-      <button class="icon-btn" onclick="abrirModalActivo(${i},'${d[i][0]}','${d[i][1]||''}',${val},${cant})">✏️</button>
+      <button class="icon-btn" onclick="abrirModalActivo(${i},'${d[i][0].replace(/'/g,"\\'")}','${d[i][1]||''}',${val},${cant},'${prov.replace(/'/g,"\\'")}','${disp}')">✏️</button>
     </div>`;
   }
   document.getElementById('lista-activos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin activos.</div>';
-  document.getElementById('total-activos').textContent='💰 Total inversión: '+fmt(total);
+  document.getElementById('total-activos').textContent='💰 Total inversión (activos existentes): '+fmt(total);
 }
-window.abrirModalActivo=(fila,nombre,fecha,valor,cantidad)=>{
+window.setActivoDisp=disp=>{
+  document.getElementById('activo-disponibilidad').value=disp;
+  document.getElementById('act-btn-existente').classList.toggle('active',disp==='existente');
+  document.getElementById('act-btn-inexistente').classList.toggle('active',disp==='inexistente');
+};
+window.abrirModalActivo=(fila,nombre,fecha,valor,cantidad,proveedor,disp)=>{
   document.getElementById('activo-fila').value=fila!==undefined?fila:'';
   document.getElementById('activo-nombre').value=nombre||'';
+  document.getElementById('activo-proveedor').value=proveedor||'';
   document.getElementById('activo-fecha').value=fecha?fecha.toString().substring(0,10):'';
   document.getElementById('activo-valor').value=valor||'';
   document.getElementById('activo-cantidad').value=cantidad||1;
-  document.getElementById('modal-activo-title').textContent=fila!==undefined?'Editar activo':'Agregar activo';
+  document.getElementById('modal-activo-title').textContent=fila!==undefined?'Editar activo fijo':'Agregar activo fijo';
+  setActivoDisp(disp||'existente');
   abrirModal('modal-activo');
 };
 window.guardarActivo=async()=>{
@@ -1702,7 +1763,15 @@ window.guardarActivo=async()=>{
   const nombre=document.getElementById('activo-nombre').value.trim();
   const valor=parseFloat(document.getElementById('activo-valor').value);
   if(!nombre||!valor){toast('Nombre y valor son obligatorios','error');return;}
-  const p={accion:fila?'editarActivo':'agregarActivo',nombre,valor,fechaCompra:document.getElementById('activo-fecha').value,cantidad:document.getElementById('activo-cantidad').value||1};
+  const p={
+    accion:fila?'editarActivo':'agregarActivo',
+    nombre,valor,
+    fechaCompra:document.getElementById('activo-fecha').value,
+    cantidad:document.getElementById('activo-cantidad').value||1,
+    proveedor:document.getElementById('activo-proveedor').value.trim(),
+    disponibilidad:document.getElementById('activo-disponibilidad').value,
+    usuario:usuarioActual?usuarioActual.nombre:''
+  };
   if(fila)p.fila=parseInt(fila);
   try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-activo');clearCacheC('activos');cargarActivos(true);toast('Guardado','success');}
   catch(e){toast('Error','error');}
@@ -2681,7 +2750,125 @@ window.toast=function(msg,tipo){
   t.textContent=msg;t.className='toast show '+(tipo||'');
   setTimeout(()=>t.className='toast',3500);
 };
-// PVU helpers
+// PUV — Precio Unitario de Venta
+let puvDatos=[];
+
+async function cargarDesarrolloPUV(force){
+  const cached=getCacheC('desarrollo');
+  if(cached&&!force){puvDatos=cached;renderPUV(cached);return;}
+  document.getElementById('lista-puv-productos').innerHTML=spinnerHtml('Cargando productos...');
+  try{
+    const r=await fetch(API+'?accion=desarrollo');
+    const d=await r.json();
+    setCacheC('desarrollo',d);
+    puvDatos=d;
+    renderPUV(d);
+  }catch(e){document.getElementById('lista-puv-productos').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
+}
+
+function renderPUV(d){
+  let html='';
+  const sel=document.getElementById('puv-select-prod');
+  sel.innerHTML='<option value="">Selecciona un producto...</option>';
+  for(let i=1;i<d.length;i++){
+    if(!d[i][0])continue;
+    const cuv=d[i][3]||0,pvu=d[i][4]||0,margenPct=d[i][8]||0,numPuv=d[i][9]||0;
+    const estado=d[i][5]||'En desarrollo';
+    sel.innerHTML+=`<option value="${i}" data-cuv="${cuv}" data-pvu="${pvu}" data-margen="${margenPct}" data-num="${numPuv}">${d[i][0]}</option>`;
+    if(cuv>0||pvu>0){
+      const margenPesos=pvu>0?pvu-cuv:0;
+      const margenMostrar=margenPct>0?margenPct:(pvu>0?Math.round(((pvu-cuv)/pvu)*100):0);
+      html+=`<div class="des-card">
+        <div class="des-card-header">
+          <div class="des-card-nombre">${d[i][0]}</div>
+          <span class="badge badge-amarillo">${estado}</span>
+        </div>
+        <div class="res-costeo">
+          <div class="res-costeo-row"><span>CUV</span><span>${fmt(cuv)}</span></div>
+          ${margenMostrar>0?`<div class="res-costeo-row"><span>Margen</span><span>${margenMostrar}%</span></div>`:''}
+          ${pvu>0?`<div class="res-costeo-row h"><span>PUV producción</span><span>${fmt(pvu)}</span></div>`:''}
+          ${pvu>0?`<div class="res-costeo-row"><span>Margen en $</span><span>${fmt(margenPesos)}</span></div>`:''}
+          ${numPuv>0?`<div class="res-costeo-row" style="margin-top:6px;border-top:1px dashed var(--borde);padding-top:8px;"><span>PUV numerología</span><span style="font-weight:700;color:var(--verde);">${fmt(numPuv)}</span></div>`:''}
+        </div>
+        <div class="des-card-acciones">
+          <button class="icon-btn" onclick="cargarProdEnPUV(${i})">✏️ Editar PUV</button>
+        </div>
+      </div>`;
+    }
+  }
+  document.getElementById('lista-puv-productos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin productos con CUV calculado.</div>';
+}
+
+window.cargarProdEnPUV=idx=>{
+  const d=puvDatos[idx];
+  if(!d)return;
+  document.getElementById('puv-select-prod').value=idx;
+  document.getElementById('puv-cuv').value=d[3]||'';
+  document.getElementById('puv-margen-pct').value=d[8]||'';
+  document.getElementById('puv-numerologia').value=d[9]||'';
+  calcPUV();
+  calcPUVNumerologia();
+  window.scrollTo({top:document.getElementById('cpanel-puv').offsetTop+400,behavior:'smooth'});
+};
+
+window.onPuvSelectProd=()=>{
+  const sel=document.getElementById('puv-select-prod');
+  const opt=sel.options[sel.selectedIndex];
+  if(!opt||!opt.value)return;
+  document.getElementById('puv-cuv').value=opt.dataset.cuv||'';
+  document.getElementById('puv-margen-pct').value=opt.dataset.margen||'';
+  document.getElementById('puv-numerologia').value=opt.dataset.num||'';
+  calcPUV();
+  calcPUVNumerologia();
+};
+
+window.calcPUV=()=>{
+  const cuv=parseFloat(document.getElementById('puv-cuv').value)||0;
+  const margenPct=parseFloat(document.getElementById('puv-margen-pct').value)||0;
+  if(cuv>0&&margenPct>0&&margenPct<100){
+    const puv=cuv/(1-margenPct/100);
+    const margenPesos=puv-cuv;
+    document.getElementById('puv-resultado').style.display='block';
+    document.getElementById('puv-res-cuv').textContent=fmt(cuv);
+    document.getElementById('puv-res-pct').textContent=margenPct+'%';
+    document.getElementById('puv-res-puv').textContent=fmt(Math.round(puv));
+    document.getElementById('puv-res-margen-pesos').textContent=fmt(Math.round(margenPesos));
+  }else{
+    document.getElementById('puv-resultado').style.display='none';
+  }
+};
+
+window.calcPUVNumerologia=()=>{
+  const val=parseFloat(document.getElementById('puv-numerologia').value)||0;
+  if(val>0){
+    document.getElementById('puv-numerologia-resultado').style.display='block';
+    document.getElementById('puv-num-valor').textContent=fmt(val);
+  }else{
+    document.getElementById('puv-numerologia-resultado').style.display='none';
+  }
+};
+
+window.guardarPUV=async()=>{
+  const sel=document.getElementById('puv-select-prod');
+  const producto=sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].text:'';
+  if(!producto||!sel.value){toast('Selecciona un producto','error');return;}
+  const cuv=parseFloat(document.getElementById('puv-cuv').value)||0;
+  const margenPct=parseFloat(document.getElementById('puv-margen-pct').value)||0;
+  const numerologia=parseFloat(document.getElementById('puv-numerologia').value)||0;
+  const puv=cuv>0&&margenPct>0?Math.round(cuv/(1-margenPct/100)):0;
+  if(!cuv){toast('Ingresa el CUV del producto','error');return;}
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'guardarPUV',
+      usuario:usuarioActual?usuarioActual.nombre:'',
+      producto,cuv,margenPct,puv,numerologia
+    })});
+    clearCacheC('desarrollo');
+    cargarDesarrolloPUV(true);
+    toast('PUV guardado para '+producto,'success');
+  }catch(e){toast('Error al guardar','error');}
+};
+
 window.calcPVUMargen=()=>{
   const pvu=parseFloat(document.getElementById('pvu-valor').value)||0;
   const costo=parseFloat(document.getElementById('pvu-costo').value)||0;
