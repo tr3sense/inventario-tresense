@@ -684,8 +684,12 @@ textarea { resize:none; height:70px; font-size:14px; }
 
     <div id="prod-activo-wrap" style="display:none;">
       <div class="prod-activo-banner">
-        <div>
-          <div class="prod-activo-nombre" id="prod-activo-label"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="prod-activo-nombre" id="prod-activo-label"></div>
+            <button id="btn-editar-prod-nombre" onclick="activarEditNombreProd()" style="background:rgba(255,255,255,0.18);border:none;border-radius:8px;padding:2px 7px;color:#fff;font-size:13px;cursor:pointer;">✏️</button>
+            <input type="text" id="input-editar-prod-nombre" style="display:none;flex:1;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.5);border-radius:8px;padding:4px 8px;color:#fff;font-size:15px;font-weight:700;font-family:inherit;" onkeydown="if(event.key==='Enter')confirmarEditNombreProd();if(event.key==='Escape')cancelarEditNombreProd();">
+          </div>
           <div class="prod-activo-estado">Producto en costeo</div>
         </div>
         <button class="icon-btn" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:#fff;" onclick="limpiarProductoActivo()">✕</button>
@@ -1467,6 +1471,44 @@ window.crearProducto=async()=>{
     await cargarIngredientesProducto();
     toast('Producto creado','success');
   }catch(e){toast('Error','error');}
+};
+
+window.activarEditNombreProd=()=>{
+  const label=document.getElementById('prod-activo-label');
+  const input=document.getElementById('input-editar-prod-nombre');
+  const btn=document.getElementById('btn-editar-prod-nombre');
+  input.value=prodActivo;
+  label.style.display='none';
+  btn.style.display='none';
+  input.style.display='block';
+  input.focus();input.select();
+};
+window.cancelarEditNombreProd=()=>{
+  document.getElementById('prod-activo-label').style.display='block';
+  document.getElementById('btn-editar-prod-nombre').style.display='inline-block';
+  document.getElementById('input-editar-prod-nombre').style.display='none';
+};
+window.confirmarEditNombreProd=async()=>{
+  const nuevoNombre=document.getElementById('input-editar-prod-nombre').value.trim();
+  if(!nuevoNombre){toast('El nombre no puede estar vacío','error');return;}
+  if(nuevoNombre===prodActivo){cancelarEditNombreProd();return;}
+  const btn=document.getElementById('input-editar-prod-nombre');
+  btn.disabled=true;
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'renombrarProductoDesarrollo',
+      nombreAnterior:prodActivo,
+      nombreNuevo:nuevoNombre,
+      usuario:usuarioActual?usuarioActual.nombre:''
+    })});
+    prodActivo=nuevoNombre;
+    borradorKey='borrador_'+nuevoNombre.replace(/\s/g,'_');
+    document.getElementById('prod-activo-label').textContent=nuevoNombre;
+    clearCacheC('desarrollo');
+    toast('Nombre actualizado','success');
+  }catch(e){toast('Error al renombrar','error');}
+  btn.disabled=false;
+  cancelarEditNombreProd();
 };
 
 window.limpiarProductoActivo=()=>{
