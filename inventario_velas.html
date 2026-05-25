@@ -1416,7 +1416,7 @@ window.guardarInsumo=async()=>{
     disponibilidad:document.getElementById('insumo-disponibilidad').value,
     usuario:usuarioActual?usuarioActual.nombre:''
   };
-  if(fila)p.fila=parseInt(fila);
+  if(fila)p.fila=parseInt(fila)+1; // índice array → fila real Sheet (encabezado en fila 1)
   try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-insumo');clearCacheC('insumos');cargarInsumos(true);toast('Guardado','success');}
   catch(e){toast('Error','error');}
 };
@@ -1772,7 +1772,7 @@ window.guardarActivo=async()=>{
     disponibilidad:document.getElementById('activo-disponibilidad').value,
     usuario:usuarioActual?usuarioActual.nombre:''
   };
-  if(fila)p.fila=parseInt(fila);
+  if(fila)p.fila=parseInt(fila)+1; // índice array → fila real Sheet
   try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-activo');clearCacheC('activos');cargarActivos(true);toast('Guardado','success');}
   catch(e){toast('Error','error');}
 };
