@@ -92,7 +92,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .tab-btn.active { background:var(--blanco); color:var(--verde); box-shadow:0 1px 4px rgba(0,0,0,0.08); }
 
 /* SCROLL BOX */
-.scroll-box { height:300px; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-right:2px; }
+.scroll-box { height:240px; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-right:2px; }
 @media (min-width:600px) { .scroll-box { height:360px; } }
 
 /* ALERTAS */
@@ -737,7 +737,7 @@ textarea { resize:none; height:70px; font-size:14px; }
         <div class="card-title" style="margin-bottom:0;">Precio Unitario de Venta</div>
         <button class="icon-btn" onclick="cargarDesarrolloPUV(true)">↻ Actualizar</button>
       </div>
-      <div id="lista-puv-productos"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
+      <div class="scroll-box" id="lista-puv-productos"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
     </div>
 
     <!-- Calculadora PUV -->
@@ -786,7 +786,7 @@ textarea { resize:none; height:70px; font-size:14px; }
         <div class="card-title" style="margin-bottom:0;">Productos en desarrollo</div>
         <button class="icon-btn" onclick="cargarDesarrollo(true)">↻ Actualizar</button>
       </div>
-      <div id="lista-desarrollo"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
+      <div class="scroll-box" id="lista-desarrollo"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
     </div>
   </div>
 
