@@ -1503,8 +1503,6 @@ function renderIngredientesProducto(d){
         <div class="res-costeo-row"><span>CIF</span><span>${fmt(cifTotal)}</span></div>
       </div>`;
     }
-    // Actualizar PCT
-    document.getElementById('pct-valor').textContent=fmt(cifTotal*0.03);
 }
 
 window.abrirModalIngrediente=async fila=>{
@@ -2754,16 +2752,19 @@ window.toast=function(msg,tipo){
 let puvDatos=[];
 
 async function cargarDesarrolloPUV(force){
-  const cached=getCacheC('desarrollo');
+  const cached=getCacheC('desarrollo_puv');
   if(cached&&!force){puvDatos=cached;renderPUV(cached);return;}
   document.getElementById('lista-puv-productos').innerHTML=spinnerHtml('Cargando productos...');
   try{
     const r=await fetch(API+'?accion=desarrollo');
+    if(!r.ok)throw new Error('HTTP '+r.status);
     const d=await r.json();
-    setCacheC('desarrollo',d);
+    // Garantizar mínimo 10 columnas por fila (por si el GS viejo no las rellena)
+    for(let i=0;i<d.length;i++){while(d[i].length<10)d[i].push(0);}
+    setCacheC('desarrollo_puv',d);
     puvDatos=d;
     renderPUV(d);
-  }catch(e){document.getElementById('lista-puv-productos').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
+  }catch(e){document.getElementById('lista-puv-productos').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando. Verifica que el Apps Script esté publicado.</div>';}
 }
 
 function renderPUV(d){
@@ -2864,6 +2865,7 @@ window.guardarPUVContadora=async()=>{
       producto,cuv,margenPct,puv,numerologia
     })});
     clearCacheC('desarrollo');
+    clearCacheC('desarrollo_puv');
     cargarDesarrolloPUV(true);
     toast('PUV guardado para '+producto,'success');
   }catch(e){toast('Error al guardar','error');}
