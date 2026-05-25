@@ -1061,7 +1061,7 @@ window.cargarVentasHistorial=async()=>{
   clearCacheC('ventas');
   document.getElementById('lista-historial').innerHTML=spinnerHtml('Cargando historial...');
   try{
-    const r=await fetch(API+'?accion=ventas',);
+    const r=await fetch(API+'?accion=ventas');
     const d=await r.json();
     datosVentas=d;
     setCacheC('ventas',d);
@@ -1286,7 +1286,7 @@ async function cargarInsumos(force){
   }
   document.getElementById('lista-insumos').innerHTML=spinnerHtml('Cargando insumos...');
   try{
-    const r=await fetch(API+'?accion=insumos',);
+    const r=await fetch(API+'?accion=insumos');
     const d=await r.json();
     setCacheC('insumos',d);
     insumosG=d;
@@ -1570,7 +1570,7 @@ async function cargarDesarrollo(force){
   if(cached&&!force){renderDesarrollo(cached);return;}
   document.getElementById('lista-desarrollo').innerHTML=spinnerHtml('Cargando productos...');
   try{
-    const r=await fetch(API+'?accion=desarrollo',);
+    const r=await fetch(API+'?accion=desarrollo');
     const d=await r.json();
     setCacheC('desarrollo',d);
     renderDesarrollo(d);
@@ -1597,9 +1597,10 @@ function renderDesarrollo(d){
     const margen=pvu>0?Math.round(((pvu-cmv)/pvu)*100):0;
     const estado=d_i[5]||'En desarrollo';
     const aprobado=estado==='Aprobado';
-    if(!aprobado&&d_i[7]){
+    if(!aprobado){
+      if(!d_i[7])continue;
       const fc=new Date(d_i[7]);
-      if((ahora-fc)/(1000*60*60*24)>7)continue;
+      if(isNaN(fc.getTime())||(ahora-fc)/(1000*60*60*24)>7)continue;
     }
     html+=`<div class="des-card">
       <div class="des-card-header">
@@ -1663,22 +1664,9 @@ async function cargarActivos(force){
   if(cached&&!force){renderActivos(cached);return;}
   document.getElementById('lista-activos').innerHTML=spinnerHtml('Cargando activos...');
   try{
-    const r=await fetch(API+'?accion=activos',);
+    const r=await fetch(API+'?accion=activos');
     const d=await r.json();
     setCacheC('activos',d);
-    let html='',total=0;
-    for(let i=1;i<d.length;i++){
-      if(!d[i][0])continue;
-      const val=d[i][2]||0,cant=d[i][3]||1,fecha=d[i][1]?new Date(d[i][1]).toLocaleDateString('es-CO'):'—';
-      total+=val*cant;
-      html+=`<div class="activo-card">
-        <div class="activo-info">
-          <div class="activo-nombre">${d[i][0]}</div>
-          <div class="activo-detalle">Cant: ${cant} · ${fmt(val)} · 📅 ${fecha}</div>
-        </div>
-        <button class="icon-btn" onclick="abrirModalActivo(${i},'${d[i][0]}','${d[i][1]||''}',${val},${cant})">✏️</button>
-      </div>`;
-    }
     renderActivos(d);
   }catch(e){document.getElementById('lista-activos').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error.</div>';}
 }
@@ -1878,7 +1866,7 @@ window.cargarDomiciliosInv=async(force)=>{
   if(cached&&!force){window._dinvDatos=cached;datosInv=cached;renderDinvPendientes();return;}
   document.getElementById('dinv-lista-pendientes').innerHTML=spinnerHtml('Cargando...');
   try{
-    const r=await fetch(API+'?accion=ventas',);
+    const r=await fetch(API+'?accion=ventas');
     const d=await r.json();
     window._dinvDatos=d; datosInv=d;
     setCacheC('domicilios_inv',d);
@@ -2260,7 +2248,7 @@ window.cargarDomicilios=async(force)=>{
   if(cached&&!force){domDatosGlobal=cached;renderPendientes(cached);return;}
   document.getElementById('lista-pendientes').innerHTML=spinnerHtml('Cargando entregas...');
   try{
-    const r=await fetch(API+'?accion=ventas',);
+    const r=await fetch(API+'?accion=ventas');
     const d=await r.json();
     domDatosGlobal=d;
     setCacheC('domicilios',d);
@@ -2586,7 +2574,7 @@ window.mostrarReporteMes=()=>{
 async function generarReporte(){
   document.getElementById('reporte-contenido').innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Generando reporte...</div></div>';
   try{
-    const r=await fetch(API+'?accion=ventas',);
+    const r=await fetch(API+'?accion=ventas');
     const datos=await r.json();
     const selVal=document.getElementById('reporte-mes').value.split('-');
     const anio=parseInt(selVal[0]);
