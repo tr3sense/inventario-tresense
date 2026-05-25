@@ -775,7 +775,7 @@ textarea { resize:none; height:70px; font-size:14px; }
         <span style="font-size:11px;color:var(--texto-suave);">Este es el precio final para el cliente</span>
       </div>
 
-      <button class="btn btn-verde" onclick="guardarPUV()" style="margin-top:4px;">💾 Guardar PUV</button>
+      <button class="btn btn-verde" onclick="guardarPUVContadora()" style="margin-top:4px;">💾 Guardar PUV</button>
     </div>
   </div>
 
@@ -2773,7 +2773,7 @@ function renderPUV(d){
   for(let i=1;i<d.length;i++){
     if(!d[i][0])continue;
     const cuv=d[i][3]||0,pvu=d[i][4]||0,margenPct=d[i][8]||0,numPuv=d[i][9]||0;
-    const estado=d[i][5]||'En desarrollo';
+    const aprobado=estado==='Aprobado';
     sel.innerHTML+=`<option value="${i}" data-cuv="${cuv}" data-pvu="${pvu}" data-margen="${margenPct}" data-num="${numPuv}">${d[i][0]}</option>`;
     if(cuv>0||pvu>0){
       const margenPesos=pvu>0?pvu-cuv:0;
@@ -2781,7 +2781,7 @@ function renderPUV(d){
       html+=`<div class="des-card">
         <div class="des-card-header">
           <div class="des-card-nombre">${d[i][0]}</div>
-          <span class="badge badge-amarillo">${estado}</span>
+          <span class="badge ${aprobado?'badge-verde':'badge-amarillo'}">${estado}</span>
         </div>
         <div class="res-costeo">
           <div class="res-costeo-row"><span>CUV</span><span>${fmt(cuv)}</span></div>
@@ -2848,7 +2848,7 @@ window.calcPUVNumerologia=()=>{
   }
 };
 
-window.guardarPUV=async()=>{
+window.guardarPUVContadora=async()=>{
   const sel=document.getElementById('puv-select-prod');
   const producto=sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].text:'';
   if(!producto||!sel.value){toast('Selecciona un producto','error');return;}
