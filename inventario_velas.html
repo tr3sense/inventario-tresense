@@ -2773,8 +2773,13 @@ function renderPUV(d){
   sel.innerHTML='<option value="">Selecciona un producto...</option>';
   for(let i=1;i<d.length;i++){
     if(!d[i][0])continue;
-    const cuv=d[i][3]||0,pvu=d[i][4]||0,margenPct=d[i][8]||0,numPuv=d[i][9]||0;
+    // Columnas: 0=Nombre, 1=MP, 2=CIF, 3=CUV, 4=PVU, 5=Estado, 6=MOE, 7=Fecha, 8=% Margen, 9=PUV Numerología
+    const estado=d[i][5]||'En desarrollo';
     const aprobado=estado==='Aprobado';
+    const cuv=parseFloat(d[i][3])||0;
+    const pvu=parseFloat(d[i][4])||0;
+    const margenPct=parseFloat(d[i][8])||0;
+    const numPuv=parseFloat(d[i][9])||0;
     sel.innerHTML+=`<option value="${i}" data-cuv="${cuv}" data-pvu="${pvu}" data-margen="${margenPct}" data-num="${numPuv}">${d[i][0]}</option>`;
     if(cuv>0||pvu>0){
       const margenPesos=pvu>0?pvu-cuv:0;
@@ -2803,10 +2808,11 @@ function renderPUV(d){
 window.cargarProdEnPUV=idx=>{
   const d=puvDatos[idx];
   if(!d)return;
+  // Columnas reales: 0=Nombre,1=MP,2=CIF,3=CUV,4=PVU,5=Estado,6=MOE,7=Fecha,8=%Margen,9=PUV Numerología
   document.getElementById('puv-select-prod').value=idx;
-  document.getElementById('puv-cuv').value=d[3]||'';
-  document.getElementById('puv-margen-pct').value=d[8]||'';
-  document.getElementById('puv-numerologia').value=d[9]||'';
+  document.getElementById('puv-cuv').value=parseFloat(d[3])||'';
+  document.getElementById('puv-margen-pct').value=parseFloat(d[8])||'';
+  document.getElementById('puv-numerologia').value=parseFloat(d[9])||'';
   calcPUV();
   calcPUVNumerologia();
   window.scrollTo({top:document.getElementById('cpanel-puv').offsetTop+400,behavior:'smooth'});
