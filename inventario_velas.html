@@ -862,6 +862,19 @@ textarea { resize:none; height:70px; font-size:14px; }
   </div>
 </div>
 
+<!-- MODAL NOTA DOMICILIO -->
+<div class="modal-overlay" id="modal-nota-dom">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="nota-dom-title">Nota</div>
+    <input type="hidden" id="nota-dom-producto">
+    <input type="hidden" id="nota-dom-cliente">
+    <div class="form-group"><label class="form-label">Nota para el domiciliario</label><textarea id="nota-dom-texto" placeholder="Ej: Llamar antes de llegar..." style="height:90px;"></textarea></div>
+    <button class="btn btn-verde" onclick="guardarNotaDomicilio()">Guardar nota</button>
+    <button class="btn btn-crema" onclick="cerrarModal('modal-nota-dom')">Cancelar</button>
+  </div>
+</div>
+
 <!-- MODAL REPORTE DOMICILIOS INVENTARIO -->
 <div class="modal-overlay" id="modal-reporte-dinv">
   <div class="modal-card">
@@ -1239,10 +1252,13 @@ window.abrirReponer=nombre=>{
 window.confirmarReponer=async()=>{
   const c=parseInt(document.getElementById('reponer-cantidad').value);
   if(!c||c<1){toast('Cantidad inválida','error');return;}
+  const btn=document.querySelector('#modal-reponer .btn-verde');
+  btnLoading(btn,'Reponiendo...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({accion:'reponer',producto:prodReponer,cantidad:c,registradoPor:usuarioActual?usuarioActual.nombre:''})});
     cerrarModal('modal-reponer');sessionStorage.removeItem('inv_cache');await cargarInventario();toast('Stock actualizado','success');
   }catch(e){toast('Error','error');}
+  btnReset(btn);
 };
 
 window.setEntrega=tipo=>{
@@ -1289,7 +1305,7 @@ window.registrarVenta=async()=>{
   if(tipoEntrega==='domicilio'&&!zona){toast('Selecciona la zona','error');return;}
   if(tipoEntrega==='domicilio'&&!dir){toast('Escribe la dirección','error');return;}
   const btn=document.getElementById('btn-registrar');
-  btn.disabled=true;btn.textContent='Registrando...';
+  btnLoading(btn,'Registrando...');
   try{
     const r=await fetch(API,{method:'POST',body:JSON.stringify({producto:prod,cantidad:cant,nota,nombre,telefono:tel,tipoEntrega,direccion:dir,costoDomicilio:dom,zonaEntrega:zonaN,fechaEntrega:fechaEnt,registradoPor:usuarioActual?usuarioActual.nombre:''})});
     const d=await r.json();
@@ -1311,7 +1327,7 @@ window.registrarVenta=async()=>{
       await cargarInventario();
     }else toast(d.error||'Error al registrar','error');
   }catch(e){toast('Error de conexión','error');}
-  btn.disabled=false;btn.textContent='Registrar venta';
+  btnReset(btn);
 };
 
 // CONTABILIDAD TABS
@@ -1416,9 +1432,12 @@ window.guardarInsumo=async()=>{
     disponibilidad:document.getElementById('insumo-disponibilidad').value,
     usuario:usuarioActual?usuarioActual.nombre:''
   };
-  if(fila)p.fila=parseInt(fila)+1; // índice array → fila real Sheet (encabezado en fila 1)
+  if(fila)p.fila=parseInt(fila)+1;
+  const btn=document.querySelector('#modal-insumo .btn-verde');
+  btnLoading(btn,'Guardando...');
   try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-insumo');clearCacheC('insumos');cargarInsumos(true);toast('Guardado','success');}
   catch(e){toast('Error','error');}
+  btnReset(btn);
 };
 
 // COSTEO
@@ -1437,7 +1456,6 @@ window.crearProducto=async()=>{
     document.getElementById('lista-ingredientes').innerHTML='<div style="text-align:center;padding:16px;color:var(--texto-mini);font-size:13px;">Agrega el primer ingrediente</div>';
     document.getElementById('res-ingredientes').style.display='none';
     document.getElementById('res-costeo-final').style.display='none';
-    document.getElementById('costeo-pvu').value='';
     mpTotal=0;cifTotal=0;moeTotal=0;
     // Revisar borrador guardado
     const borrador=localStorage.getItem(borradorKey);
@@ -1550,6 +1568,8 @@ window.guardarIngrediente=async()=>{
   if(!insumo||!cant){toast('Completa los campos','error');return;}
   const p={accion:ingEdicion?'editarCosteoProducto':'agregarCosteoProducto',producto:prodActivo,insumo,cantidad:cant,unidad:document.getElementById('ing-unidad').value};
   if(ingEdicion)p.fila=ingFila;
+  const btn=document.querySelector('#modal-ingrediente .btn-verde');
+  btnLoading(btn,'Guardando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify(p)});
     cerrarModal('modal-ingrediente');
@@ -1557,11 +1577,14 @@ window.guardarIngrediente=async()=>{
     await cargarIngredientesProducto(true);
     toast('Guardado','success');
   }catch(e){toast('Error','error');}
+  btnReset(btn);
 };
 window.eliminarIngrediente=async()=>{
   if(!confirm('¿Eliminar este ingrediente?'))return;
+  const btn=document.getElementById('btn-eliminar-ing');
+  btnLoading(btn,'Eliminando...');
   try{await fetch(API,{method:'POST',body:JSON.stringify({accion:'eliminarCosteoProducto',usuario:usuarioActual?usuarioActual.nombre:'',fila:ingFila,producto:prodActivo})});cerrarModal('modal-ingrediente');await cargarIngredientesProducto();toast('Eliminado','success');}
-  catch(e){toast('Error','error');}
+  catch(e){toast('Error','error');btnReset(btn);}
 };
 
 // MOE — solo por horas
@@ -1591,16 +1614,21 @@ window.guardarBorrador=async()=>{
   const cuv=mpTotal+cifTotal+moeTotal;
   const borrador={producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cuv,metodo:'horas',horas:document.getElementById('input-horas').value,fecha:new Date().toISOString()};
   localStorage.setItem(borradorKey,JSON.stringify(borrador));
+  const btn=document.querySelector('.btn-crema[onclick="guardarBorrador()"]');
+  btnLoading(btn,'Guardando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv:cuv,pvu:0,margen:0,estado:'Borrador'})});
     toast('Borrador guardado — puedes salir y continuar después','success');
   }catch(e){toast('Borrador guardado localmente','success');}
+  btnReset(btn);
 };
 
 window.enviarADesarrollo=async()=>{
   if(!prodActivo){toast('Crea un producto primero','error');return;}
   const cuv=mpTotal+cifTotal+moeTotal;
   if(!cuv){toast('Agrega al menos un ingrediente o MOE','error');return;}
+  const btn=document.querySelector('.btn-amarillo[onclick="enviarADesarrollo()"]');
+  btnLoading(btn,'Enviando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({accion:'guardarBorrador',usuario:usuarioActual?usuarioActual.nombre:'',producto:prodActivo,mp:mpTotal,cif:cifTotal,moe:moeTotal,cmv:cuv,pvu:0,margen:0,estado:'En desarrollo'})});
     localStorage.removeItem(borradorKey);
@@ -1609,7 +1637,7 @@ window.enviarADesarrollo=async()=>{
     clearCacheC('desarrollo');
     mostrarTabConta('desarrollo');
     toast(nombreProd+' enviado a Desarrollo','success');
-  }catch(e){toast('Error','error');}
+  }catch(e){toast('Error','error');btnReset(btn);}
 };
 
 // DESARROLLO
@@ -1664,35 +1692,34 @@ function renderDesarrollo(d){
         ${pvu>0?`<div class="res-costeo-row"><span>Margen</span><span>${margen}%</span></div>`:''}
       </div>
       <div class="des-card-acciones">
-        ${!aprobado?`<button class="icon-btn" onclick="aprobarProducto('${d_i[0]}')">✅ Aprobar → Inventario</button>`:''}
+        ${!aprobado?`<button class="icon-btn" onclick="aprobarProducto('${d_i[0]}',this)">✅ Aprobar → Inventario</button>`:''}
         <button class="icon-btn" style="color:var(--texto-suave);" onclick="continuarCosteo('${d_i[0]}')">✏️ Editar costeo</button>
-        ${!aprobado?'<button class="icon-btn" style="background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarDesarrollo(\'${d_i[0]}\')">🗑 Eliminar</button>':''}
+        ${!aprobado?'<button class="icon-btn" style="background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarDesarrollo(\''+d_i[0]+'\',this)">🗑 Eliminar</button>':''}
       </div>
     </div>`;
   }
   document.getElementById('lista-desarrollo').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin productos en desarrollo.</div>';
 }
 
-window.eliminarDesarrollo=async producto=>{
+window.eliminarDesarrollo=async(producto,btnEl)=>{
   if(!confirm('¿Eliminar "'+producto+'" del desarrollo? Esta acción no se puede deshacer.'))return;
+  if(btnEl)btnLoading(btnEl,'Eliminando...');
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({
-      accion:'eliminarDesarrollo', producto,
-      usuario:usuarioActual?usuarioActual.nombre:''
-    })});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'eliminarDesarrollo',producto,usuario:usuarioActual?usuarioActual.nombre:''})});
     clearCacheC('desarrollo');
     cargarDesarrollo(true);
     toast('Producto eliminado','success');
-  }catch(e){toast('Error al eliminar','error');}
+  }catch(e){toast('Error al eliminar','error');if(btnEl)btnReset(btnEl);}
 };
 
-window.aprobarProducto=async producto=>{
+window.aprobarProducto=async(producto,btnEl)=>{
   if(!confirm(`¿Aprobar "${producto}" y pasarlo al inventario con stock 0?`))return;
+  if(btnEl)btnLoading(btnEl,'Aprobando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({accion:'aprobarProducto',usuario:usuarioActual?usuarioActual.nombre:'',producto})});
     clearCacheC('desarrollo');cargarDesarrollo(true);sessionStorage.removeItem('inv_cache');
     toast(producto+' aprobado y en inventario','success');
-  }catch(e){toast('Error','error');}
+  }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
 };
 
 window.continuarCosteo=async nombre=>{
@@ -1770,15 +1797,21 @@ window.guardarActivo=async()=>{
     disponibilidad:document.getElementById('activo-disponibilidad').value,
     usuario:usuarioActual?usuarioActual.nombre:''
   };
-  if(fila)p.fila=parseInt(fila)+1; // índice array → fila real Sheet
+  if(fila)p.fila=parseInt(fila)+1;
+  const btn=document.querySelector('#modal-activo .btn-verde');
+  btnLoading(btn,'Guardando...');
   try{await fetch(API,{method:'POST',body:JSON.stringify(p)});cerrarModal('modal-activo');clearCacheC('activos');cargarActivos(true);toast('Guardado','success');}
   catch(e){toast('Error','error');}
+  btnReset(btn);
 };
 
 // UTILS
 function abrirModal(id){document.getElementById(id).style.display='flex';}
 
 function spinnerHtml(msg){return `<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">${msg||'Cargando...'}</div></div>`;}
+
+function btnLoading(btn,msg){if(!btn)return;btn._txt=btn.innerHTML;btn.innerHTML=msg;btn.disabled=true;btn.style.opacity='0.7';}
+function btnReset(btn){if(!btn)return;btn.innerHTML=btn._txt||btn.innerHTML;btn.disabled=false;btn.style.opacity='1';}
 
 // CACHÉ CONTABILIDAD
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
@@ -1847,7 +1880,7 @@ function renderProduccion(datos){
       :`<span class="badge badge-amarillo" style="padding:6px 12px;font-size:12px;">🏪 Lista para recogida</span>`;
     const btn=esListo
       ?badgeListo
-      :`<button class="icon-btn" style="background:var(--amarillo);color:var(--verde);border-color:var(--amarillo);transition:all 0.2s;" onmousedown="this.style.transform='scale(0.95)';this.style.opacity='0.8';" onmouseup="this.style.transform='';this.style.opacity='1';" onclick="this.textContent='⏳ Guardando...';this.disabled=true;marcarProducido(${p.idx})">✅ Listo</button>`;
+      :`<button class="icon-btn" style="background:var(--amarillo);color:var(--verde);border-color:var(--amarillo);transition:all 0.2s;" onclick="marcarProducido(${p.idx},this)">✅ Listo</button>`;
     return `<div class="h-item">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
         <div>
@@ -1873,9 +1906,10 @@ function renderProduccion(datos){
   document.getElementById('lista-listos-prod').innerHTML=htmlList||'<div style="text-align:center;padding:12px;color:var(--texto-mini);">Ninguno listo aún.</div>';
 }
 
-window.marcarProducido=async function(i){
+window.marcarProducido=async function(i,btnEl){
   const d=prodDatos[i];
   if(!d){toast('Error','error');return;}
+  if(btnEl)btnLoading(btnEl,'Guardando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'actualizarEstadoDomicilio',
@@ -1887,7 +1921,7 @@ window.marcarProducido=async function(i){
     clearCacheC('produccion'); clearCacheC('domicilios_inv'); clearCacheC('domicilios');
     await cargarProduccion(true);
     toast('✅ Listo — pendiente de envío','success');
-  }catch(e){toast('Error','error');}
+  }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
 };
 
 window.marcarListoEnviarProd=async function(i){
@@ -1975,9 +2009,9 @@ function renderDinvPendientes(){
         <div id="panel-dom-${i}" style="display:none;margin-top:8px;background:var(--crema);border-radius:12px;padding:12px;">
           <div class="form-group" style="margin-bottom:8px;"><label class="form-label" style="font-size:12px;">📝 Nota para el domiciliario</label><textarea id="nota-dom-${i}" style="width:100%;padding:10px;border:1.5px solid var(--borde);border-radius:10px;font-size:14px;resize:none;height:60px;background:var(--blanco);font-family:inherit;">${datosInv[i][15]||''}</textarea></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${tipoEnt==='domicilio'&&estado!=='Entregado'&&estado!=='En camino'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaListoEnviar('+i+')\">📦 Listo para enviar</button>':''}
-            ${tipoEnt==='recogida'&&estado!=='Entregado'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaEntregado('+i+')\">✅ Entregado</button>':''}
-            <button class="btn btn-crema" style="margin-top:0;padding:10px;" onclick="soloNota(${i})">💾 Guardar nota</button>
+            ${tipoEnt==='domicilio'&&estado!=='Entregado'&&estado!=='En camino'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaListoEnviar('+i+',this)\">📦 Listo para enviar</button>':''}
+            ${tipoEnt==='recogida'&&estado!=='Entregado'?'<button class=\"btn btn-verde\" style=\"margin-top:0;padding:10px;\" onclick=\"guardarNotaEntregado('+i+',this)\">✅ Entregado</button>':''}
+            <button class="btn btn-crema" style="margin-top:0;padding:10px;" onclick="soloNota(${i},this)">💾 Guardar nota</button>
             <button class="icon-btn" onclick="document.getElementById('panel-dom-${i}').style.display='none'">✕</button>
           </div>
         </div>
@@ -2037,6 +2071,8 @@ window.guardarNotaDomicilio=async()=>{
   const producto=document.getElementById('nota-dom-producto').value;
   const cliente=document.getElementById('nota-dom-cliente').value;
   const nota=document.getElementById('nota-dom-texto').value.trim();
+  const btn=document.querySelector('#modal-nota-dom .btn-verde');
+  btnLoading(btn,'Guardando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'editarVenta', producto, clienteOriginal:cliente,
@@ -2049,11 +2085,17 @@ window.guardarNotaDomicilio=async()=>{
     renderDinvPendientes();
     toast('Nota guardada','success');
   }catch(e){toast('Error al guardar','error');}
+  btnReset(btn);
 };
 
+window.togglePanelDom=function(i){
+  var p=document.getElementById('panel-dom-'+i);
+  if(p) p.style.display=p.style.display==='none'?'block':'none';
+};
 
-window.marcarEntregadoRecogida=async(idx,producto,cliente)=>{
+window.marcarEntregadoRecogida=async(idx,producto,cliente,btnEl)=>{
   if(!confirm(`¿Marcar como entregado el pedido de ${cliente}?`))return;
+  if(btnEl)btnLoading(btnEl,'Marcando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'actualizarEstadoDomicilio',
@@ -2066,48 +2108,52 @@ window.marcarEntregadoRecogida=async(idx,producto,cliente)=>{
     await cargarInventario();
     renderDinvPendientes();
     toast('Pedido marcado como entregado','success');
-  }catch(e){toast('Error','error');}
+  }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
 };
 
-window.togglePanelDom=function(i){
-  var p=document.getElementById('panel-dom-'+i);
-  if(p) p.style.display=p.style.display==='none'?'block':'none';
-};
-
-window.soloNota=async function(i){
+window.soloNota=async function(i,btnEl){
   var d=datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  document.getElementById('panel-dom-'+i).style.display='none';
-  // Actualizar nota en memoria sin recargar
-  if(datosInv[i]) datosInv[i][15]=nota;
-  clearCacheC('domicilios_inv');
-  toast('Nota guardada','success');
+  if(btnEl)btnLoading(btnEl,'Guardando...');
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+    document.getElementById('panel-dom-'+i).style.display='none';
+    if(datosInv[i]) datosInv[i][15]=nota;
+    clearCacheC('domicilios_inv');
+    toast('Nota guardada','success');
+  }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
 };
 
-window.guardarNotaListoEnviar=async function(i){
+window.guardarNotaListoEnviar=async function(i,btnEl){
   var d=datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  if(nota) await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  if(nota&&datosInv[i]) datosInv[i][15]=nota;
-  clearCacheC('domicilios_inv'); clearCacheC('domicilios'); clearCacheC('produccion');
-  await cargarDomiciliosInv(true);
-  toast('📦 Nota guardada y listo para enviar','success');
+  if(btnEl)btnLoading(btnEl,'Guardando...');
+  try{
+    if(nota) await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Listo para enviar',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+    if(nota&&datosInv[i]) datosInv[i][15]=nota;
+    clearCacheC('domicilios_inv'); clearCacheC('domicilios'); clearCacheC('produccion');
+    await cargarDomiciliosInv(true);
+    toast('📦 Nota guardada y listo para enviar','success');
+  }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
 };
 
-window.guardarNotaEntregado=async function(i){
+window.guardarNotaEntregado=async function(i,btnEl){
   var d=datosInv[i];
   var nota=document.getElementById('nota-dom-'+i).value.trim();
-  if(nota) await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
-  if(nota&&datosInv[i]) datosInv[i][15]=nota;
-  clearCacheC('domicilios_inv'); clearCacheC('domicilios'); clearCacheC('produccion');
-  await cargarDomiciliosInv(true);
-  toast('✅ Nota guardada y entregado','success');
+  if(btnEl)btnLoading(btnEl,'Guardando...');
+  try{
+    if(nota) await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarVenta',producto:d[1],clienteOriginal:d[3],cliente:d[3],notaDomicilio:nota,registradoPor:usuarioActual?usuarioActual.nombre:''})});
+    await fetch(API,{method:'POST',body:JSON.stringify({accion:'actualizarEstadoDomicilio',estado:'Entregado',producto:d[1],cliente:d[3],telefono:d[4]||'',direccion:d[6]||'',zona:d[7]||'',fotoBase64:'',registradoPor:usuarioActual?usuarioActual.nombre:''})});
+    if(nota&&datosInv[i]) datosInv[i][15]=nota;
+    clearCacheC('domicilios_inv'); clearCacheC('domicilios'); clearCacheC('produccion');
+    await cargarDomiciliosInv(true);
+    toast('✅ Nota guardada y entregado','success');
+  }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
 };
 
-window.marcarListoEnviarLegacy=async(idx,producto,cliente)=>{
+window.marcarListoEnviarLegacy=async(idx,producto,cliente,btnEl)=>{
+  if(btnEl)btnLoading(btnEl,'Marcando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'actualizarEstadoDomicilio',
@@ -2120,7 +2166,7 @@ window.marcarListoEnviarLegacy=async(idx,producto,cliente)=>{
     await cargarInventario();
     renderDinvPendientes();
     toast('Marcado como listo para enviar','success');
-  }catch(e){toast('Error','error');}
+  }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
 };
 
 // VENTAS
@@ -2169,7 +2215,7 @@ function renderVentas(datos){
         <span class="h-producto">${v.producto} <span style="font-size:13px;color:var(--verde);font-weight:600;">· ${v.cantidad} uds</span></span>
         <div style="display:flex;gap:6px;">
           <button class="icon-btn" style="font-size:12px;" onclick="abrirEditarVenta(${v.idx})">✏️</button>
-          <button class="icon-btn" style="font-size:12px;background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarVenta(${v.idx},'${v.producto}','${v.cliente}')">🗑</button>
+          <button class="icon-btn" style="font-size:12px;background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarVenta(${v.idx},'${v.producto}','${v.cliente}',this)">🗑</button>
         </div>
       </div>
       <div style="font-size:11px;color:var(--texto-mini);margin-top:0;">Creación: ${fechaReg}</div>
@@ -2188,8 +2234,9 @@ function renderVentas(datos){
 
 const ZONAS_VAL={'Medellín':'medellin','Bello/Envigado/Itagüí/Sabaneta':'area1','Otras zonas del área metropolitana':'otras','Bello, Envigado, Itagüí, Sabaneta':'area1'};
 
-window.eliminarVenta=async(idx,producto,cliente)=>{
+window.eliminarVenta=async(idx,producto,cliente,btnEl)=>{
   if(!confirm(`¿Eliminar la venta de ${producto} — ${cliente}?\nEsta acción no se puede deshacer.`))return;
+  if(btnEl)btnLoading(btnEl,'Eliminando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'eliminarVenta', producto, cliente,
@@ -2200,7 +2247,7 @@ window.eliminarVenta=async(idx,producto,cliente)=>{
     await cargarInventario();
     cargarVentas(true);
     toast('Venta eliminada','success');
-  }catch(e){toast('Error al eliminar','error');}
+  }catch(e){toast('Error al eliminar','error');if(btnEl)btnReset(btnEl);}
 };
 
 window.abrirEditarVenta=idx=>{
@@ -2240,6 +2287,8 @@ window.guardarEdicionVenta=async()=>{
   const zonaVal=document.getElementById('edit-venta-zona').value;
   const zonaTexto=zonaVal?ZONAS_N[zonaVal]:'';
   const costoDom=zonaVal?ZONAS[zonaVal]:0;
+  const btn=document.querySelector('#modal-editar-venta .btn-verde');
+  btnLoading(btn,'Guardando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'editarVenta',
@@ -2264,6 +2313,7 @@ window.guardarEdicionVenta=async()=>{
     cargarVentas(true);
     toast('Venta actualizada','success');
   }catch(e){toast('Error al guardar','error');}
+  btnReset(btn);
 };
 
 // ============ DOMICILIOS ============
@@ -2605,6 +2655,8 @@ window.confirmarEntrega=async()=>{
       });
     }
   }
+  const btn=document.getElementById('btn-confirmar-entrega');
+  btnLoading(btn,'Confirmando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'actualizarEstadoDomicilio',
@@ -2619,6 +2671,7 @@ window.confirmarEntrega=async()=>{
     await cargarDomicilios(true);
     toast(estadoDomActual==='En camino'?'🚚 En camino — notificación enviada':'✅ Entregado — notificación enviada','success');
   }catch(e){toast('Error al confirmar','error');}
+  btnReset(btn);
 };
 
 let reporteTexto='';
@@ -2864,6 +2917,8 @@ window.guardarPUVContadora=async()=>{
   const numerologia=parseFloat(document.getElementById('puv-numerologia').value)||0;
   const puv=cuv>0&&margenPct>0?Math.round(cuv/(1-margenPct/100)):0;
   if(!cuv){toast('Ingresa el CUV del producto','error');return;}
+  const btn=document.querySelector('#cpanel-puv .btn-verde');
+  btnLoading(btn,'Guardando...');
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'guardarPUV',
@@ -2873,7 +2928,6 @@ window.guardarPUVContadora=async()=>{
     clearCacheC('desarrollo');
     clearCacheC('desarrollo_puv');
     cargarDesarrolloPUV(true);
-    // Limpiar calculadora
     document.getElementById('puv-select-prod').value='';
     document.getElementById('puv-cuv').value='';
     document.getElementById('puv-margen-pct').value='';
@@ -2882,6 +2936,7 @@ window.guardarPUVContadora=async()=>{
     document.getElementById('puv-numerologia-resultado').style.display='none';
     toast('PUV guardado para '+producto,'success');
   }catch(e){toast('Error al guardar','error');}
+  btnReset(btn);
 };
 
 window.calcPVUMargen=()=>{
@@ -2902,8 +2957,11 @@ window.guardarPVU=async()=>{
   const producto=document.getElementById('pvu-producto').value;
   const pvu=parseFloat(document.getElementById('pvu-valor').value);
   if(!pvu){toast('Escribe el PVU','error');return;}
+  const btn=document.querySelector('#modal-pvu .btn-verde');
+  btnLoading(btn,'Guardando...');
   try{await fetch(API,{method:'POST',body:JSON.stringify({accion:'editarPVU',usuario:usuarioActual?usuarioActual.nombre:'',producto,pvu})});cerrarModal('modal-pvu');cargarDesarrollo();toast('PVU guardado','success');}
   catch(e){toast('Error','error');}
+  btnReset(btn);
 };
 </script>
 </body>
