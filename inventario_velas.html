@@ -458,7 +458,7 @@ textarea { resize:none; height:70px; font-size:14px; }
 <div class="modal-overlay" id="modal-ingrediente">
   <div class="modal-card">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-ing-title">Ingrediente</div>
+    <div class="modal-title" id="modal-ing-title">MP / CIF</div>
     <input type="hidden" id="ing-fila">
     <div class="form-group"><label class="form-label">Insumo</label>
       <select id="ing-insumo" onchange="onIngChange()"><option value="">Selecciona...</option></select>
@@ -469,7 +469,7 @@ textarea { resize:none; height:70px; font-size:14px; }
     </div>
     <div class="info-box">Total: <strong id="ing-total-preview">$0</strong></div>
     <button class="btn btn-verde" onclick="guardarIngrediente()">Guardar</button>
-    <button class="btn btn-danger" id="btn-eliminar-ing" onclick="eliminarIngrediente()" style="display:none;">Eliminar ingrediente</button>
+    <button class="btn btn-danger" id="btn-eliminar-ing" onclick="eliminarIngrediente()" style="display:none;">Eliminar</button>
     <button class="btn btn-crema" onclick="cerrarModal('modal-ingrediente')">Cancelar</button>
   </div>
 </div>
@@ -694,7 +694,7 @@ textarea { resize:none; height:70px; font-size:14px; }
       <!-- INGREDIENTES -->
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <div class="card-title" style="margin-bottom:0;">Ingredientes</div>
+          <div class="card-title" style="margin-bottom:0;">MP & CIF</div>
           <button class="icon-btn" onclick="abrirModalIngrediente()">+ Agregar</button>
         </div>
         <div id="lista-ingredientes"><div style="text-align:center;padding:16px;color:var(--texto-mini);font-size:13px;">Agrega el primer ingrediente</div></div>
@@ -1533,7 +1533,7 @@ window.abrirModalIngrediente=async fila=>{
   }
   if(fila!==undefined){
     ingEdicion=true;ingFila=fila;
-    document.getElementById('modal-ing-title').textContent='Editar ingrediente';
+    document.getElementById('modal-ing-title').textContent='Editar MP / CIF';
     document.getElementById('btn-eliminar-ing').style.display='block';
     document.getElementById('ing-insumo').value=cpDatos[fila][1];
     document.getElementById('ing-cantidad').value=cpDatos[fila][2];
@@ -1541,7 +1541,7 @@ window.abrirModalIngrediente=async fila=>{
     document.getElementById('ing-total-preview').textContent=fmt(cpDatos[fila][4]||0);
   }else{
     ingEdicion=false;ingFila=-1;
-    document.getElementById('modal-ing-title').textContent='Agregar ingrediente';
+    document.getElementById('modal-ing-title').textContent='Agregar MP / CIF';
     document.getElementById('btn-eliminar-ing').style.display='none';
     document.getElementById('ing-insumo').value='';
     document.getElementById('ing-cantidad').value='';
@@ -1580,7 +1580,7 @@ window.guardarIngrediente=async()=>{
   btnReset(btn);
 };
 window.eliminarIngrediente=async()=>{
-  if(!confirm('¿Eliminar este ingrediente?'))return;
+  if(!confirm('¿Eliminar este ítem?'))return;
   const btn=document.getElementById('btn-eliminar-ing');
   btnLoading(btn,'Eliminando...');
   try{await fetch(API,{method:'POST',body:JSON.stringify({accion:'eliminarCosteoProducto',usuario:usuarioActual?usuarioActual.nombre:'',fila:ingFila,producto:prodActivo})});cerrarModal('modal-ingrediente');await cargarIngredientesProducto();toast('Eliminado','success');}
@@ -1626,7 +1626,7 @@ window.guardarBorrador=async()=>{
 window.enviarADesarrollo=async()=>{
   if(!prodActivo){toast('Crea un producto primero','error');return;}
   const cuv=mpTotal+cifTotal+moeTotal;
-  if(!cuv){toast('Agrega al menos un ingrediente o MOE','error');return;}
+  if(!cuv){toast('Agrega al menos una MP, CIF o MOE','error');return;}
   const btn=document.querySelector('.btn-amarillo[onclick="enviarADesarrollo()"]');
   btnLoading(btn,'Enviando...');
   try{
@@ -1879,7 +1879,10 @@ function renderProduccion(datos){
       ?`<span class="badge badge-verde" style="padding:6px 12px;font-size:12px;">📦 En cola para envío</span>`
       :`<span class="badge badge-amarillo" style="padding:6px 12px;font-size:12px;">🏪 Lista para recogida</span>`;
     const btn=esListo
-      ?badgeListo
+      ?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          ${badgeListo}
+          <button class="icon-btn" style="font-size:12px;color:var(--texto-suave);" onclick="regresarAProducir(${p.idx},this)">↩ Regresar</button>
+        </div>`
       :`<button class="icon-btn" style="background:var(--amarillo);color:var(--verde);border-color:var(--amarillo);transition:all 0.2s;" onclick="marcarProducido(${p.idx},this)">✅ Listo</button>`;
     return `<div class="h-item">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
@@ -1924,8 +1927,25 @@ window.marcarProducido=async function(i,btnEl){
   }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
 };
 
-window.marcarListoEnviarProd=async function(i){
+window.regresarAProducir=async function(i,btnEl){
   const d=prodDatos[i];
+  if(!d){toast('Error','error');return;}
+  if(btnEl)btnLoading(btnEl,'Regresando...');
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({
+      accion:'actualizarEstadoDomicilio',
+      estado:'Pendiente',
+      producto:d[1], cliente:d[3], telefono:d[4]||'',
+      direccion:d[6]||'', zona:d[7]||'',
+      fotoBase64:'', registradoPor:usuarioActual?usuarioActual.nombre:''
+    })});
+    clearCacheC('produccion'); clearCacheC('domicilios_inv'); clearCacheC('domicilios');
+    await cargarProduccion(true);
+    toast('↩ Regresado a Por producir','success');
+  }catch(e){toast('Error','error');if(btnEl)btnReset(btnEl);}
+};
+
+window.marcarListoEnviarProd=async function(i){
   if(!d){toast('Error','error');return;}
   try{
     await fetch(API,{method:'POST',body:JSON.stringify({
