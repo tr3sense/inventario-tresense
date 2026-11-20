@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#f9f6f3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,300,0,0&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0&display=block">
 <style>
 input,select,textarea,button{color:inherit;}
 input,select,textarea{color:var(--texto);}
@@ -578,7 +578,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 #app-inventario .scroll-box,#app-domicilios .scroll-box,#app-contabilidad .scroll-box{height:auto!important;max-height:none!important;overflow:visible!important;}
 
 /* Íconos: tamaño y alineación coherentes en toda la app */
-.mi{font-size-adjust:none!important;letter-spacing:normal!important;font-size:1.3em;vertical-align:-0.27em;line-height:1;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 20;}
+.mi{font-size-adjust:none!important;letter-spacing:normal!important;font-size:1.3em;vertical-align:-0.27em;line-height:1;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;}
 .badge .mi,.agenda-estado .mi,.agenda-meta .mi{font-size:1.25em;vertical-align:-0.28em;}
 .btn .mi,.icon-btn .mi,.toggle-btn .mi{font-size:1.35em;vertical-align:-0.3em;margin-right:2px;}
 .producto-foto-placeholder .mi{font-size:24px!important;vertical-align:middle;}
@@ -597,6 +597,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 .btn{width:100%;}
 .p2-btn-row .btn,.success-acciones .btn{width:auto;}
 .footer{padding-bottom:16px;}
+#app-inventario .footer,#app-domicilios .footer,#app-contabilidad .footer{display:none!important;}
 
 </style>
 </head>
@@ -1950,7 +1951,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     if (location.search.indexOf("admin") === -1) return;
     const btn = document.createElement("button");
     btn.textContent = "⇩ Importar datos del Sheet";
-    btn.style.cssText = "position:fixed;bottom:16px;left:16px;z-index:9999;background:#5c6d5d;color:#fff;border:none;border-radius:12px;padding:12px 16px;font:600 13px system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.2);cursor:pointer;";
+    btn.style.cssText = "position:fixed;bottom:96px;left:16px;z-index:9999;background:#5c6d5d;color:#fff;border:none;border-radius:12px;padding:12px 16px;font:600 13px system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.2);cursor:pointer;";
     btn.onclick = async function () {
       if (!confirm("Esto copia los datos actuales del Sheet a Firebase y reemplaza lo que haya en la versión de prueba. El Sheet no se modifica. ¿Continuar?")) return;
       btn.disabled = true;
