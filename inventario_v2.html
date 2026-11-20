@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#f9f6f3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..400,0..1,0&icon_names=arrow_back,arrow_forward,auto_awesome,backspace,bar_chart,block,call,check,check_circle,close,construction,delete,eco,edit,emoji_events,event,inventory_2,local_florist,local_shipping,location_on,map,paid,payments,person,photo_camera,refresh,save,send,settings,spa,sticky_note_2,storefront,undo,visibility,visibility_off,warning&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..400,0..1,0&icon_names=add,arrow_back,arrow_forward,auto_awesome,backspace,bar_chart,block,call,check,check_circle,chevron_right,close,construction,delete,eco,edit,emoji_events,event,expand_more,home,inventory_,logout,radio_button_unchecked,receipt_long,remove2,local_florist,local_shipping,location_on,map,paid,payments,person,photo_camera,refresh,save,send,settings,spa,sticky_note_2,storefront,undo,visibility,visibility_off,warning&display=block">
 <style>
 input,select,textarea,button{color:inherit;}
 input,select,textarea{color:var(--texto);}
@@ -385,6 +385,199 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
 .rs-num{font-size:22px;font-weight:800;}
 .rs-num-grande{font-size:28px;font-weight:800;letter-spacing:-.5px;line-height:1.1;margin-top:2px;}
 </style>
+<style>
+/* ===== Tema P2 · Agenda — solo visual ===== */
+:root{
+  --verde:#5c6d5d; --verde-dark:#4f5f50; --verde-light:#f9f6f3;
+  --azul:#f9f6f3; --azul-light:#f9f6f3;
+  --rosado:#dbc0bd; --rosado-light:#f3ebe9;
+  --amarillo:#dbc0bd; --amarillo-light:#f3ebe9;
+  --fondo:#fff; --blanco:#fff; --crema:#f9f6f3; --borde:#ece8e4;
+  --texto:#5c6d5d; --texto-suave:#66706a; --texto-mini:#8a928b;
+}
+body{background:#fff;color:var(--verde);font-family:'Karla',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+#splash{background:#fff;}
+.p2-oculto{display:none!important;}
+.p2-h1{margin:0;font-size:36px;font-weight:800;line-height:1.04;letter-spacing:-.9px;color:var(--verde);}
+.p2-sub{margin:8px 0 0;font-size:15px;color:var(--texto-suave);}
+.p2-fecha{margin:0 0 4px;font-size:14px;color:var(--texto-suave);}
+.p2-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 16px;}
+.p2-spot{width:68px;height:68px;border-radius:50%;background:var(--crema);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.p2-spot-sm{width:48px;height:48px;}
+.p2-spot-ilus{background:none;}
+.p2-ilus{display:flex;justify-content:center;}
+.p2-ilus svg{max-width:100%;height:auto;}
+.p2-pad{padding:0 20px;}
+
+/* Encabezado */
+.p2-top{display:flex;align-items:center;justify-content:space-between;padding:22px 20px 8px;max-width:680px;margin:0 auto;box-sizing:border-box;}
+.p2-logo{height:30px;width:auto;}
+.p2-top-acciones{display:flex;align-items:center;gap:8px;}
+.p2-top-nombre{font-size:13px;color:var(--texto-suave);font-weight:700;}
+.p2-iconbtn,.p2-close,.p2-back{width:44px;height:44px;border-radius:50%;border:none;background:var(--crema);color:var(--verde);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.p2-close{width:40px;height:40px;background:#f4f4f2;}
+.p2-avatar{width:44px;height:44px;border-radius:50%;border:none;background:var(--rosado);color:var(--verde);display:inline-flex;align-items:center;justify-content:center;font:800 15px 'Karla',sans-serif;cursor:pointer;flex-shrink:0;}
+.p2-avatar-lg{width:84px;height:84px;font-size:24px;cursor:default;margin:0 auto 4px;}
+
+/* App inventario: contenedor + menú inferior */
+#app-inventario{padding-bottom:110px;background:#fff;}
+#app-inventario>.card{background:transparent;box-shadow:none;border:none;padding:4px 20px 0;max-width:680px;margin:0 auto;}
+.p2-nav{position:fixed;left:0;right:0;bottom:0;z-index:450;background:#fff;border-top:1px solid #f0ede9;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;height:78px;padding-bottom:env(safe-area-inset-bottom);}
+.p2-nav .tab-btn{background:none!important;box-shadow:none!important;border:none;border-radius:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11px;font-weight:500;color:var(--texto-mini);flex:none;width:100%;}
+.p2-nav .tab-btn .mi{font-size:24px;margin:0;}
+.p2-nav .tab-btn.active{color:var(--verde);font-weight:800;}
+.p2-nav-mas{justify-self:center;width:56px;height:56px;border-radius:50%;border:none;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.p2-nav-mas .mi{font-size:28px;}
+
+/* Segmentado y chips */
+.p2-seg{display:flex;gap:4px;padding:4px;border-radius:24px;background:var(--crema);margin:0 0 16px;}
+.p2-seg .tab-btn{flex:1;height:40px;border-radius:20px;border:none;background:transparent;color:var(--verde);font-size:14px;font-weight:600;box-shadow:none;padding:0 6px;}
+.p2-seg .tab-btn.active{background:var(--verde);color:#fff;font-weight:800;box-shadow:none;}
+.p2-chips-wrap{margin:14px 0 6px;}
+.p2-chips{display:flex;gap:6px;overflow-x:auto;background:transparent!important;padding:0 20px 4px!important;border-radius:0;scrollbar-width:none;max-width:680px;margin:0 auto;}
+.p2-chips::-webkit-scrollbar{display:none;}
+.p2-chips .tab-btn{flex:0 0 auto;height:38px;padding:0 14px;border-radius:19px;border:1.5px solid var(--borde);background:#fff;color:var(--verde);font-size:13px;font-weight:600;box-shadow:none;}
+.p2-chips .tab-btn.active{background:var(--verde);border-color:var(--verde);color:#fff;font-weight:800;}
+.p2-card-seg{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;margin:0 20px 8px!important;}
+
+/* Tarjetas de contabilidad y domicilios */
+#app-contabilidad,#app-domicilios{background:#fff;}
+#app-contabilidad .card,#app-domicilios .card{background:#fff;border:1.5px solid var(--borde);border-radius:24px;box-shadow:none;margin:12px 20px;}
+.card-title{font-size:18px;font-weight:800;color:var(--verde);}
+
+/* Formularios */
+input[type=text],input[type=number],input[type=tel],input[type=date],input[type=email],input[type=password],textarea,select,.login-input{background-color:var(--crema);border:none;border-radius:16px;min-height:50px;font-size:15px;color:var(--verde);}
+textarea{min-height:80px;}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-offset:0;}
+.form-label,.login-label{color:var(--verde);font-weight:700;font-size:13px;}
+.toggle-btn{background:#fff;border:1.5px solid var(--borde);border-radius:18px;color:var(--verde);font-weight:600;}
+.toggle-btn.active{background:var(--verde);border-color:var(--verde);color:#fff;font-weight:800;}
+.toggle-group{background:var(--crema);border-radius:18px;padding:4px;gap:4px;}
+.toggle-group .toggle-btn{border:none;background:transparent;border-radius:14px;}
+.toggle-group .toggle-btn.active{background:var(--verde);}
+
+/* Botones */
+.btn{border-radius:28px;min-height:56px;font-size:15px;font-weight:800;}
+.btn-verde{background:var(--verde);color:#fff;}
+.btn-crema{background:#fff;color:var(--verde);border:1.5px solid var(--borde);font-weight:700;}
+.icon-btn{border-radius:20px;border:1.5px solid var(--borde);background:#fff;color:var(--verde);}
+.login-btn{background:var(--verde);color:#fff;border-radius:28px;min-height:56px;font-weight:800;}
+.p2-btn-row{display:flex;gap:10px;margin-top:10px;}
+.p2-btn-row .btn{flex:1;margin:0;}
+
+/* Hojas inferiores (modales) */
+.modal-overlay{background:rgba(92,109,93,.6);}
+.modal-card{border-radius:34px 34px 0 0;padding:12px 24px 24px;}
+@media (min-width:600px){.modal-card{border-radius:34px;}}
+.modal-handle{width:44px;height:5px;background:#e4e0dc;border-radius:3px;margin:0 auto 14px;}
+.modal-title{font-size:28px;font-weight:800;letter-spacing:-.6px;color:var(--verde);}
+.p2-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.p2-sheet-head .modal-title{margin:0;}
+.resumen-venta{background:var(--rosado-light);border-radius:20px;}
+
+/* Reponer */
+.reponer-prod{display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:var(--rosado-light);margin-bottom:18px;}
+#reponer-nombre{font-size:16px;font-weight:800;color:var(--verde);}
+.reponer-actual{font-size:13px;color:var(--verde);}
+.p2-stepper{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:24px;background:var(--crema);}
+.p2-step{width:52px;height:52px;border-radius:50%;border:none;background:#fff;color:var(--verde);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.p2-step .mi{font-size:26px;}
+.p2-step-mas{background:var(--verde);color:#fff;}
+.p2-stepper input[type=number]{width:100px;text-align:center;font-size:32px;font-weight:800;background:transparent;border:none;min-height:0;-moz-appearance:textfield;}
+.p2-stepper input::-webkit-outer-spin-button,.p2-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.reponer-quedan{text-align:center;font-size:14px;color:var(--texto-suave);margin:10px 0 0;}
+
+/* Venta registrada */
+#success-overlay{background:#fff!important;justify-content:flex-start!important;align-items:stretch!important;padding:24px!important;overflow-y:auto;gap:0;}
+#success-overlay>*{max-width:420px;width:100%;margin-left:auto;margin-right:auto;}
+.success-cerrar{align-self:flex-end;margin:0 0 0 auto!important;width:40px!important;}
+#success-overlay .p2-h1{margin:18px auto 12px;}
+.success-card{border-radius:24px;background:var(--rosado-light);padding:16px;display:flex;flex-direction:column;gap:6px;}
+#success-overlay .success-msg{font-size:16px;font-weight:800;color:var(--verde);text-align:left;margin:0;}
+#success-overlay .success-sub{font-size:13px;color:var(--verde);text-align:left;margin:0;}
+#success-overlay .success-total{font-size:16px;font-weight:800;color:var(--verde);text-align:left;margin:0;}
+.success-acciones{margin-top:auto!important;padding-top:20px;display:flex;gap:10px;}
+.success-acciones .btn{flex:1;margin:0;}
+
+/* Acceso */
+#acceso-screen{background:#fff;justify-content:flex-start;padding:22px 24px 24px;}
+.acceso-logo{width:auto;height:40px;max-width:none;align-self:flex-start;margin:0 0 4px;}
+#acceso-screen>#panel-pin,#acceso-screen>#panel-login,#acceso-screen>#panel-domicilios{flex:1;justify-content:center;max-width:360px!important;}
+#panel-pin{justify-content:center;}
+#step-usuario{display:flex;flex-direction:column;}
+#lista-usuarios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:22px;width:100%;}
+.usuario-btn{display:flex;flex-direction:column;align-items:center;gap:10px;background:none!important;border:none!important;box-shadow:none!important;padding:0!important;cursor:pointer;}
+.usuario-avatar{width:88px;height:88px;border-radius:50%;background:var(--rosado-light);color:var(--verde);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;}
+.usuario-btn:first-child .usuario-avatar,.usuario-btn:hover .usuario-avatar{background:var(--rosado);}
+.usuario-nombre{font-size:15px;font-weight:700;color:var(--verde);}
+.acceso-ilus{margin-top:26px;}
+.acceso-tabs{order:5;margin:18px 0 0;background:var(--crema);border-radius:24px;padding:4px;max-width:360px;}
+.acceso-tab{border-radius:20px;color:var(--verde);font-weight:600;}
+.acceso-tab.active{background:var(--verde)!important;color:#fff!important;font-weight:800;box-shadow:none;}
+.acceso-footer{order:6;}
+.p2-back{align-self:flex-start;margin-bottom:6px;}
+.pin-title{font-size:28px;font-weight:800;color:var(--verde);margin:10px 0 2px;text-align:center;}
+.pin-key{width:64px;height:64px;border-radius:50%;background:var(--crema);color:var(--verde);font-size:24px;font-weight:700;box-shadow:none;border:none;}
+.pin-key.empty,.pin-key.delete{background:transparent;}
+.pin-dot{border:1.5px solid var(--verde);}
+.pin-dot.filled{background:var(--verde);}
+#panel-login .p2-ilus{margin-bottom:18px;}
+#panel-login .p2-h1{text-align:left;}
+#panel-login .p2-sub{margin-bottom:18px;}
+.login-card{background:transparent;box-shadow:none;border:none;padding:0;}
+
+/* Stock */
+.resumen-stock{gap:8px;}
+.rs-ventas{background:var(--rosado);}
+.rs-azul,.rs-crema{background:var(--crema);}
+.alerta-banner{background:var(--rosado-light);border:none;border-radius:16px;color:var(--verde);font-size:13px;font-weight:700;}
+.producto-item{border-bottom:1px solid #f0ede9;}
+.producto-foto,.producto-foto-placeholder{border-radius:50%;background:var(--rosado-light);}
+.btn-reponer-foto{background:var(--verde)!important;color:#fff!important;border:2px solid #fff!important;border-radius:50%!important;}
+.stock-ring,.stock-ring-ok,.stock-ring-bajo{background:transparent!important;border:none!important;}
+.stock-num-ok{color:var(--verde);}
+.stock-num-bajo{color:#8a5550;}
+.badge-bajo{background:var(--rosado-light);color:var(--verde);}
+
+/* Listas y etiquetas */
+.h-item{border:1.5px solid var(--borde);border-radius:22px;padding:14px 16px;margin-bottom:10px;}
+.badge-verde{background:var(--crema);color:var(--verde);}
+.badge-amarillo,.badge-rosado{background:var(--rosado-light);color:var(--verde);}
+.badge-mp{background:var(--rosado);color:var(--verde);}
+.badge-cif{background:var(--crema);color:var(--verde);}
+.resumen-dia-box,.res-costeo{background:var(--rosado-light);color:var(--verde);border-radius:20px;}
+.insumo-card,.ing-card,.des-card,.activo-card{border-radius:20px;border-color:var(--borde);}
+.success-sub{color:var(--verde);}
+.spinner{border-color:var(--crema);border-top-color:var(--verde);}
+
+/* Agenda */
+.agenda-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:0 0 14px;}
+.agenda-dia{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:16px;border:none;background:none;color:var(--texto-suave);cursor:pointer;font-family:inherit;}
+.agenda-dia span{font-size:12px;}
+.agenda-dia b{font-size:15px;font-weight:700;}
+.agenda-dia.activo{background:var(--verde);color:#fff;}
+.agenda-grupo{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;margin-bottom:6px;}
+.agenda-etq{font-size:13px;font-weight:700;color:var(--texto-suave);padding-top:16px;text-align:center;border-right:1.5px solid var(--borde);padding-right:6px;}
+.agenda-items{display:flex;flex-direction:column;gap:10px;margin-bottom:10px;}
+.agenda-card{border:1.5px solid var(--borde);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+.agenda-card.destacada{background:var(--rosado);border-color:var(--rosado);}
+.agenda-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.agenda-cliente{font-size:16px;font-weight:800;}
+.agenda-prod{font-size:13px;}
+.agenda-total{font-size:15px;font-weight:800;white-space:nowrap;}
+.agenda-meta{font-size:13px;color:var(--texto-suave);}
+.agenda-card.destacada .agenda-meta{color:var(--verde);}
+.agenda-card-bot{display:flex;justify-content:space-between;align-items:center;}
+.agenda-estado{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;background:var(--crema);padding:6px 10px;border-radius:12px;}
+.agenda-card.destacada .agenda-estado{background:var(--rosado-light);}
+.agenda-check{width:40px;height:40px;border-radius:50%;border:none;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.agenda-alerta{margin:6px 0 0;padding:14px 16px;border-radius:20px;background:var(--rosado-light);display:flex;align-items:center;gap:12px;font-size:14px;font-weight:700;}
+.agenda-alerta span:nth-child(2){flex:1;}
+.agenda-alerta button{background:none;border:none;color:var(--verde);font:800 14px 'Karla',sans-serif;cursor:pointer;}
+.p2-vacio{text-align:center;padding:22px;color:var(--texto-mini);border:1.5px dashed var(--borde);border-radius:22px;margin-bottom:10px;}
+#app-inventario .scroll-box,#app-domicilios .scroll-box,#app-contabilidad .scroll-box{max-height:none;overflow:visible;}
+
+</style>
 </head>
 <body>
 
@@ -401,15 +594,16 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
   <div id="panel-pin" style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;">
     <!-- PASO 1: Seleccionar usuario -->
     <div id="step-usuario" style="width:100%;">
-      <p class="pin-title">¿Quién eres?</p>
-      <div id="lista-usuarios" style="display:flex;flex-direction:column;gap:10px;width:100%;"></div>
+      <h1 class="p2-h1">Bienvenida al inventario</h1><p class="p2-sub">Elige tu nombre para entrar.</p>
+      <div id="lista-usuarios"></div>
+      <div class="p2-ilus acceso-ilus"><svg width="260" aria-hidden="true" fill="#5c6d5d" id="uuid-59f6c460-1890-414a-8183-9975e36ed369" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 810.29291 408.75093"><path d="M554.13075,200.34084c4.34458-.62353,20.28971,14.30521,3.39724,35.33129-14.36781-9.35912-9.58845-34.44273-3.39724-35.33129Z" fill="#5c6d5d"/><path d="M552.43214,264.88838c.12416-.17861-.77587-.66033,2.71779-3.39724,5.95608-4.66598,19.98093-8.49725,27.85736-8.4931-10.11487-1.91101-19.23297,2.69681-27.85736,7.1342,3.24189-22.76163,34.50869-14.03447,31.93405-5.77531-.3007.96458-16.68276,8.86828-18.00537,9.17255-9.82131,2.25934-11.92044-2.31184-16.64647,1.3589Z" fill="#5c6d5d"/><path d="M568.05944,309.05249c.17554-.20619.31248-1.14358,3.39724-4.07669,6.72004-6.38969,19.46487-11.38975,28.19709-6.11503,6.7027,4.04878-8.80632,13.05561-11.55061,13.58896-5.43222,1.05575-15.0091-.66576-20.04371-3.39724Z" fill="#5c6d5d"/><path d="M588.44287,283.23348c-.2701.2606-1.14993-.88978-1.3589,1.3589-6.57041,5.46793-10.20835-8.8947-6.79448-18.68482,6.40565-18.36983,19.23434,5.29641,8.15337,17.32592Z" fill="#5c6d5d"/><path d="M604.07017,272.36231l27.85736-3.05752c-14.6885-.65237-31.7612,3.57121-23.78067-2.37807,8.41265-6.27137,36.58638-3.34291,19.36426,8.15337-8.7588,5.84676-15.64493,2.67246-23.44095-2.71779Z" fill="#5c6d5d"/><path d="M560.58551,239.74881c-4.19691,6.57114-6.45509,17.50922-9.51227,24.79985l1.3589.33972c-4.16021,5.98444-7.03729,17.45062-8.15337,24.79985l13.24923,31.59432c8.40837-10.59294,18.20953-26.56689,28.87653-34.65184.12371.71714-.26035,1.53473-.67945,2.03834-4.59938,5.52707-10.70404,9.88517-14.2684,16.30675-3.08476,2.9331-3.2217,3.8705-3.39724,4.07669-1.22018,1.43325-9.36692,12.44678-9.51227,13.24923-.22991,1.26936,4.36681,15.39959,6.11503,15.96702-.95174.87486-1.62256.78943-1.3589,2.03834-5.29844-16.69155-22.20721-57.63637-29.89571-75.41871.43656.04931,1.00856-.09866,1.3589,0l8.4931,21.06288c2.10781-7.36967,4.4989-9.34564,1.01917-13.58896h.67945c3.47068,4.39497,5.8288-14.64798,14.94785-32.6135h.67945Z" fill="#5c6d5d"/><path d="M608.14686,266.92673c-7.98053,5.94927,9.09218,1.7257,23.78067,2.37807l-27.85736,3.05752c-.35246-.24368-.91873-.56984-1.3589-.67945,1.64579-1.65495,3.23451-3.64859,4.75613-5.43558.18782-.08904.50793.09356.67945,0v.67945Z" fill="#fff"/><path d="M607.46741,266.24728c-1.52162,1.78699-3.11035,3.78063-4.75613,5.43558-4.47161,4.49653-9.75578,8.47796-13.58896,13.58896-.09065.05764-1.064-.01439-2.03834.67945.01916-.44738-.04122-.91541,0-1.3589.6233-.51871.83749-.79287,1.3589-1.3589,5.86895-5.6623,12.34054-10.76426,17.66564-16.9862.35598-.11977,1.10074.12238,1.3589,0Z" fill="#5c6d5d"/><path d="M555.14993,261.49114v-1.3589c8.62439-4.43739,17.74249-9.04521,27.85736-7.1342-7.87644-.00415-21.90129,3.82712-27.85736,8.4931Z" fill="#fff"/><path d="M544.27876,272.36231c3.47972,4.24331,1.08863,6.21929-1.01917,13.58896l-8.4931-21.06288c.5822.16397,9.12871,7.00623,9.51227,7.47393Z" fill="#fff"/><path d="M560.58551,239.74881h-.67945c6.67459-13.14966,15.95297-24.81505,23.10123-37.70936,8.26937-9.43391,26.0136-22.97717,39.06825-18.68482,8.71886,2.86675,2.28663,11.01138-2.03834,14.94785-15.47909,14.08861-45.30504,10.20393-52.31748,31.2546,11.90601-14.10804,29.1103-4.00142,29.55598.33972.72809,7.0923-22.05958,17.47449-32.95322,5.09586-1.57214,1.31921-2.65658,3.06459-3.73696,4.75613Z" fill="#5c6d5d"/><path d="M579.27033,227.51875c14.01938-1.79811,23.94705,1.7061-1.3589,1.3589l-10.87117,4.75613-.67945-1.3589c4.0832-1.653,8.47651-4.18756,12.90951-4.75613Z" fill="#fff"/><path d="M614.94134,258.77335c1.20471-1.92691,5.75047-18.16397,20.72316-19.70399,24.50537-2.52052,3.48126,19.12867-4.75613,20.38344-5.96864.90919-11.63053-2.43754-15.96702-.67945Z" fill="#5c6d5d"/><path d="M643.13842,242.4666l1.69862.33972c-33.35415,17.2509-39.39417,18.11224-1.69862-.33972Z" fill="#fff"/><path d="M565.68137,276.439c5.38652-1.20786,14.68427,17.02671,0,32.6135-13.43187-11.56878-4.64188-31.57259,0-32.6135Z" fill="#5c6d5d"/><path d="M566.36082,278.47734c2.14069,8.32589.58013,19.38317-.67945,27.85736l.67945-27.85736Z" fill="#fff"/><path d="M614.94134,258.77335c-1.61564,2.58413-4.11596,6.01314-6.79448,7.47393-.17152.09356-.49163-.08904-.67945,0-.25815.12238-1.00292-.11977-1.3589,0-2.44359.82227-2.94505,2.32847-3.73696,2.03834-12.13095-16.31137,5.7617-40.26081,10.53144-20.72316,2.50372,10.25575-4.7648,17.28316,2.03834,11.21089Z" fill="#5c6d5d"/><path d="M606.44824,243.14605l.33972,9.85199c-3.80141,26.40931-2.29956,2.04817-.33972-9.85199Z" fill="#fff"/><path d="M588.44287,283.23348c-.5214.56603-.7356.84019-1.3589,1.3589.20897-2.24868,1.0888-1.0983,1.3589-1.3589Z" fill="#fff"/><path d="M585.72508,288.66906c.4191-.50361.80315-1.3212.67945-2.03834.03828-.02903-.03848-.16816.67945-.67945.97434-.69384,1.94769-.6218,2.03834-.67945,20.02799-12.72924,31.77402-4.78417,22.08206,2.71779-7.23369,5.59918-17.8764,5.45524-25.47929.67945Z" fill="#5c6d5d"/><path d="M613.92217,282.55403c.54525.2273.54807,1.126,0,1.3589-5.99585,2.54789-50.82862,5.20414,0-1.3589Z" fill="#fff"/><path d="M585.72508,391.26568l-1.3589-.33972c.72075-.98376,1.302-.9561,1.3589-1.01917-.09152.17293.0508.83737,0,1.3589Z" fill="#fff"/><path d="M582.32784,392.28486c-.13702.54434-.14486,2.0556.33972,2.37807.42843-.57498,2.8507-3.30003,3.05752-3.39724,2.97229-1.39701,12.32897-2.74566,15.96702-2.71779,2.04452.01568,22.83055,3.35523,22.7615,5.09586-7.7456,8.15478-33.77893,10.54504-42.80521,5.09586,9.75433-4.19181,21.05816-1.95204,31.2546-5.09586l-33.29294,3.39724" fill="#5c6d5d"/><path d="M585.72508,389.90679c-.0569.06308-.63814.03542-1.3589,1.01917l1.3589.33972c-.20681.09721-2.62909,2.82225-3.05752,3.39724-.48458-.32247-.47674-1.83373-.33972-2.37807" fill="#5c6d5d"/><path d="M580.2895,400.09851v-1.69862c.43573-.81331.83131.56644,1.3589.33972,9.02628,5.44919,35.05962,3.05893,42.80521-5.09586.06905-1.74063-20.71698-5.08018-22.7615-5.09586-3.63806-.02787-12.99473,1.32078-15.96702,2.71779.0508-.52153-.09152-1.18596,0-1.3589,1.58976-1.76203,3.96339-3.14025,5.43558-5.09586.57486-14.4201,16.91868-27.04629,29.55598-31.59432,21.54427-7.75356,18.47083,4.50769,8.4931,17.32592-15.53453,19.95691-43.43013,13.04578-41.44632,19.02454,12.8264-3.80066,26.34868-1.01046,38.72853,3.39724-9.36227,11.33957-33.37929,10.7655-46.20245,7.1342Z" fill="#5c6d5d"/><path d="M628.19057,351.85771c9.98511-1.25232,9.08708,3.5134,3.05752,13.92868-5.37616,9.28659-18.24731,17.59747-28.87653,18.68482-15.84402,1.62082,3.26574-4.1651,14.2684-12.23006,16.41718-14.03966-19.24703,11.09299-22.42178,12.23006-5.88288,2.10702,1.74631-13.10011,8.15337-19.02454,4.12977-3.8187,20.68356-12.94488,25.81902-13.58896Z" fill="#5c6d5d"/><path d="M286.51179,166.78826c-5.06592-.72705-23.65842,16.68031-3.96128,41.19735,16.7533-10.91302,11.18042-40.16126,3.96128-41.19735Z" fill="#5c6d5d"/><path d="M288.49243,242.05266c-.14478-.20827.90468-.76996-3.16903-3.96128-6.94496-5.44067-23.29836-9.90805-32.48253-9.90321,11.79425-2.22829,22.42622,3.14456,32.48253,8.3187-3.78014-26.54075-40.23817-16.36462-37.23607-6.73418.35063,1.12473,19.4526,10.34068,20.9948,10.69547,11.45194,2.63446,13.8996-2.69567,19.41029,1.58451Z" fill="#5c6d5d"/><path d="M270.27053,293.54935c-.20469-.24042-.36436-1.33345-3.96128-4.75354-7.83577-7.45057-22.69663-13.28079-32.87866-7.13031-7.81556,4.721,10.26844,15.22324,13.46837,15.84514,6.33414,1.23103,17.50107-.7763,23.37157-3.96128Z" fill="#5c6d5d"/><path d="M246.50282,263.44359c.31494.30387,1.34085-1.03752,1.58451,1.58451,7.6613,6.37577,11.90324-10.37148,7.92257-21.78706-7.46919-21.41978-22.42782,6.17577-9.50708,20.20255Z" fill="#5c6d5d"/><path d="M228.28092,250.76748l-32.48253-3.56516c17.12723-.76068,37.03452,4.16414,27.72899-2.7729-9.8094-7.31261-42.66083-3.89794-22.57932,9.50708,10.21302,6.8175,18.24246,3.11617,27.33286-3.16903Z" fill="#5c6d5d"/><path d="M278.98535,212.73916c4.89372,7.66215,7.52683,20.41628,11.09159,28.91737l-1.58451.39613c4.85093,6.97804,8.20569,20.34795,9.50708,28.91737l-15.44901,36.83994c-9.80442-12.35169-21.23286-30.9778-33.67091-40.4051-.14424.83621.30358,1.78954.79226,2.37677,5.36301,6.44473,12.48124,11.52641,16.63739,19.01416,3.59693,3.42009,3.75659,4.51312,3.96128,4.75354,1.42276,1.67121,10.92211,14.51333,11.09159,15.44901.26808,1.48011-5.09184,17.95639-7.13031,18.61803,1.10976,1.02011,1.89196.9205,1.58451,2.37677,6.17814-19.46285,25.89428-67.20575,34.8593-87.9405-.50904.05749-1.17601-.11504-1.58451,0l-9.90321,24.55996c-2.45777-8.59326-5.24585-10.8973-1.18839-15.84514h-.79226c-4.04692,5.12467-6.79656-17.07999-17.42965-38.02833h-.79226Z" fill="#5c6d5d"/><path d="M223.52738,244.42943c9.30554,6.93703-10.60175,2.01222-27.72899,2.7729l32.48253,3.56516c.41097-.28414,1.07127-.66445,1.58451-.79226-1.91904-1.92972-3.77154-4.25437-5.5458-6.33805-.219-.10382-.59226.10909-.79226,0v.79226Z" fill="#fff"/><path d="M224.31963,243.63717c1.77426,2.08369,3.62676,4.40833,5.5458,6.33805,5.21403,5.24309,11.37554,9.88556,15.84514,15.84514.10571.06721,1.24066-.01678,2.37677.79226-.02234-.52166.04807-1.0674,0-1.58451-.72678-.60483-.97654-.92451-1.58451-1.58451-6.84337-6.60241-14.38944-12.55145-20.59868-19.80642-.41508-.13965-1.2835.1427-1.58451,0Z" fill="#5c6d5d"/><path d="M285.32341,238.09137v-1.58451c-10.0563-5.17414-20.68828-10.54699-32.48253-8.3187,9.18416-.00484,25.53756,4.46254,32.48253,9.90321Z" fill="#fff"/><path d="M297.99951,250.76748c-4.05746,4.94783-1.26938,7.25188,1.18839,15.84514l9.90321-24.55996c-.67886.1912-10.64435,8.16947-11.09159,8.71482Z" fill="#fff"/><path d="M278.98535,212.73916h.79226c-7.78277-15.33291-18.60164-28.93509-26.93673-43.97025-9.64233-11.00023-30.33264-26.79207-45.55476-21.78706-10.16646,3.34272-2.66627,12.8396,2.37677,17.42965,18.04908,16.42775,52.82705,11.89809,61.00377,36.44381-13.88277-16.4504-33.94349-4.66578-34.46317.39613-.84898,8.26983,25.72214,20.37578,38.42445,5.94193,1.83316,1.53824,3.09765,3.5734,4.35741,5.5458Z" fill="#5c6d5d"/><path d="M257.19829,198.47853c-16.34702-2.09665-27.92299,1.98937,1.58451,1.58451l12.67611,5.5458.79226-1.58451c-4.76113-1.92745-9.88387-4.88282-15.05288-5.5458Z" fill="#fff"/><path d="M215.60481,234.92235c-1.40473-2.24684-6.70522-21.17974-24.16383-22.97545-28.574-2.939-4.05925,22.30461,5.5458,23.7677,6.95962,1.06015,13.56155-2.84224,18.61803-.79226Z" fill="#5c6d5d"/><path d="M182.72615,215.90818l-1.98064.39613c38.89195,20.11507,45.93479,21.11942,1.98064-.39613Z" fill="#fff"/><path d="M273.04343,255.52102c-6.28085-1.4084-17.1223,19.85366,0,38.02833,15.66196-13.48954,5.41258-36.8146,0-38.02833Z" fill="#5c6d5d"/><path d="M272.25117,257.89779c-2.49611,9.70824-.67645,22.60137.79226,32.48253l-.79226-32.48253Z" fill="#fff"/><path d="M215.60481,234.92235c1.88388,3.01318,4.79933,7.0115,7.92257,8.71482.2.10909.57325-.10382.79226,0,.30101.1427,1.16943-.13965,1.58451,0,2.8493.95879,3.43402,2.71507,4.35741,2.37677,14.14505-19.01955-6.71832-46.94532-12.27998-24.16383-2.91942,11.95851,5.5559,20.15269-2.37677,13.07224Z" fill="#5c6d5d"/><path d="M225.50802,216.70044l-.39613,11.48772c4.43256,30.79405,2.68136,2.38823.39613-11.48772Z" fill="#fff"/><path d="M246.50282,263.44359c.60797.66.85773.97968,1.58451,1.58451-.24366-2.62203-1.26957-1.28065-1.58451-1.58451Z" fill="#fff"/><path d="M249.67185,269.78164c-.48868-.58723-.9365-1.54056-.79226-2.37677-.04463-.03385.04487-.19608-.79226-.79226-1.13611-.80904-2.27107-.72504-2.37677-.79226-23.35325-14.84268-37.04946-5.57849-25.74835,3.16903,8.4347,6.52882,20.84442,6.36097,29.70963.79226Z" fill="#5c6d5d"/><path d="M216.79319,262.65133c-.63578.26504-.63907,1.31295,0,1.58451,6.99134,2.97091,59.26771,6.06818,0-1.58451Z" fill="#fff"/><path d="M249.67185,389.41242l1.58451-.39613c-.84042-1.14709-1.51817-1.11484-1.58451-1.18839.10672.20164-.05924.97639,0,1.58451Z" fill="#fff"/><path d="M253.63313,390.6008c.15977.63471.16891,2.39689-.39613,2.7729-.49956-.67045-3.32401-3.84794-3.56516-3.96128-3.46578-1.62895-14.37595-3.20152-18.61803-3.16903-2.38398.01828-26.62111,3.9123-26.5406,5.94193,9.0316,9.50873,39.38726,12.29584,49.91218,5.94193-11.37385-4.88778-24.55445-2.27614-36.44381-5.94193l38.82058,3.96128" fill="#5c6d5d"/><path d="M249.67185,387.8279c.06634.07355.74409.0413,1.58451,1.18839l-1.58451.39613c.24115.11335,3.06559,3.29083,3.56516,3.96128.56503-.37601.5559-2.13818.39613-2.7729" fill="#5c6d5d"/><path d="M256.00991,399.71176v-1.98064c-.50807-.94835-.96933.66049-1.58451.39613-10.52492,6.35391-40.88058,3.5668-49.91218-5.94193-.08051-2.02963,24.15663-5.92365,26.5406-5.94193,4.24208-.03249,15.15225,1.54007,18.61803,3.16903-.05924-.60812.10672-1.38287,0-1.58451-1.85371-2.05458-4.62143-3.66162-6.33805-5.94193-.6703-16.81428-19.7277-31.53679-34.46317-36.83994-25.12127-9.04089-21.53755,5.2561-9.90321,20.20255,18.11373,23.27037,50.64085,15.21177,48.32766,22.18319-14.95597-4.43169-30.72335-1.17823-45.15864,3.96128,10.91669,13.22228,38.92126,12.5529,53.87346,8.3187Z" fill="#5c6d5d"/><path d="M200.1558,343.46152c-11.64294-1.46024-10.59581,4.09673-3.56516,16.24126,6.26876,10.82844,21.27691,20.51918,33.67091,21.78706,18.47461,1.88993-3.80795-4.85663-16.63739-14.26062-19.14293-16.37066,22.44262,12.93476,26.14447,14.26062,6.85962,2.45685-2.03625-15.27512-9.50708-22.18319-4.81544-4.45272-24.11765-15.09413-30.10576-15.84514Z" fill="#5c6d5d"/><path d="M343.13538,110.42564c-9.63472-39.20776,14.33893-78.80259,53.54685-88.43736,39.20807-9.6348,78.80275,14.33889,88.43752,53.54681,7.81385,31.79785-6.48004,63.8467-33.07521,79.96576l8.56396,94.07176-84.29009-41.11016s10.38339-22.96584,13.15447-46.66513c-22.28146-8.00579-40.26406-26.65632-46.33749-51.37167Z" fill="#ffb6b6"/><path d="M454.14417,181.18949s-30.55182,53.65824-77.12837,3.1435l-86.4487,122.21462,41.27646,99.36925,188.6337,2.83407-8.24029-115.96214-58.09279-111.59931Z" fill="#f3ebe9"/><path d="M379.6002,196.08376l8.80739-14.89427s-106.81984,17.87796-106.85421,47.16804l-48.1574,149.47557c-2.54458,7.8981,8.81771,16.55578,14.81134,22.29436l.00002.00002c3.96372,3.79505,9.21979,5.94472,14.70692,6.01494l42.08008.53853,1.01917-47.52971,29.4312-90.28632,44.1555-72.78116Z" fill="#f3ebe9"/><path d="M451.03915,192.80068l2.5844-11.75077s95.42805,14.73445,95.46242,44.02454l48.1574,149.47557c2.54458,7.8981-8.81771,16.55578-14.81134,22.29436l-.00002.00002c-3.96372,3.79505-9.21979,5.94472-14.70692,6.01494l-42.08008.53853-1.01917-47.52971-29.4312-90.28632-44.1555-72.78116Z" fill="#f3ebe9"/><path d="M460.01647,182.38873c-.25463-.09439-.56765-.18011-.94631-.25696-9.07903-1.84258-10.07502-.33158-12.23006-18.34509-.34632-2.89493-.61927-6.00619-1.3589-8.83282,7.95502-7.72051,18.60337-23.83834,23.10123-34.31212,1.18825-.94544,5.24834-3.46546,5.43558-3.73696,0,0,0,.07689.67945-.67945,10.89281-17.64634,8.16714-34.09168-3.73696-19.70399-19.57763-20.76214-54.33742-22.5711-70.66258-44.16411-13.74911,4.27692-23.9625,19.73518-28.19709,32.95322-5.42996,16.94933-1.3589,35.33129-1.3589,35.33129,3.04731,9.53153,17.68878,30.23253,24.46012,36.35046,1.54058,6.94605.72357,13.15333-.67945,19.70399-.61334,2.8636-3.50469,6.74121-3.39724,7.81365l-38.04908-4.75613c-.55296-1.32595-12.20827-3.1073-19.02454-20.38344-15.41584-39.07209,2.0981-146.13582,59.45169-145.74156,15.81711-21.33024,49.6432-14.71431,67.94478,0,36.06033,28.99221,59.95675,124.7626,33.63267,154.57439-10.63681,12.0461-28.98492,12.12352-32.30039,14.08251l-2.76404.10313Z" fill="#5c6d5d"/><path d="M474.6973,116.22475c2.95152.33143,5.78509,5.31631,5.43575,8.49326-.69869,6.35688-11.28653,6.38674-10.19222,1.35856.30904-1.41679,5.62535-2.76938,4.07718-9.85183" fill="#fff"/><path d="M422.51613,296.74033c-.23538,3.87971-.79446,7.60634.17444,11.47857,6.9647-6.27194,18.5571-7.56618,15.43983-3.39828-.6004.80272-9.21861,2.40636-9.65652,6.69683,15.19018-6.987,19.66993-14.59834,8.51054,5.85635-6.60466,5.29668-13.56059.89825-14.53298,1.4982-3.15862,1.94875.64745,32.26842,2.66754,30.883.9062-16.7959,1.32591,22.58022,8.85941,28.81348,2.3878,1.97566-1.31731-8.98204,2.30865-4.46122.44267.55189.71983,5.59978.66605,6.68849-.01326.26807-1.49974-.67863-1.15266,4.29512-3.02623-4.19072-4.88828-9.13259-7.27817-13.7025-.90215-5.56131-5.37662-22.33476-8.44417-25.92349-7.87175-9.20916-10.51952,3.58468-19.08892-15.84005,15.25628-.77642,19.45695,15.7759,20.98734,14.68239-4.36264-12.87443-1.08146-26.20713-1.59125-27.49806-1.03326-2.6164-8.24762-7.65437-2.22894.91019-9.91215-.04591-12.15706-7.15725-17.35326-14.02468,7.79347-1.91117,15.9339.80369,19.49582,8.40747.58079-4.40149,1.41144-21.48617-3.23886-22.54189-1.30417-.29607-2.61188,10.07301-23.20961-5.51414,9.79769-6.74502,22.1801-7.42459,26.18264,5.6769,6.33166-11.91069.76544-5.62311.32552-5.94607-1.16362-.85431,2.89957-8.52152-15.70899-23.10988,10.2803,16.19588-27.82817,2.31445-4.21208-.57466-3.78414-19.86748,1.32888-4.94087,4.54093-1.24238,1.71839,1.97862,14.67189,15.54577,15.78537,15.42982.4327-.04507,1.93127-6.55845,6.02578-3.22551,4.40631,3.58674-3.44596,15.07701.58801,12.30404,7.11391-4.89013-4.8695-22.7575-1.34545-29.8931,5.49936-11.13521.88317,4.0334,6.77321,1.97646-13.22276,16.29115,10.35692,19.67217-11.36715,35.84918-.08406,1.68965,1.09475,5.1722,1.07795,5.44945Z" fill="#dbc0bd"/><path d="M453.52893,308.13851c-2.41575,2.46158-7.55268,3.70282-10.81418,4.79842-9.04301,7.90819-6.14995,45.02719-3.33989,56.81817-2.12368-.0896-2.34757-.82815-2.47808-.8238l-1.90843-11.22942.25749,12.05656c-.97735.28096-1.10158.14488-1.15599.1661-.26627-4.96916-1.19438-8.91865-.83715-14.03803.21617-3.09776,2.16752-1.99423,2.22727-2.9747.08348-1.36965-.91066-9.09213-.5083-15.85507.29796-5.00742,2.99288-20.15619,2.62416-22.79437-.9371-6.70474-13.99273-19.11196-1.50153-18.66201-.6621-4.53116,3.41082-11.5972,5.51915-17.01607.88204-2.26699,4.95754-8.25224,4.69868-10.40896-.40207-3.34966-2.99105-1.59676-4.04932-3.54769-1.5702-2.89464,1.61943-15.96631,4.94282-14.86851,1.96434.64889-2.2322,9.28428,9.909-.83381-2.24129,16.30699,3.44607,7.4804,5.62389,10.40061,4.18162,5.60719-15.47292,1.85937-21.86416,24.37895-2.58166,9.09649,1.01176,16.04489,9.17158,6.3513,4.14773,7.68891-.94823,12.14753.17611,13.54308.84803,1.05254,11.04836-3.34903,3.30689,4.53926Z" fill="currentColor"/><path d="M383.34593,279.82631c1.98972,4.68649,3.51051,9.38252,6.9079,13.35696,4.50348-11.42128,17.33996-19.70866,16.11892-13.00126-.2352,1.29184-9.4037,8.20508-7.41156,13.49148,13.73042-17.06331,14.53806-28.60388,13.39881,1.8966-4.65088,10.06751-15.37548,8.97247-16.16525,10.24378-2.56548,4.12955,19.6036,37.45722,21.16311,34.65307-8.7461-20.22272,14.74129,25.70141,27.21462,28.61052,3.9535.92205-6.78999-9.76231.10163-6.57909.84134.38858,4.11423,6.14547,4.68697,7.45341.141.32206-2.15479.08013,1.1568,5.70925-5.99565-3.14641-11.06494-7.85342-16.53592-11.81606-4.30553-5.99389-19.34747-23.04803-25.04002-25.46446-14.60784-6.20088-10.24091,10.3464-31.63256-7.425,17.43485-9.81989,32.02661,7.13487,33.18243,4.95896-12.63383-12.54777-16.57275-30.09679-17.92438-31.31271-2.73947-2.46436-14.14056-4.15836-2.08193,2.36889-11.64899,5.73477-18.43415-1.2924-28.53731-6.31006,8.02189-6.79219,19.15214-8.36291,27.76909-1.52746-1.88944-5.5-10.89279-26.0172-16.96188-24.53932-1.70207.41447,2.82006,13.3361-30.43391,7.08876,7.54895-13.63042,21.67069-21.65843,34.01489-8.63414.46826-17.66313-2.38635-7.0402-3.09077-7.16197-1.86328-.32215-1.57668-11.68497-31.91504-17.92286,21.51209,12.98637-31.27743,18.96513-5.27433,1.78601-16.03939-21.08509-1.32729-6.56932,4.59879-4.10857,3.17034,1.31644,26.28165,9.65946,27.5195,8.87324.48102-.30553-1.56562-8.81775,5.18167-7.30097,7.26111,1.63227,4.76438,19.69049,7.87489,14.08332,5.4854-9.88823-18.99974-23.83985-19.03485-34.26448-.05476-16.26781,3.391,4.21347,9.09595-1.63805-5.99005,26.82363,23.63204,17.01764,7.60738,48.67213.88818,2.03024,4.30413,5.42517,4.44635,5.76007Z" fill="currentColor"/><path d="M432.94619,290.76728c-1.39498,4.29702-6.69325,8.75231-9.8776,11.94161-5.98479,14.55354,19.08452,56.38672,29.26519,68.57082-2.54238,1.13515-3.23621.39994-3.38669.48125l-8.79554-12.0522,7.34282,13.98617c-.98189.9002-1.20701.81319-1.25843.86984-3.21415-5.67093-6.60884-9.75977-9.17965-15.97096-1.55561-3.75843,1.37685-3.60408.87432-4.7886-.70198-1.6547-6.37749-10.12888-9.8552-18.29352-2.57492-6.04529-8.26181-25.38133-10.23482-28.25931-5.01428-7.31418-27.56794-14.23751-12.65901-21.00467-3.42248-4.92621-2.77341-15.58982-3.46592-23.17479-.2897-3.17319.99358-12.57106-.56944-14.94868-2.42761-3.69274-4.43955-.12548-6.81972-1.79497-3.53153-2.47703-7.42536-19.66653-2.88752-20.32016,2.68217-.38633,2.80463,12.18958,11.13155-6.76442,6.89518,20.42914,8.40907,6.75843,12.66797,8.91061,8.17757,4.13251-17.05643,11.21618-11.39906,41.35324,2.28522,12.17347,10.55637,18.22208,14.46295,2.0909,9.35355,6.59316,5.98223,14.79696,8.11552,15.77667,1.609.73888,10.9986-10.37893,6.52828,3.39117Z" fill="currentColor"/><path id="uuid-cd2f3503-1b70-48f0-8b24-d48db1dd7685" d="M413.21387,355.62557c-8.64023.21095-17.10476,2.48493-24.68748,6.63225l-90.3155-2.27402.16712,43.01304,91.60122-2.323c7.87195,3.56704,16.48363,5.19726,25.11471,4.75434,21.62431-.81726,38.71127-12.63005,38.18934-26.37791-.52192-13.74786-18.46449-24.22631-40.07488-23.41891h0l.00548-.00579Z" fill="#ffb6b6"/><path id="uuid-e52c52bf-1185-45d8-97aa-5b0ade7c6c81" d="M443.68472,311.19946c7.93998,3.41391,14.94851,8.67698,20.44092,15.35015l80.21523,42.67707-11.72686,28.70739-84.14512-36.27367c-8.63413.3784-17.23338-1.31619-25.07846-4.94197-19.764-8.81265-31.22173-26.1397-25.61683-38.70398,5.6049-12.56428,26.15928-15.6059,45.91403-6.80757h0l-.00293-.00741Z" fill="#ffb6b6"/><polygon points="264.57822 355.46786 306.0135 359.15124 391.46511 360.05413 383.13083 405.35369 269.1645 405.91657 264.57822 355.46786" fill="#f3ebe9"/><polygon points="557.30169 379.85738 548.8444 363.0618 474.33218 327.07468 459.11006 368.49288 527.82912 405.70532 557.30169 379.85738" fill="#f3ebe9"/><path id="uuid-635a66d3-e949-4d8e-a57c-285e0da9cd11" d="M.00648,405.22215c-.09915,1.40167.95175,2.62055,2.35276,2.72884h805.53604c1.50711-.19576,2.57017-1.5762,2.37441-3.08331-.16096-1.23857-1.13584-2.21345-2.37441-2.37436H2.35923c-1.40101.10828-2.45191,1.32717-2.35276,2.72884Z" fill="#ccc"/></svg></div>
     </div>
     <!-- PASO 2: Ingresar PIN -->
     <div id="step-pin" style="display:none;flex-direction:column;align-items:center;width:100%;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-        <button onclick="volverUsuarios()" style="background:none;border:none;color:var(--verde);cursor:pointer;font-size:20px;"><span class="mi">arrow_back</span></button>
-        <p class="pin-title" style="margin-bottom:0;" id="pin-usuario-label">Ingresa tu PIN</p>
-      </div>
+      <button class="p2-back" onclick="volverUsuarios()" aria-label="Volver"><span class="mi">arrow_back</span></button>
+      <span class="p2-avatar p2-avatar-lg" id="pin-avatar"></span>
+      <p class="pin-title" id="pin-usuario-label">Ingresa tu PIN</p>
+      <p class="p2-sub" style="margin:0 0 14px;">Ingresa tu PIN</p>
       <div class="pin-dots">
         <div class="pin-dot" id="dot-0"></div><div class="pin-dot" id="dot-1"></div>
         <div class="pin-dot" id="dot-2"></div><div class="pin-dot" id="dot-3"></div>
@@ -424,7 +618,7 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
     </div>
   </div>
   <div id="panel-domicilios" style="display:none;flex-direction:column;align-items:center;width:100%;max-width:320px;">
-    <p class="pin-title">Julian Builes</p>
+    <span class="p2-avatar p2-avatar-lg">JB</span><p class="pin-title">Julian Builes</p><p class="p2-sub" style="margin:0 0 14px;">Ingresa tu PIN</p>
     <div class="pin-dots">
       <div class="pin-dot" id="dom-dot-0"></div><div class="pin-dot" id="dom-dot-1"></div>
       <div class="pin-dot" id="dom-dot-2"></div><div class="pin-dot" id="dom-dot-3"></div>
@@ -439,6 +633,8 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
   </div>
 
   <div id="panel-login" style="display:none;width:100%;max-width:320px;">
+    <div class="p2-ilus"><svg width="150" aria-hidden="true" fill="#5c6d5d" id="uuid-dbb431b5-4b8e-4262-8de6-313c8ddbb51a" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 532 532"><polygon points="379.19 379.04999 246.19 379.04999 246.19 199.04999 361.19 262.04999 379.19 379.04999" fill="#5c6d5d"/><circle cx="270.76004" cy="260.93216" r="86.34897" fill="#ffb6b6"/><polygon points="221.19 360.04999 217.28893 320.61639 295.19 306.04999 341.19 418.04999 261.19 510.04999 204.19 398.04999 221.19 360.04999" fill="#ffb6b6"/><path d="m457.03998,451.08997c-.96997,1.01001-1.95996,2.01001-2.94995,3-3.14001,3.14001-6.34003,6.19-9.61005,9.15002-49,44.44-111.87,68.76001-178.47998,68.76001-61.40997,0-119.64001-20.67004-166.75-58.72003-.02997-.02002-.04999-.03998-.08002-.07001-1.42999-1.14996-2.83997-2.32001-4.25-3.51001.25-.71997.52002-1.42999.79004-2.13,15.14996-39.46997,45.07001-58.77997,63.22998-67.22998,9-4.19,15.10999-5.71997,15.10999-5.71997l21.32001-38.40002,15.01001,28,11.06,20.64001,45.38,84.66998,39.15002-97.47998,12.12994-30.22003,3.11005-7.73999,14.78998,11.51001,14,10.89001,28.19,6.21997,22.87,5.04999,31.06,6.86005c12.56,10.22998,20.20001,29.69,24.47003,53.87.15997.85999.31,1.72998.44995,2.59998Z" fill="currentColor"/><path d="m225.33945,162.80316c10.51816-17.66798,29.83585-29.79031,50.31992-31.577,20.48407-1.78667,41.60876,6.80817,55.02692,22.38837,7.99588,9.28423,13.23862,20.65456,21.03256,30.10893,16.77231,20.3455,45.37225,32.2415,52.69913,57.57068,3.19727,11.05298,1.6041,22.85326-.01367,34.24507-1.3866,9.76407-2.77322,19.52817-4.15985,29.29224-1.0791,7.59863-2.11386,15.60931.73538,22.73569,3.34277,8.36084,11.34241,13.83688,16.51462,21.20749,8.80081,12.54153,8.15744,30.90353-1.49963,42.79834-4.18805,5.15848-9.74042,9.04874-14.13116,14.03583s-7.64764,11.80563-5.80865,18.19058c3.52286,12.23126,22.70462,15.16449,24.80847,27.7179,1.07565,6.41818-3.35748,12.82758-9.1658,15.76245s-12.64572,3.02011-19.10587,2.23492c-24.55347-2.98438-47.28705-18.32629-59.24158-39.97961-11.95456-21.65335-12.82504-49.06561-2.26843-71.43384,8.67035-18.37146,24.78519-34.60559,24.60965-54.91949-.09564-11.0668-5.17172-21.4032-10.13535-31.29489-10.15924-20.24577-20.31851-40.49153-30.47775-60.7373-5.44196-10.84496-11.75745-22.53171-22.96112-27.19061-8.65872-3.60063-18.48325-2.20412-27.74442-.73141s-19.07155,2.90622-27.75604-.63181-15.24644-14.04982-11.1087-22.4651" fill="#5c6d5d"/><path d="m240.47141,163.72575c-16.68272-5.49146-35.39705,3.32417-46.6913,16.77441-11.29425,13.45026-16.77287,30.70596-21.992,47.47588-2.98952,9.60582-5.97903,19.21164-8.96854,28.81747-2.81226,9.03625-5.6245,18.07248-8.43675,27.10873-3.30785,10.62869-6.64275,21.9205-3.92802,32.71591,1.96262,7.8046,7.01262,14.89124,7.12131,22.93808.11353,8.40567-5.15047,15.7851-9.7636,22.81268-4.61311,7.02759-8.94347,15.37701-6.74557,23.49103,3.34306,12.34174,20.502,19.12564,19.56139,31.87747-.3139,4.25571-2.7749,8.19205-2.73022,12.45908.05684,5.42914,4.30745,10.1203,9.2874,12.28336,4.97997,2.16306,10.5818,2.28052,16.01041,2.18506,16.65134-.29279,33.27257-2.27026,49.52779-5.89246,6.25403-1.39359,12.61382-3.10281,17.81967-6.83832s9.0894-9.92447,8.41191-16.29596c-1.05576-9.92862-11.73091-15.56143-17.11801-23.96805-5.29137-8.25723-5.16869-18.71957-7.45038-28.25763-3.13582-13.10846-10.88029-24.55249-16.69402-36.71249-21.85695-45.71606-14.20572-103.98718,18.71225-142.51109,2.91051-3.40616,6.0903-6.83273,7.30457-11.14532,1.21426-4.31261-.35107-9.80727-4.5697-11.31593" fill="#5c6d5d"/><path d="m454.09003,77.90997C403.84998,27.66998,337.04999,0,266,0S128.15002,27.66998,77.90997,77.90997C27.66998,128.14996,0,194.94995,0,266c0,64.84998,23.04999,126.15997,65.28998,174.56995,4.03003,4.63,8.24005,9.14001,12.62,13.52002,1.03003,1.03003,2.07001,2.06,3.12006,3.06,2.79999,2.71002,5.64996,5.35999,8.54999,7.92999,1.76001,1.57001,3.53998,3.11005,5.33997,4.62,1.41003,1.19,2.82001,2.36005,4.25,3.51001.03003.03003.05005.04999.08002.07001,47.10999,38.04999,105.34003,58.72003,166.75001,58.72003,66.60999,0,129.47998-24.32001,178.47998-68.76001,3.27002-2.96002,6.47003-6.01001,9.61005-9.15002.98999-.98999,1.97998-1.98999,2.94995-3,2.70001-2.77997,5.32001-5.60999,7.88-8.47998,43.37-48.72003,67.07999-110.84003,67.07999-176.60999,0-71.05005-27.66998-137.85004-77.90997-188.09003Zm10.17999,362.21002c-2.5,2.83997-5.06,5.63995-7.67999,8.37-4.08002,4.25-8.29004,8.37-12.64001,12.33997-1.65002,1.52002-3.32001,3-5.01001,4.47003-17.07001,14.84998-36.07001,27.52997-56.56,37.63-7.19,3.54999-14.56,6.77997-22.09998,9.66998-29.29004,11.23999-61.08002,17.40002-94.28003,17.40002-32.03998,0-62.76001-5.74005-91.19-16.24005-11.66998-4.29999-22.95001-9.40997-33.77997-15.25995-1.59003-.86005-3.17004-1.73004-4.74005-2.62006-8.25995-4.67999-16.25-9.78998-23.91998-15.31-5.72998-4.10999-11.28998-8.44-16.65997-13-1.88-1.58997-3.73999-3.19995-5.57001-4.84998-2.98004-2.65002-5.90002-5.38-8.75-8.17999-5.40002-5.28998-10.56-10.79999-15.48999-16.53003C26.09003,391.76996,2,331.64996,2,266,2,120.42999,120.42999,2,266,2s264,118.42999,264,264c0,66.65997-24.83002,127.62-65.72998,174.12Z" fill="#5c6d5d"/></svg></div>
+    <h1 class="p2-h1">Contabilidad</h1><p class="p2-sub">Ingresa con tu usuario y contraseña.</p>
     <div class="login-card">
       <div class="login-group"><label class="login-label">Usuario</label><input type="text" id="login-usuario" class="login-input" placeholder="usuario" autocomplete="username"></div>
       <div class="login-group"><label class="login-label">Contraseña</label>
@@ -460,10 +656,18 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
 
 <!-- SUCCESS -->
 <div id="success-overlay">
-  <div class="success-icon"><span class="mi">check</span></div>
-  <div class="success-msg" id="success-msg"></div>
-  <div class="success-sub" id="success-sub"></div>
-  <div class="success-total" id="success-total"></div>
+  <button class="p2-close success-cerrar" onclick="cerrarExitoP2()" aria-label="Cerrar"><span class="mi">close</span></button>
+  <div class="p2-ilus"><svg width="230" aria-hidden="true" id="44583e6e-3c87-4cd0-878b-9f64620e8dae" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1009.54 839.64"><defs><linearGradient id="c5138621-b397-4607-9afc-281d986fc27b" x1="378.01" y1="475.14" x2="378.01" y2="474.88" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="gray" stop-opacity="0.25"/><stop offset="0.54" stop-color="gray" stop-opacity="0.12"/><stop offset="1" stop-color="gray" stop-opacity="0.1"/></linearGradient><linearGradient id="22049f4d-c06f-4634-a22a-fcd5b3beb851" x1="362.5" y1="612.82" x2="362.5" y2="216.23" xlink:href="#c5138621-b397-4607-9afc-281d986fc27b"/></defs><title>order confirmed</title><ellipse cx="483.49" cy="780.99" rx="303.97" ry="41.12" fill="#dbc0bd" opacity="0.1"/><rect x="642.8" y="289.82" width="8.86" height="73.02" rx="2.29" ry="2.29" fill="#5c6d5d"/><rect x="348.37" y="232.61" width="4.97" height="24.04" rx="2.29" ry="2.29" fill="#5c6d5d"/><rect x="348.19" y="276.63" width="5.6" height="41.84" rx="2.29" ry="2.29" fill="#5c6d5d"/><rect x="348.28" y="333.11" width="5.33" height="42.2" rx="2.29" ry="2.29" fill="#5c6d5d"/><rect x="351.18" y="153.17" width="296.4" height="602.39" rx="38.99" ry="38.99" fill="#5c6d5d"/><path d="M701,199H667v4.09a19.38,19.38,0,0,1-19.39,19.38H539.48a19.38,19.38,0,0,1-19.39-19.38V199H488.26a23.54,23.54,0,0,0-23.54,23.54V746.51a23.54,23.54,0,0,0,23.54,23.54H701a23.54,23.54,0,0,0,23.54-23.54V222.58A23.54,23.54,0,0,0,701,199Z" transform="translate(-95.23 -30.18)" fill="#dbc0bd"/><rect x="470.79" y="171.16" width="41.39" height="8.4" rx="3.87" ry="3.87" fill="#ece8e4"/><circle cx="523.21" cy="175.36" r="4.77" fill="#ece8e4"/><path d="M845.43,156.93s-84.2-5.08-74.28,53.92c0,0-2,10.43,7.48,15.16,0,0,.15-4.37,8.64-2.88a39.5,39.5,0,0,0,9.15.44A19.06,19.06,0,0,0,807.6,219h0s23.67-9.78,32.87-48.46c0,0,6.81-8.44,6.54-10.61L832.8,166s4.86,10.25,1,18.77c0,0-.46-18.4-3.19-18-.55.08-7.38,3.55-7.38,3.55s8.35,17.85,2.05,30.83c0,0,2.39-22-4.66-29.54l-10,5.84s9.76,18.44,3.14,33.49c0,0,1.7-23.08-5.25-32.07l-9.06,7.07s9.17,18.17,3.58,30.65c0,0-.73-26.86-5.54-28.89,0,0-7.93,7-9.14,9.86,0,0,6.28,13.2,2.38,20.16,0,0-2.39-17.9-4.35-18,0,0-7.9,11.86-8.72,20,0,0,.34-12.09,6.81-21.12,0,0-7.64,1.31-12.1,6.26,0,0,1.23-8.38,14.05-9.12,0,0,6.53-9,8.27-9.54,0,0-12.74-1.07-20.47,2.36,0,0,6.8-7.91,22.81-4.31l8.95-7.31s-16.78-2.29-23.9.24c0,0,8.19-7,26.31-1.9l9.74-5.82s-14.31-3.08-22.83-2c0,0,9-4.85,25.69.41l7-3.13s-10.48-2.06-13.55-2.39-3.23-1.17-3.23-1.17a36.35,36.35,0,0,1,19.69,2.19S845.68,157.86,845.43,156.93Z" transform="translate(-95.23 -30.18)" fill="#dbc0bd"/><path d="M759.06,130.69s-38-2.29-33.56,24.37c0,0-.89,4.71,3.38,6.85,0,0,.07-2,3.91-1.31a17.51,17.51,0,0,0,4.13.2,8.56,8.56,0,0,0,5.05-2.08h0s10.7-4.42,14.86-21.9c0,0,3.07-3.81,2.95-4.79l-6.42,2.74s2.19,4.63.47,8.48c0,0-.21-8.31-1.44-8.12-.25,0-3.34,1.61-3.34,1.61s3.78,8.07.93,13.93c0,0,1.08-9.94-2.11-13.35L743.35,140s4.41,8.33,1.42,15.13c0,0,.77-10.43-2.37-14.49l-4.09,3.2s4.14,8.21,1.62,13.85c0,0-.34-12.14-2.51-13.06,0,0-3.58,3.16-4.13,4.46,0,0,2.84,6,1.08,9.11,0,0-1.08-8.09-2-8.13,0,0-3.57,5.36-3.94,9a19.52,19.52,0,0,1,3.08-9.54,10.76,10.76,0,0,0-5.47,2.83s.56-3.79,6.35-4.12c0,0,3-4.07,3.74-4.32,0,0-5.76-.48-9.25,1.07,0,0,3.07-3.57,10.3-1.95l4-3.3s-7.59-1-10.8.11c0,0,3.7-3.16,11.89-.86l4.4-2.63s-6.47-1.39-10.32-.89c0,0,4.07-2.19,11.61.18l3.15-1.41s-4.74-.93-6.13-1.08-1.46-.53-1.46-.53a16.39,16.39,0,0,1,8.9,1S759.18,131.11,759.06,130.69Z" transform="translate(-95.23 -30.18)" fill="#dbc0bd"/><ellipse cx="864.17" cy="773.34" rx="26.93" ry="4.55" fill="#dbc0bd" opacity="0.1"/><ellipse cx="91.09" cy="810.68" rx="26.93" ry="4.55" fill="#dbc0bd" opacity="0.1"/><ellipse cx="195.26" cy="835.09" rx="26.93" ry="4.55" fill="#dbc0bd" opacity="0.1"/><ellipse cx="805.22" cy="822.1" rx="40.21" ry="6.8" fill="#dbc0bd"/><path d="M917.08,841.16a11.71,11.71,0,0,0,3.83-5.79c.5-2.29-.48-5-2.68-5.89-2.46-.94-5.09.77-7.08,2.49s-4.28,3.69-6.89,3.32a10.48,10.48,0,0,0,3.25-9.81,4.13,4.13,0,0,0-.91-2c-1.36-1.46-3.84-.84-5.47.32-5.2,3.65-6.65,10.72-6.68,17.07-.53-2.29-.08-4.68-.1-7s-.65-5-2.64-6.23a7.94,7.94,0,0,0-4-.94c-2.34-.09-4.94.15-6.54,1.86-2,2.12-1.46,5.68.26,8s4.35,3.81,6.77,5.42a15,15,0,0,1,4.83,4.61,4.16,4.16,0,0,1,.36.83H908A41.06,41.06,0,0,0,917.08,841.16Z" transform="translate(-95.23 -30.18)" fill="#dbc0bd"/><path d="M291.88,753.45s5.5,7.19-2.53,18-14.65,20-12,26.77c0,0,12.12-20.15,22-20.43S302.73,765.57,291.88,753.45Z" transform="translate(-95.23 -30.18)" fill="#dbc0bd"/><path d="M291.88,753.45a8.83,8.83,0,0,1,1.12,2.26c9.62,11.3,14.75,21.85,5.5,22.11-8.61.25-18.94,15.65-21.42,19.54.08.3.18.59.29.89,0,0,12.12-20.15,22-20.43S302.73,765.57,291.88,753.45Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M302.09,762.61c0,2.53-.28,4.58-.63,4.58s-.63-2.05-.63-4.58.35-1.34.7-1.34S302.09,760.08,302.09,762.61Z" transform="translate(-95.23 -30.18)" fill="#f3ebe9"/><path d="M305.6,765.63c-2.22,1.21-4.16,1.94-4.32,1.63s1.49-1.54,3.71-2.75,1.35-.33,1.51,0S307.82,764.42,305.6,765.63Z" transform="translate(-95.23 -30.18)" fill="#f3ebe9"/><path d="M262.87,753.45s-5.5,7.19,2.53,18,14.65,20,12,26.77c0,0-12.11-20.15-22-20.43S252,765.57,262.87,753.45Z" transform="translate(-95.23 -30.18)" fill="#dbc0bd"/><path d="M262.87,753.45a9,9,0,0,0-1.13,2.26c-9.62,11.3-14.74,21.85-5.5,22.11,8.62.25,18.95,15.65,21.43,19.54a7.76,7.76,0,0,1-.3.89s-12.11-20.15-22-20.43S252,765.57,262.87,753.45Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M252.65,762.61c0,2.53.29,4.58.64,4.58s.63-2.05.63-4.58-.35-1.34-.7-1.34S252.65,760.08,252.65,762.61Z" transform="translate(-95.23 -30.18)" fill="#f3ebe9"/><path d="M249.15,765.63c2.22,1.21,4.15,1.94,4.32,1.63s-1.5-1.54-3.72-2.75-1.34-.33-1.51,0S246.93,764.42,249.15,765.63Z" transform="translate(-95.23 -30.18)" fill="#f3ebe9"/><path d="M254.4,797.31s15.36-.48,20-3.77,23.63-7.24,24.77-1.95,23.09,26.29,5.75,26.43-40.3-2.7-44.92-5.51S254.4,797.31,254.4,797.31Z" transform="translate(-95.23 -30.18)" fill="#c9c4bf"/><path d="M305.22,816.18c-17.34.14-40.3-2.7-44.92-5.51-3.51-2.15-4.92-9.84-5.39-13.38l-.51,0s1,12.38,5.59,15.2,27.58,5.65,44.92,5.51c5,0,6.73-1.82,6.64-4.46C310.85,815.16,308.94,816.15,305.22,816.18Z" transform="translate(-95.23 -30.18)" opacity="0.2"/><path d="M377.46,474.88a.92.92,0,0,0,1.09.14A3.86,3.86,0,0,1,377.46,474.88Z" transform="translate(-95.23 -30.18)" fill="url(#c5138621-b397-4607-9afc-281d986fc27b)"/><path d="M497.29,275.88c-2.11-.62-5.11-1.63-8.74-2.9a46.83,46.83,0,0,0,8.1-16.53l-.31.12c.1-.37.21-.73.31-1.1-6.94,2.86-14.63-2-19.52-8.21s-8.22-13.94-13.57-19.67a62.7,62.7,0,0,0-7.19-6.27c-1.58-1.24-3.29-2.53-5.22-2.59-3.12-.09-5.57,3-8.58,3.93a11.62,11.62,0,0,1-6-.22c-7.77-1.81-15.26-5.14-23.15-6a26.75,26.75,0,0,0-12.56,1.43c-4,1.54-5.8,4.59-9,7-3.47,2.62-10.38,2.56-14.47,3a103.62,103.62,0,0,1-14.94.63,33.88,33.88,0,0,0-8.6.32c-5.94,1.32-10.71,6.1-15.16,10.7a8,8,0,0,0-2.51,4,5.31,5.31,0,0,0,0,1.32,8.59,8.59,0,0,0,.6,3.5A46.41,46.41,0,0,0,342.48,260c1.82,2.64,3.93,5.12,5,8.24a16.23,16.23,0,0,1,.77,4.75,36.43,36.43,0,0,1-.53,5.11,65,65,0,0,1-3.85,13.59c-.94,2.32-2,4.63-2.25,7.17a12.94,12.94,0,0,0,0,1.52c-.3,7.83,7.51,13.48,9,21.27a14.19,14.19,0,0,1,.22,1.95c-.17,4.86-2.9,9.61-6.92,11.49.35.14.71.26,1.07.39a11.24,11.24,0,0,1-1.07.6c.73.28,1.48.52,2.24.74A52.62,52.62,0,0,0,334.75,351c-13.46,25.53-105.2,75.61-105.2,75.61s.52.29,1.36.79c-.34.21-.7.45-1.1.72-7.94,5.36-26.58,21-9.73,40.72,0,0,13.15-21.05,22.36-30,.42-.4.82-.77,1.21-1.12a2.73,2.73,0,0,1,.36,2.16l60.33-34.37s21.44-15.22,27.42-18.66c2.06-1.18,7.31-4.46,13.59-5.91l-.7.31a27.15,27.15,0,0,1,6.92-1c10.68.17,22.24,8.1,26.06,39.51,5.11,42.06,2.74,49.64,1.1,50.68a2.88,2.88,0,0,1-.6-.11.9.9,0,0,0,.16.12,2.9,2.9,0,0,1-.66-.12.92.92,0,0,0,.88.22.86.86,0,0,0,.67-.08h0l0,0c.23,0,.5,0,.81,0,0,.38-.06.78-.09,1.17-.08,0-.48.23,0,.26h0c-.12,2.37-.11,5,0,7.65-5.31.3-10.61.62-15.26.91l.42-2.23.19-1c4.07-.33,7.94-1.54,8.39-4.9,1-7.36-9-11.29-17.45-11.78s-59.33,2.95-59.33,2.95-7.63,10,16.56,13.11c.72.38,1.47.8,2.23,1.24,9.47,5.48,22.33,15.56,28.48,20.53l.86.69-2.76,2.23c15,3.44,29.42,61.38,37.39,87.89s25.43,25.53,39.89,21.61c13.55-3.69,15.28-43.58,15.44-48.59,0-.34,0-.51,0-.51l24.09,30.11,1.83,2.29c.71.37,1.4.72,2.08,1.05,18.25,8.81,38.41-8.07,32.67-27.27-5.79-19.4-14.79-48.07-20.79-60.19-5-10.15-11.51-27-15.45-37.58a13.85,13.85,0,0,0,1.49-.72s-.09-.47-.25-1.34l.25-.13s-5.8-30.55-6.12-52.24c0-.38,0-.76,0-1.14s0-.47,0-.71c4.36-1,7.12-1.4,7.12-1.4l.08-.94-.51.11,2.42-28.14s8.9-19.19,2.09-27.19a17,17,0,0,1-4-8.31c-1.14-7.36,0-19.61,15.87-29.8,24.43-15.71,33.91-28.48,33.91-28.48S512.25,280.3,497.29,275.88ZM448.77,295.4v-13c4.53-.22,9.16.31,13.71,0a34.57,34.57,0,0,0,6.62-1.12l1.1.77A120.72,120.72,0,0,1,448.77,295.4ZM379.51,499.21c1.79,1.26,3.59,2.57,5.36,3.88,1.1,6.41,2.07,10.94,2.14,11.25A90.24,90.24,0,0,0,379.51,499.21Z" transform="translate(-95.23 -30.18)" fill="url(#22049f4d-c06f-4634-a22a-fcd5b3beb851)"/><path d="M418.67,491l-1.08,5.86-.83,4.48-1.51,8.2-14.64,10.25s-1.32-1.13-3.5-2.91c-6-4.94-18.61-15-27.87-20.4a31.19,31.19,0,0,0-7.66-3.53Z" transform="translate(-95.23 -30.18)" fill="#ffbdc6"/><path d="M418.67,491l-1.08,5.86a45.73,45.73,0,0,1-9.66-.5l-34.16.49c-1.61-.1-3.12-.22-4.53-.37a31.19,31.19,0,0,0-7.66-3.53Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M407.93,495.36S425,498.29,426,491s-8.79-11.23-17.08-11.72-58.07,2.93-58.07,2.93-8.78,11.71,22.93,13.67Z" transform="translate(-95.23 -30.18)" fill="#5c6d5d"/><path d="M418.67,491l-1.08,5.86-.83,4.48-1.51,8.2-14.64,10.25s-1.32-1.13-3.5-2.91c-6-4.94-18.61-15-27.87-20.4a31.19,31.19,0,0,0-7.66-3.53Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M418.67,491l-1.08,5.86a45.73,45.73,0,0,1-9.66-.5l-34.16.49c-1.61-.1-3.12-.22-4.53-.37a31.19,31.19,0,0,0-7.66-3.53Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M407.93,495.34s17.08,2.92,18.06-4.4-8.79-11.22-17.08-11.71-58.07,2.93-58.07,2.93-8.78,11.71,22.93,13.66Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><rect x="260.73" y="224.62" width="89.3" height="105.89" fill="#5c6d5d"/><rect x="260.73" y="225.1" width="89.3" height="105.89" opacity="0.1"/><path d="M251.3,436.07c-1.47.37-3.35,1.79-5.44,3.85-9,8.91-21.89,29.82-21.89,29.82-16.48-19.63,1.76-35.14,9.53-40.47,1.89-1.29,3.16-2,3.16-2Z" transform="translate(-95.23 -30.18)" fill="#ffbdc6"/><path d="M417.69,288.22s4.39,30.74,19.52,38.06-19.52,21-19.52,21L370.36,329.7s26.84-8.79,21.47-34.65Z" transform="translate(-95.23 -30.18)" fill="#ffbdc6"/><path d="M366.94,473.16,365.87,479,365,483.5l-1.51,8.2-14.64,10.24s-1.32-1.12-3.5-2.9c-6-4.94-18.61-15-27.88-20.4a31,31,0,0,0-7.66-3.53Z" transform="translate(-95.23 -30.18)" fill="#ffbdc6"/><path d="M366.94,473.16,365.87,479a45.73,45.73,0,0,1-9.66-.5l-34.16.49c-1.61-.1-3.13-.22-4.54-.37a31,31,0,0,0-7.66-3.53Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M356.21,477.55s17.08,2.92,18.05-4.39-8.78-11.23-17.08-11.72-58.06,2.93-58.06,2.93-8.79,11.71,22.93,13.67Z" transform="translate(-95.23 -30.18)" fill="#5c6d5d"/><path d="M365,483.5l-1.51,8.2-14.64,10.24s-1.32-1.12-3.5-2.9l19.36-15.88Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M461.69,595.21c-.67-.33-1.34-.67-2-1l-1.8-2.27L434.28,562s0,.18,0,.52c-.16,5-1.86,44.62-15.12,48.28-14.15,3.9-31.22,4.88-39-21.47s-22-83.93-36.6-87.35l21.72-17.81s14.38,16.82,20.24,32.92c-.22-1-10.15-47.4-2-55.61h71.25s11,31.33,18.54,46.85c5.87,12.05,14.68,40.54,20.35,59.82C499.28,587.19,479.55,604,461.69,595.21Z" transform="translate(-95.23 -30.18)" fill="#5c6d5d"/><path d="M459.66,470.23c-11,6.51-59.29,3.86-75,2.8l-4.28-.31c-.46,0,.07-.26.07-.26l.44-4.43,11.71-29.76,62.7-36.36c-1.27,3.83-1.69,9.69-1.59,16.4C454,439.87,459.66,470.23,459.66,470.23Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M459.66,468.76c-11,6.51-59.29,3.86-75,2.8l-4.28-.3-.71-.06.78-.2,3.86-1,8.29-33.18,62.7-36.35c-1.27,3.83-1.69,9.69-1.59,16.4C454,438.41,459.66,468.76,459.66,468.76Z" transform="translate(-95.23 -30.18)" fill="#f2f1f2"/><path d="M453.67,416.85c-12.75,2.94-40.81,11.57-51.59,32.4-7.19,13.87-13.24,19.82-17.46,22.31l-4.28-.3a2.5,2.5,0,0,0,.07-.26l3.86-1,8.29-33.18,62.7-36.35C454,404.28,453.57,410.14,453.67,416.85Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M236.66,427.29l14.64,8.78c-1.47.37-3.35,1.79-5.44,3.85-1.22-3.56-8.88-8.53-12.36-10.65C235.39,428,236.66,427.29,236.66,427.29Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M377.73,471.83a.87.87,0,0,1-1-.14A3.47,3.47,0,0,0,377.73,471.83Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M410.86,324.33s-13.18,1.46-22.45-8.3c0,0-39,11.23-52.21,36.6s-103,75.15-103,75.15,15.62,8.78,14.15,13.17l59.05-34.16s21-15.12,26.83-18.54,38.07-24.4,44.9,32.69,0,50.26,0,50.26,9.76,3.42,23.91-23.91,58.06-33.67,58.06-33.67l2.44-28.78s8.71-19.08,2-27a17,17,0,0,1-3.91-8.26c-1.11-7.31,0-19.49,15.54-29.61,23.91-15.62,33.18-28.3,33.18-28.3s.49-9.28-14.15-13.67-74.17-28.3-74.17-28.3l-2,8.3L466,291.15s-23.42,19-42,18.54C424,309.69,427.45,323.84,410.86,324.33Z" transform="translate(-95.23 -30.18)" fill="#dbc0bd"/><path d="M419.9,301.6a95.3,95.3,0,0,1-2.7-11.92l-25.86,6.83a28.35,28.35,0,0,1-.59,14.92,27.81,27.81,0,0,0,29.15-9.83Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><circle cx="303.19" cy="252.92" r="27.81" fill="#ffbdc6"/><path d="M413.21,219.85c7.72.87,15.05,4.19,22.65,6a11.24,11.24,0,0,0,5.86.23c2.95-.92,5.35-4,8.41-3.91,1.88,0,3.55,1.34,5.1,2.57a61.75,61.75,0,0,1,7,6.24c5.24,5.69,8.49,13.35,13.27,19.54s12.32,11,19.11,8.16c-4.62,18-19.75,31.71-36.12,32.83-6.53.44-13.22-.92-19.54,1a17.26,17.26,0,0,1-4.93,1.2c-3.64,0-6.57-3.34-8.84-6.59-5.32-7.64-9.53-16.32-15.52-23.29-2-2.3-4.31-4.49-7.11-4.91s-5.37.91-7.86,2.2c-4.11,2.13-8.31,4.34-11.5,8s-5.2,9.1-3.88,14c.71,2.66,2.33,5.06,2.36,7.84.06,4.43-3.86,7.68-4.63,12a45.08,45.08,0,0,0-.19,5.46c-.34,5.92-4.21,10.77-8.25,14.49-1.58,1.45-3.32,3-3.78,5.24-.31,1.52,0,3.14-.2,4.68-.59,3.84-4.42,5.79-7.81,6.3a22.73,22.73,0,0,1-11.72-1.39c4.74-2.25,7.66-8.62,6.56-14.34-1.51-7.92-9.47-13.6-8.79-21.67a25.21,25.21,0,0,1,2.2-7.13,65.06,65.06,0,0,0,3.76-13.5c.6-3.58.89-7.37-.23-10.77-1-3.11-3.09-5.57-4.86-8.19a46.47,46.47,0,0,1-5.63-11.54,8,8,0,0,1-.54-3.81,7.84,7.84,0,0,1,2.45-4c4.35-4.57,9-9.33,14.83-10.63a32.93,32.93,0,0,1,8.42-.33,98,98,0,0,0,14.63-.62c4-.47,10.76-.4,14.15-3,3.16-2.43,4.94-5.46,8.83-7A25.82,25.82,0,0,1,413.21,219.85Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M428.67,507.07s16.1,31.72,11.22,41.47" transform="translate(-95.23 -30.18)" opacity="0.1"/><path d="M457.86,591.9,434.28,562s0,.18,0,.52c0,0-1.36-9.68,3.13-6.43,9.84,7.12,25.58,18.79,25.92,20.8S460.14,586.93,457.86,591.9Z" transform="translate(-95.23 -30.18)" opacity="0.1"/><g opacity="0.1"><path d="M424.52,309.69s2,8.24-4.44,12.36c9.9-1.69,10.34-9.4,10-12.75A31.41,31.41,0,0,1,424.52,309.69Z" transform="translate(-95.23 -30.18)"/><path d="M239.1,425.82s89.78-49.77,103-75.14c9.45-18.21,32.23-29.13,44.33-33.85-8.82,3-38.54,14.31-49.7,35.8-13.17,25.37-103,75.15-103,75.15Z" transform="translate(-95.23 -30.18)"/><path d="M442,305.81c15.28-4.75,29.88-16.61,29.88-16.61L425,256l1.07-4.54-4.49-1.8-1.95,8.3,46.85,33.18A113.2,113.2,0,0,1,442,305.81Z" transform="translate(-95.23 -30.18)"/><path d="M442.27,418.26a116.55,116.55,0,0,1,18.36-4.64l.08-.94A124.5,124.5,0,0,0,442.27,418.26Z" transform="translate(-95.23 -30.18)"/><path d="M385.49,469.38h-.43a.88.88,0,0,1-1-.14,3.51,3.51,0,0,0,1,.14c1.6-.93,4-8.22-1-50.4-5.38-45-26.55-41.49-38.13-36.31,11.84-3.26,28.13-.44,32.76,38.26,5.05,42.18,2.64,49.47,1,50.4A10.81,10.81,0,0,0,385.49,469.38Z" transform="translate(-95.23 -30.18)"/><path d="M379.69,471.34a3.51,3.51,0,0,1-1-.14A.88.88,0,0,0,379.69,471.34Z" transform="translate(-95.23 -30.18)"/></g><path d="M413.21,218.87c7.72.88,15.05,4.19,22.65,6a11.24,11.24,0,0,0,5.86.22c2.95-.91,5.35-4,8.41-3.91,1.88.06,3.55,1.34,5.1,2.57a62.73,62.73,0,0,1,7,6.24c5.24,5.69,8.49,13.35,13.27,19.54s12.32,11,19.11,8.16c-4.62,18-19.75,31.71-36.12,32.83-6.53.45-13.22-.91-19.54,1a16.93,16.93,0,0,1-4.93,1.2c-3.64,0-6.57-3.34-8.84-6.59-5.32-7.64-9.53-16.31-15.52-23.28-2-2.31-4.31-4.5-7.11-4.92s-5.37.92-7.86,2.21c-4.11,2.13-8.31,4.33-11.5,8s-5.2,9.09-3.88,14c.71,2.66,2.33,5.06,2.36,7.84.06,4.44-3.86,7.68-4.63,12a45,45,0,0,0-.19,5.46c-.34,5.92-4.21,10.76-8.25,14.49-1.58,1.44-3.32,3-3.78,5.23-.31,1.53,0,3.14-.2,4.69-.59,3.84-4.42,5.79-7.81,6.29a22.53,22.53,0,0,1-11.72-1.39c4.74-2.24,7.66-8.62,6.56-14.33-1.51-7.92-9.47-13.61-8.79-21.67a25.11,25.11,0,0,1,2.2-7.13,65.32,65.32,0,0,0,3.76-13.51c.6-3.57.89-7.36-.23-10.77-1-3.1-3.09-5.57-4.86-8.19a46.57,46.57,0,0,1-5.63-11.53,8.11,8.11,0,0,1-.54-3.82,7.88,7.88,0,0,1,2.45-3.95c4.35-4.57,9-9.32,14.83-10.63a33.38,33.38,0,0,1,8.42-.32,99.38,99.38,0,0,0,14.63-.62c4-.47,10.76-.41,14.15-3,3.16-2.42,4.94-5.46,8.83-7A26,26,0,0,1,413.21,218.87Z" transform="translate(-95.23 -30.18)" fill="#5c6d5d"/><circle cx="501.19" cy="461.76" r="56.07" fill="#fff"/><path d="M670.09,484.55a74.94,74.94,0,1,1-74.94-74.94A74.94,74.94,0,0,1,670.09,484.55Zm-83.6,39.67,55.59-55.59a4.83,4.83,0,0,0,0-6.84L635.24,455a4.82,4.82,0,0,0-6.83,0l-45.34,45.34L561.9,479.12a4.85,4.85,0,0,0-6.84,0L548.22,486a4.85,4.85,0,0,0,0,6.84l31.43,31.42a4.83,4.83,0,0,0,6.84,0Z" transform="translate(-95.23 -30.18)" fill="#5c6d5d"/></svg></div>
+  <h1 class="p2-h1">Venta<br>registrada</h1>
+  <div class="success-card">
+    <div class="success-msg" id="success-msg"></div>
+    <div class="success-sub" id="success-sub"></div>
+    <div class="success-total" id="success-total"></div>
+  </div>
+  <div class="success-acciones">
+    <button class="btn btn-crema" onclick="cerrarExitoP2();abrirNuevaVenta();"><span class="mi">add</span> Otra venta</button>
+    <button class="btn btn-verde" onclick="cerrarExitoP2()">Listo</button>
+  </div>
 </div>
 
 <!-- MODAL REPORTE -->
@@ -517,10 +721,17 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
   <div class="modal-card">
     <div class="modal-handle"></div>
     <div class="modal-title">Reponer stock</div>
-    <div style="font-size:14px;color:var(--texto-suave);margin-bottom:16px;" id="reponer-nombre"></div>
-    <div class="form-group"><label class="form-label">Cantidad a agregar</label><input type="number" id="reponer-cantidad" min="1" value="1"></div>
-    <button class="btn btn-verde" onclick="confirmarReponer()">Confirmar</button>
-    <button class="btn btn-crema" onclick="cerrarModal('modal-reponer')">Cancelar</button>
+    <div class="reponer-prod"><span class="p2-spot p2-spot-sm" style="background:#fff;"><span class="mi">spa</span></span><div><div id="reponer-nombre"></div><div class="reponer-actual" id="reponer-actual"></div></div></div>
+    <div class="form-group"><label class="form-label" for="reponer-cantidad">Cantidad a agregar</label>
+      <div class="p2-stepper">
+        <button type="button" class="p2-step" onclick="reponerPaso(-1)" aria-label="Menos"><span class="mi">remove</span></button>
+        <input type="number" id="reponer-cantidad" min="1" value="1" oninput="reponerQuedan()">
+        <button type="button" class="p2-step p2-step-mas" onclick="reponerPaso(1)" aria-label="Más"><span class="mi">add</span></button>
+      </div>
+      <p class="reponer-quedan" id="reponer-quedan"></p>
+    </div>
+    <div class="p2-btn-row"><button class="btn btn-crema" onclick="cerrarModal('modal-reponer')">Cancelar</button>
+    <button class="btn btn-verde" onclick="confirmarReponer()">Confirmar</button></div>
   </div>
 </div>
 
@@ -612,34 +823,40 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
 
 <!-- APP INVENTARIO -->
 <div id="app-inventario">
-  <div class="header" style="padding:14px 20px 18px;">
-    <div class="header-top">
-      <button class="header-btn" onclick="cerrarInventario()"><img src="icono-salir.svg" alt=""> Salir</button>
-      <button class="header-btn" onclick="cargarInventario()">Actualizar <img src="icono-actualizar.svg" alt=""></button>
+  <div class="p2-top">
+    <img src="logo.png" alt="Tr3sense" class="p2-logo">
+    <div class="p2-top-acciones">
+      <button class="p2-iconbtn" onclick="cargarInventario()" aria-label="Actualizar"><span class="mi">refresh</span></button>
+      <button class="p2-avatar" id="inv-avatar" onclick="cerrarInventario()" aria-label="Salir" title="Salir"></button>
     </div>
-    <img src="logo.png" alt="Tr3sense" class="logo-header" style="margin-top:8px;margin-bottom:14px;">
-    <div style="text-align:center;color:rgba(255,255,255,0.78);font-size:13px;font-weight:600;letter-spacing:0.3px;" id="inv-usuario"></div>
+    <span id="inv-usuario" class="p2-oculto"></span>
   </div>
 
   <div class="card">
-    <div class="tabs">
-      <button class="tab-btn active" id="tab-stock" onclick="mostrarTab('stock')">Stock</button>
-      <button class="tab-btn" id="tab-ventas" onclick="mostrarTab('ventas')">Ventas</button>
-      <button class="tab-btn" id="tab-produccion" onclick="mostrarTab('produccion')">Producción</button>
-      <button class="tab-btn" id="tab-domicilios-inv" onclick="mostrarTab('domicilios-inv')">Domicilios</button>
-    </div>
+    <nav class="p2-nav">
+      <button class="tab-btn" id="tab-ventas" onclick="mostrarTab('ventas')"><span class="mi">receipt_long</span>Ventas</button>
+      <button class="tab-btn active" id="tab-stock" onclick="mostrarTab('stock')"><span class="mi">inventory_2</span>Stock</button>
+      <button class="p2-nav-mas" onclick="abrirNuevaVenta()" aria-label="Nueva venta"><span class="mi">add</span></button>
+      <button class="tab-btn" id="tab-produccion" onclick="mostrarTab('produccion')"><span class="mi">construction</span>Producción</button>
+      <button class="tab-btn" id="tab-domicilios-inv" onclick="mostrarTab('domicilios-inv')"><span class="mi">local_shipping</span>Domicilios</button>
+    </nav>
     <div id="panel-stock">
+      <div class="p2-head"><h1 class="p2-h1">Stock</h1><span class="p2-spot"><svg viewBox="0 0 32 32" width="48" height="48" aria-hidden="true"><g fill="none"><path fill="#dbc0bd" d="M19.629 30h-7.913c-.78 0-1.412-.631-1.412-1.412V15.47c0-.78.632-1.412 1.412-1.412h7.913c.78 0 1.412.632 1.412 1.412v13.118c0 .78-.632 1.412-1.412 1.412"/><path fill="#5c6d5d" d="M16.479 9.732h-1.613v2.372h1.613z"/><path fill="#f3ebe9" d="M20.54 11.45h-9.735c-.997 0-1.805.808-1.805 1.804v4.643c0 .79.634 1.433 1.42 1.448c.812.015 1.476-.674 1.476-1.486v-2.345c0-.252.204-.455.456-.455h2.94c.192 0 .348.155.348.348v.764c0 .812.665 1.501 1.476 1.486a1.447 1.447 0 0 0 1.42-1.448v-.695a.456.456 0 1 1 .912 0v4.638c0 .812.664 1.502 1.476 1.486a1.447 1.447 0 0 0 1.42-1.448v-6.935c0-.997-.807-1.806-1.803-1.806"/><path fill="#dbc0bd" d="m18.258 5.571l-1.85-3.15a.854.854 0 0 0-1.472 0l-1.855 3.16q-.036.058-.07.12L13 5.716a3.04 3.04 0 0 0-.373 1.585a3.066 3.066 0 0 0 3.004 2.927a3.047 3.047 0 0 0 2.627-4.658"/><path fill="#f9f6f3" d="M15.673 9.036a1.663 1.663 0 1 0 0-3.326a1.663 1.663 0 0 0 0 3.326"/></g></svg></span></div>
       <div id="resumen-stock" class="resumen-stock" style="display:none;"></div>
       <div id="alerta-banner" class="alerta-banner"></div>
       <div class="scroll-box" id="lista-productos"><div class="loading" style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
       <p class="ultimo-update" id="ultimo-update"></p>
     </div>
     <div id="panel-ventas" style="display:none;">
-      <div style="display:flex;gap:4px;margin-bottom:12px;background:var(--crema);border-radius:12px;padding:4px;">
-        <button class="tab-btn active" id="vtab-recientes" onclick="setVentasTab('recientes')" style="font-size:11px;">Recientes</button>
-        <button class="tab-btn" id="vtab-historial" onclick="setVentasTab('historial')" style="font-size:11px;">Historial</button>
+      <p class="p2-fecha" id="ventas-fecha"></p>
+      <div class="p2-head"><h1 class="p2-h1" id="ventas-titulo">Ventas</h1><span id="ventas-spot"><span class="p2-spot"><svg viewBox="0 0 32 32" width="48" height="48" aria-hidden="true"><g fill="none"><path fill="#dbc0bd" d="M19.629 30h-7.913c-.78 0-1.412-.631-1.412-1.412V15.47c0-.78.632-1.412 1.412-1.412h7.913c.78 0 1.412.632 1.412 1.412v13.118c0 .78-.632 1.412-1.412 1.412"/><path fill="#5c6d5d" d="M16.479 9.732h-1.613v2.372h1.613z"/><path fill="#f3ebe9" d="M20.54 11.45h-9.735c-.997 0-1.805.808-1.805 1.804v4.643c0 .79.634 1.433 1.42 1.448c.812.015 1.476-.674 1.476-1.486v-2.345c0-.252.204-.455.456-.455h2.94c.192 0 .348.155.348.348v.764c0 .812.665 1.501 1.476 1.486a1.447 1.447 0 0 0 1.42-1.448v-.695a.456.456 0 1 1 .912 0v4.638c0 .812.664 1.502 1.476 1.486a1.447 1.447 0 0 0 1.42-1.448v-6.935c0-.997-.807-1.806-1.803-1.806"/><path fill="#dbc0bd" d="m18.258 5.571l-1.85-3.15a.854.854 0 0 0-1.472 0l-1.855 3.16q-.036.058-.07.12L13 5.716a3.04 3.04 0 0 0-.373 1.585a3.066 3.066 0 0 0 3.004 2.927a3.047 3.047 0 0 0 2.627-4.658"/><path fill="#f9f6f3" d="M15.673 9.036a1.663 1.663 0 1 0 0-3.326a1.663 1.663 0 0 0 0 3.326"/></g></svg></span></span></div>
+      <div class="p2-seg">
+        <button class="tab-btn active" id="vtab-agenda" onclick="setVentasTab('agenda')">Agenda</button>
+        <button class="tab-btn" id="vtab-recientes" onclick="setVentasTab('recientes')">Recientes</button>
+        <button class="tab-btn" id="vtab-historial" onclick="setVentasTab('historial')">Historial</button>
       </div>
-      <div id="vpanel-recientes">
+      <div id="vpanel-agenda"><div id="agenda-dias" class="agenda-dias"></div><div id="agenda-lista"></div><div id="agenda-alerta"></div></div>
+      <div id="vpanel-recientes" style="display:none;">
         <div class="scroll-box" id="lista-ventas"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
       </div>
       <div id="vpanel-historial" style="display:none;">
@@ -656,10 +873,8 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
     </div>
 
     <div id="panel-produccion" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div class="card-title" style="margin-bottom:0;">Producción</div>
-        <button class="icon-btn" onclick="cargarProduccion(true)"><span class="mi">refresh</span> Actualizar</button>
-      </div>
+      <div class="p2-head"><h1 class="p2-h1">Producción</h1><span class="p2-spot"><svg viewBox="0 0 36 36" width="48" height="48" aria-hidden="true"><path fill="#5c6d5d" d="M20 21.5a1.5 1.5 0 0 1-3 0v-3a1.5 1.5 0 1 1 3 0z"/><path fill="#f3ebe9" d="M27.138 33.817C27.183 35.022 26.206 36 25 36H12.183A2.183 2.183 0 0 1 10 33.817V21c0-1.205.115-2.183 2.183-2.183S15 23 25 21c1.091 0 2.183.978 2.138 2.183z"/><path fill="#dbc0bd" d="M18.687 18.538c-2.595 0-6.962-1.934-6.962-5.898c0-3.988 4.351-5.414 7.005-11.401c.751-1.693.999-1.107 1.86-.076c2.06 2.463 5.058 7.483 5.058 11.574c-.001 4.641-4.64 5.801-6.961 5.801"/><path fill="#fff" d="M18.687 17.447c-4.184 0-3.482-5.802 0-9.283c2.321 1.16 5.801 9.283 0 9.283"/><path fill="#dbc0bd" d="M11 29a1 1 0 1 1-2 0v-7a1 1 0 1 1 2 0zm4 3a1 1 0 1 1-2 0v-7a1 1 0 1 1 2 0zm0-11a1 1 0 1 1-2 0v-1a1 1 0 1 1 2 0z"/></svg></span></div>
+      <div style="display:flex;justify-content:flex-end;margin:-4px 0 6px;"><button class="icon-btn" onclick="cargarProduccion(true)"><span class="mi">refresh</span> Actualizar</button></div>
       <!-- Por producir -->
       <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-left:2px;"><span class="mi">construction</span> Por producir</div>
       <div id="lista-por-producir"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
@@ -671,9 +886,10 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
     </div>
 
     <div id="panel-domicilios-inv" style="display:none;">
-      <div style="display:flex;gap:4px;margin-bottom:12px;background:var(--crema);border-radius:12px;padding:4px;">
-        <button class="tab-btn active" id="dinv-tab-pendientes" onclick="setDinvTab('pendientes')" style="font-size:11px;">Pendientes</button>
-        <button class="tab-btn" id="dinv-tab-historial" onclick="setDinvTab('historial')" style="font-size:11px;">Historial</button>
+      <div class="p2-head"><h1 class="p2-h1">Domicilios</h1><span class="p2-spot p2-spot-ilus"><svg width="64" aria-hidden="true" fill="#5c6d5d" id="uuid-1fd52ec8-0aff-4b45-91ab-cf408dc543c0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 743 743"><path d="M743,371.5c0,108.41992-46.44971,206-120.54004,273.90918-12.95996,11.89062-26.76953,22.87012-41.33008,32.83008-3.22949,2.20996-6.48975,4.37988-9.78955,6.49023-3.1001,1.98047-6.24023,3.91016-9.3999,5.7998-2.52051,1.51074-5.06055,2.98047-7.62012,4.43066-8.68018,4.92969-17.58008,9.50977-26.68018,13.72949h-.02002c-1.02979.49023-2.06006.95996-3.1001,1.42969-.62988.29004-1.25977.57031-1.8999.85059-2.91992,1.2998-5.87012,2.57031-8.83008,3.7998-1.21973.5-2.43994,1-3.66016,1.49023-11.8999,4.7998-24.09961,8.99023-36.56982,12.54004-4.52002,1.29004-9.06982,2.5-13.65967,3.60938-20.38037,4.98047-41.42041,8.28027-62.95996,9.73047-8.41016.57031-16.89014.86035-25.44043.86035-29.84961,0-58.87012-3.52051-86.67969-10.16992-2.91016-.69043-5.82031-1.4209-8.7002-2.2002-2.87988-.75-5.75-1.5498-8.6001-2.37988-2.15967-.63086-4.31006-1.28027-6.45996-1.9502-1.41992-.43066-2.83984-.89062-4.25977-1.35059-10.03027-3.25-19.88037-6.91992-29.52002-10.97949-.2002-.08984-.41016-.16992-.61035-.25977-20.19971-8.56055-39.48975-18.86035-57.66992-30.7002v-.00977c-4.7998-3.12012-9.50977-6.35059-14.1499-9.69043C61.07031,605.87988,0,495.81934,0,371.5,0,166.33008,166.33008,0,371.5,0s371.5,166.33008,371.5,371.5Z" fill="#f2f2f2"/><path d="M292.9839,381.83256s23.87145,86.06132.3277,110.58236c-23.54374,24.52103-18.07313,43.32092-18.07313,43.32092,0,0-59.47427,18.98476-68.16239-51.30109l14.50453,53.63657s-55.835-4.40522-39.51383-74.15701c16.32117-69.75179,36.55262-69.82416,25.0093-91.20194-11.54332-21.37779-11.54332-129.87524,54.12619-135.58563,65.66951-5.71039,57.10392,28.55196,57.10392,28.55196l-25.32229,116.15386Z" fill="#5c6d5d"/><path d="M565.16992,697.46973c-9.90967,5.26953-25.86963,9.00977-37.52979,11.21973h-.02002c-1.02979.49023-2.06006.95996-3.1001,1.42969-.62988.29004-1.25977.57031-1.8999.85059-2.91992,1.2998-5.87012,2.57031-8.83008,3.7998-1.21973.5-2.43994,1-3.66016,1.49023l3.29004-3.33984,2.17041-2.2002,37.6001-38.17969s3.53955,6.92969,8.75,17.98926c1.01953,2.16016,2.09961,4.48047,3.22949,6.94043Z" fill="#ed9da0"/><path d="M298.19565,393.12555c-2.69218-57.79307,41.97603-106.82617,99.7691-109.51834,57.79307-2.69218,106.82656,41.97601,109.51873,99.76908,2.18337,46.87059-26.78601,87.97406-68.64099,103.27464l-14.00163,134.6349-107.13041-81.13515s20.95666-29.41531,31.41378-61.96909c-29.11127-17.42436-49.23152-48.62507-50.92859-85.05604Z" fill="#ed9da0"/><path d="M573.8501,689.67969c-1.15967,2.88965-4.33984,5.47949-8.68018,7.79004-9.90967,5.26953-25.86963,9.00977-37.52979,11.21973h-.02002c-5.14014.98047-9.4502,1.65039-12.02979,2.03027-.4502.07031-.84033.12988-1.18018.16992-.68994.09961-1.1499.16016-1.33008.19043l-.08984.00977c.16016.60938.2998,1.22949.42969,1.83008.14014.62012.27051,1.23926.37012,1.84961-1.21973.5-2.43994,1-3.66016,1.49023-11.8999,4.7998-24.09961,8.99023-36.56982,12.54004-4.52002,1.29004-9.06982,2.5-13.65967,3.60938-20.38037,4.98047-41.42041,8.28027-62.95996,9.73047-8.41016.57031-16.89014.86035-25.44043.86035-29.84961,0-58.87012-3.52051-86.67969-10.16992-2.91016-.69043-5.82031-1.4209-8.7002-2.2002-2.87988-.75-5.75-1.5498-8.6001-2.37988-2.15967-.63086-4.31006-1.28027-6.45996-1.9502-1.41992-.43066-2.83984-.89062-4.25977-1.35059l-34.14014-152.33984,108.1499-60c.88037.56055,1.75,1.12012,2.62012,1.66992,108.6001,68.86035,100.16992,15.45996,100.16992,15.45996,0,0,.25.15039.70996.43066,5.24023,3.16016,38.37012,22.91992,56.74023,28.16992,17.6001,5.0293,68.41992,103.06934,80.29004,126.38965,1.61963,3.16016,2.50977,4.9502,2.50977,4.9502Z" fill="currentColor"/><path d="M511.56909,711.19577c-.03346-.45449-3.49371-45.50747-14.57433-62.1284-11.57693-17.36539-8.91691-42.70804-8.79702-43.77874l2.83847.31508c-.02788.25373-2.65723,25.39284,8.33416,41.87993,11.49607,17.2455,14.90892,61.62093,15.04833,63.50023l-2.84962.21191Z" fill="#5c6d5d"/><path d="M459.71113,266.69011s-81.44582-55.26013-141.40494-1.01141c-59.95912,54.24872-63.99253,153.76214,30.81805,212.50288l-7.97648-41.19112s-22.84157-34.26235,14.27598-31.40716,31.40716-31.40716,31.40716-31.40716c0,0,79.49527-35.83421,79.72038-60.74504l29.64063,46.57349s59.24103-49.47514-36.48078-93.31449Z" fill="#5c6d5d"/><path d="M335.43736,265.6787s-14.36041-33.34875-32.87697-8.10879c-18.51656,25.23996-4.48032,43.32092-4.48032,43.32092l37.35729-35.21214Z" fill="currentColor"/><path d="M226.66992,713.70996c-20.19971-8.56055-39.48975-18.86035-57.66992-30.7002v-.00977c3.87988-6.59082,6.29004-10.45996,6.29004-10.45996l51.37988,41.16992Z" fill="#ed9da0"/><path d="M293.31006,663.26953l-32.25,63.03027c-1.41992-.43066-2.83984-.89062-4.25977-1.35059-10.03027-3.25-19.88037-6.91992-29.52002-10.97949-.2002-.08984-.41016-.16992-.61035-.25977-20.19971-8.56055-39.48975-18.86035-57.66992-30.7002v-.00977c-4.7998-3.12012-9.50977-6.35059-14.1499-9.69043,16.43018-37.22949,67.81006-100.7002,67.81006-100.7002l29.97998,1.43066,40.66992,89.22949Z" fill="currentColor"/></svg></span></div>
+      <div class="p2-seg">
+        <button class="tab-btn active" id="dinv-tab-pendientes" onclick="setDinvTab('pendientes')">Pendientes</button>
+        <button class="tab-btn" id="dinv-tab-historial" onclick="setDinvTab('historial')">Historial</button>
       </div>
       <div id="dinv-panel-pendientes">
         <div class="scroll-box" id="dinv-lista-pendientes"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
@@ -694,8 +910,10 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
 
   </div>
 
-  <div class="card">
-    <div class="card-title">Registrar venta</div>
+  <div class="modal-overlay" id="modal-nueva-venta" onclick="if(event.target===this)cerrarModal('modal-nueva-venta')">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="p2-sheet-head"><div class="modal-title">Nueva venta</div><button class="p2-close" onclick="cerrarModal('modal-nueva-venta')" aria-label="Cerrar"><span class="mi">close</span></button></div>
     <div class="form-group"><label class="form-label">Producto</label>
       <select id="select-producto" onchange="actualizarResumen()"><option value="">Selecciona un producto...</option></select>
     </div>
@@ -727,8 +945,8 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
       <div class="rv-row total"><span>Total</span><span id="res-total"></span></div>
     </div>
     <div class="form-group" style="margin-top:12px;"><label class="form-label">Nota (opcional)</label><textarea id="input-nota" placeholder="Ej: pago contraentrega..."></textarea></div>
-    <button class="btn btn-verde" id="btn-registrar" onclick="registrarVenta()">Registrar venta</button>
-    <button class="btn btn-crema" onclick="cargarInventario()">Actualizar inventario</button>
+    <button class="btn btn-verde" id="btn-registrar" onclick="registrarVenta()"><span class="mi">check</span> Registrar venta</button>
+  </div>
   </div>
 
   <div class="footer">
@@ -740,16 +958,16 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
 
 <!-- APP CONTABILIDAD -->
 <div id="app-contabilidad">
-  <div class="header">
-    <div class="header-top">
-      <button class="header-btn" onclick="cerrarContabilidad()"><img src="icono-salir.svg" alt=""> Salir</button>
-      <span style="color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;letter-spacing:0.3px;" id="conta-user"></span>
+  <div class="p2-top">
+    <img src="logo.png" alt="Tr3sense" class="p2-logo">
+    <div class="p2-top-acciones">
+      <span id="conta-user" class="p2-top-nombre"></span>
+      <button class="p2-avatar" onclick="cerrarContabilidad()" aria-label="Salir" title="Salir"><span class="mi">logout</span></button>
     </div>
-    <img src="logo.png" alt="Tr3sense" class="logo-header">
   </div>
-
-  <div class="card" style="padding:8px 10px;">
-    <div class="tabs">
+  <div class="p2-pad"><h1 class="p2-h1">Contabilidad</h1></div>
+  <div class="p2-chips-wrap">
+    <div class="tabs p2-chips">
       <button class="tab-btn active" id="ctab-insumos" onclick="mostrarTabConta('insumos')">Compras</button>
       <button class="tab-btn" id="ctab-costeo" onclick="mostrarTabConta('costeo')">Costeo</button>
       <button class="tab-btn" id="ctab-puv" onclick="mostrarTabConta('puv')">PUV</button>
@@ -918,16 +1136,15 @@ input[type=text],input[type=number],input[type=tel],input[type=date],input[type=
 
 <!-- APP DOMICILIOS -->
 <div id="app-domicilios" style="display:none;max-width:680px;margin:0 auto;width:100%;">
-  <div class="header" style="padding:14px 20px 18px;">
-    <div class="header-top">
-      <button class="header-btn" onclick="cerrarDomicilios()"><img src="icono-salir.svg" alt=""> Salir</button>
-      <span style="color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;letter-spacing:0.3px;">Julian Builes</span>
+  <div class="p2-top">
+    <img src="logo.png" alt="Tr3sense" class="p2-logo">
+    <div class="p2-top-acciones">
+      <button class="p2-avatar" onclick="cerrarDomicilios()" aria-label="Salir" title="Salir">JB</button>
     </div>
-    <img src="logo.png" alt="Tr3sense" class="logo-header">
   </div>
-
-  <div class="card" style="padding:8px 10px;">
-    <div class="tabs">
+  <div class="p2-pad"><p class="p2-fecha">Hola, Julian</p><div class="p2-head"><h1 class="p2-h1">Tus entregas</h1><span class="p2-spot"><svg viewBox="0 0 36 36" width="48" height="48" aria-hidden="true"><path fill="#5c6d5d" d="M20 21.5a1.5 1.5 0 0 1-3 0v-3a1.5 1.5 0 1 1 3 0z"/><path fill="#f3ebe9" d="M27.138 33.817C27.183 35.022 26.206 36 25 36H12.183A2.183 2.183 0 0 1 10 33.817V21c0-1.205.115-2.183 2.183-2.183S15 23 25 21c1.091 0 2.183.978 2.138 2.183z"/><path fill="#dbc0bd" d="M18.687 18.538c-2.595 0-6.962-1.934-6.962-5.898c0-3.988 4.351-5.414 7.005-11.401c.751-1.693.999-1.107 1.86-.076c2.06 2.463 5.058 7.483 5.058 11.574c-.001 4.641-4.64 5.801-6.961 5.801"/><path fill="#fff" d="M18.687 17.447c-4.184 0-3.482-5.802 0-9.283c2.321 1.16 5.801 9.283 0 9.283"/><path fill="#dbc0bd" d="M11 29a1 1 0 1 1-2 0v-7a1 1 0 1 1 2 0zm4 3a1 1 0 1 1-2 0v-7a1 1 0 1 1 2 0zm0-11a1 1 0 1 1-2 0v-1a1 1 0 1 1 2 0z"/></svg></span></div></div>
+  <div class="card p2-card-seg">
+    <div class="tabs p2-seg">
       <button class="tab-btn active" id="dtab-pendientes" onclick="mostrarTabDom('pendientes')">Pendientes</button>
       <button class="tab-btn" id="dtab-historial" onclick="mostrarTabDom('historial')">Historial</button>
     </div>
@@ -1767,14 +1984,7 @@ function renderListaUsuarios(){
   const roles={admin:'Inventario + Contabilidad',inventario:'Inventario'};
   let html='';
   USUARIOS.forEach((u,i)=>{
-    html+=`<button class="usuario-btn" onclick="seleccionarUsuario(${i})">
-      <div class="usuario-avatar">${avatares[i]||'<span class="mi">person</span>'}</div>
-      <div class="usuario-info">
-        <div class="usuario-nombre">${u.nombre}</div>
-        
-      </div>
-      <span style="color:var(--texto-mini);font-size:18px;">›</span>
-    </button>`;
+    html+=`<button class="usuario-btn" onclick="seleccionarUsuario(${i})"><span class="usuario-avatar">${inicialesP2(u.nombre)}</span><span class="usuario-nombre">${u.nombre.split(' ')[0]}</span></button>`;
   });
   document.getElementById('lista-usuarios').innerHTML=html;
 }
@@ -1783,7 +1993,8 @@ let usuarioSeleccionado=null;
 
 window.seleccionarUsuario=idx=>{
   usuarioSeleccionado=USUARIOS[idx];
-  document.getElementById('pin-usuario-label').textContent='Hola, '+usuarioSeleccionado.nombre.split(' ')[0]+'!';
+  document.getElementById('pin-usuario-label').textContent='Hola, '+usuarioSeleccionado.nombre.split(' ')[0];
+  document.getElementById('pin-avatar').textContent=inicialesP2(usuarioSeleccionado.nombre);
   document.getElementById('step-usuario').style.display='none';
   document.getElementById('step-pin').style.display='flex';
   pinVal=''; updDots();
@@ -1841,9 +2052,10 @@ function checkPin(){
     document.getElementById('acceso-screen').style.display='none';
     document.getElementById('app-inventario').style.display='block';
     document.getElementById('inv-usuario').textContent=usuario.nombre;
+    document.getElementById('inv-avatar').textContent=inicialesP2(usuario.nombre);
     // Volver al selector para próxima vez
     setTimeout(()=>{volverUsuarios();},500);
-    cargarInventario(); resetInact();
+    cargarInventario(); mostrarTab('ventas'); resetInact();
   } else {
     intentos++;
     for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.add('error');
@@ -1908,13 +2120,15 @@ window.mostrarTab=tab=>{
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
     document.getElementById('panel-'+t).style.display=t===tab?'block':'none';
   });
-  if(tab==='ventas'){cargarVentas();setVentasTab('recientes');}
+  if(tab==='ventas'){cargarVentas();setVentasTab('agenda');}
   if(tab==='produccion') cargarProduccion();
   if(tab==='domicilios-inv') cargarDomiciliosInv();
 };
 
 window.setVentasTab=tab=>{
-  ['recientes','historial'].forEach(t=>{
+  setVentasHeadP2(tab);
+  if(tab==='agenda') cargarAgenda();
+  ['agenda','recientes','historial'].forEach(t=>{
     document.getElementById('vtab-'+t).classList.toggle('active',t===tab);
     document.getElementById('vpanel-'+t).style.display=t===tab?'block':'none';
   });
@@ -2075,6 +2289,7 @@ window.abrirReponer=nombre=>{
   prodReponer=nombre;
   document.getElementById('reponer-nombre').textContent=nombre;
   document.getElementById('reponer-cantidad').value=1;
+  reponerQuedan();
   abrirModal('modal-reponer');
 };
 window.confirmarReponer=async()=>{
@@ -2149,10 +2364,11 @@ window.registrarVenta=async()=>{
       document.getElementById('success-sub').textContent=cant+' unidad(es) · Stock: '+d.nuevoStock;
       document.getElementById('success-total').textContent=tot>0?'Total: '+fmt(tot):'';
       document.getElementById('success-overlay').style.display='flex';
-      setTimeout(()=>document.getElementById('success-overlay').style.display='none',2500);
+      cerrarModal('modal-nueva-venta');
       sessionStorage.removeItem('inv_cache');
       clearCacheC('ventas'); clearCacheC('domicilios'); clearCacheC('domicilios_inv');
       await cargarInventario();
+      if(document.getElementById('panel-ventas').style.display!=='none'&&document.getElementById('vpanel-agenda').style.display!=='none')cargarAgenda();
     }else toast(d.error||'Error al registrar','error');
   }catch(e){toast('Error de conexión','error');}
   btnReset(btn);
@@ -3849,6 +4065,71 @@ window.guardarPVU=async()=>{
   catch(e){toast('Error','error');}
   btnReset(btn);
 };
+</script>
+
+<script>
+/* ===== P2 · ayudas de interfaz (solo presentación; no cambian datos ni reglas) ===== */
+function inicialesP2(n){return (n||'').split(' ').filter(Boolean).slice(0,2).map(p=>p[0].toUpperCase()).join('');}
+window.abrirNuevaVenta=()=>{abrirModal('modal-nueva-venta');};
+window.cerrarExitoP2=()=>{document.getElementById('success-overlay').style.display='none';};
+function stockDeP2(nombre){for(let i=1;i<(datosInv||[]).length;i++){if(datosInv[i][0]===nombre)return Number(datosInv[i][1])||0;}return null;}
+window.reponerQuedan=()=>{
+  const st=stockDeP2(prodReponer); const c=parseInt(document.getElementById('reponer-cantidad').value)||0;
+  document.getElementById('reponer-actual').textContent=st===null?'':'Hoy hay '+st+' uds';
+  document.getElementById('reponer-quedan').textContent=st===null?'':'Quedarán '+(st+Math.max(c,0))+' uds';
+};
+window.reponerPaso=d=>{const el=document.getElementById('reponer-cantidad');el.value=Math.max(1,(parseInt(el.value)||1)+d);reponerQuedan();};
+const DIAS_P2=['D','L','M','M','J','V','S'];
+function setVentasHeadP2(tab){
+  const ag=tab==='agenda';
+  document.getElementById('ventas-fecha').style.display=ag?'block':'none';
+  document.getElementById('ventas-spot').style.display=ag?'':'none';
+  if(!ag)document.getElementById('ventas-titulo').textContent='Ventas';
+  else{const f=new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'short'});document.getElementById('ventas-fecha').textContent=f.charAt(0).toUpperCase()+f.slice(1);}
+}
+let agendaDatos=[],agendaDia=0;
+window.cargarAgenda=async()=>{
+  const box=document.getElementById('agenda-lista');
+  if(!agendaDatos.length)box.innerHTML=spinnerHtml('Cargando agenda...');
+  try{const r=await fetch(API+'?accion=ventas');agendaDatos=await r.json();renderAgenda();}
+  catch(e){box.innerHTML='<div class="p2-vacio">Error de conexión.</div>';}
+};
+window.setAgendaDia=k=>{agendaDia=k;renderAgenda();};
+window.agendaListo=async(i,btn)=>{prodDatos=agendaDatos;await marcarProducido(i,btn);cargarAgenda();};
+function renderAgenda(){
+  const hoy=new Date();hoy.setHours(12,0,0,0);
+  const dias=[];for(let k=0;k<7;k++){const f=new Date(hoy);f.setDate(hoy.getDate()+k);dias.push(f);}
+  document.getElementById('agenda-dias').innerHTML=dias.map((f,k)=>`<button class="agenda-dia${k===agendaDia?' activo':''}" onclick="setAgendaDia(${k})"><span>${DIAS_P2[f.getDay()]}</span><b>${f.getDate()}</b></button>`).join('');
+  const sel=dias[agendaDia], items=[], sinFecha=[], atrasadas=[];
+  const d=agendaDatos||[];
+  for(let i=1;i<d.length;i++){
+    const r=d[i]; if(!r[0]||!r[1]||!r[2])continue;
+    const estado=(r[11]&&typeof r[11]==='string'&&r[11].indexOf('T')===-1)?r[11]:'Pendiente';
+    if(estado==='Entregado')continue;
+    const raw=r[8]?r[8].toString():''; const fe=raw?new Date(raw.substring(0,10)+'T12:00:00'):null;
+    const it={i,r,estado,fe};
+    if(!fe)sinFecha.push(it); else if(fe.toDateString()===sel.toDateString())items.push(it); else if(fe<hoy)atrasadas.push(it);
+  }
+  const n=items.length;
+  document.getElementById('ventas-titulo').innerHTML=(agendaDia===0?'Hoy tienes':'Ese día tienes')+'<br>'+n+' entrega'+(n===1?'':'s');
+  const card=(it,destacada)=>{
+    const r=it.r, tot=(Number(r[9])||0)*(Number(r[2])||0)+(Number(r[10])||0);
+    const hecho=it.estado==='Producido'||it.estado==='Listo para enviar'||it.estado==='En camino';
+    const tipo=r[5]==='domicilio'?'<span class="mi">local_shipping</span> Domicilio':'<span class="mi">storefront</span> Recogida';
+    const est=hecho?(it.estado==='Producido'?'<span class="mi">check_circle</span> Listo':it.estado):'<span class="mi">construction</span> Por producir';
+    return `<div class="agenda-card${destacada?' destacada':''}">
+      <div class="agenda-card-top"><div><div class="agenda-cliente">${r[3]||'Cliente'}</div><div class="agenda-prod">${r[1]} · ${r[2]}</div></div>${tot>0?`<div class="agenda-total">${fmt(tot)}</div>`:''}</div>
+      <div class="agenda-meta">${tipo}${r[14]?` · <span class="mi">sticky_note_2</span> ${r[14]}`:''}</div>
+      <div class="agenda-card-bot"><span class="agenda-estado">${est}</span>${hecho?'':`<button class="agenda-check" onclick="agendaListo(${it.i},this)" aria-label="Marcar listo"><span class="mi">check</span></button>`}</div>
+    </div>`;
+  };
+  const grupo=(et,arr,dest)=>arr.length?`<div class="agenda-grupo"><div class="agenda-etq">${et}</div><div class="agenda-items">${arr.map((x,k)=>card(x,dest&&k===0)).join('')}</div></div>`:'';
+  let html=grupo(agendaDia===0?'Hoy':sel.toLocaleDateString('es-CO',{day:'numeric',month:'short'}),items,true);
+  if(agendaDia===0){html+=grupo('Atrasadas',atrasadas,false);html+=grupo('Sin fecha',sinFecha,!items.length);}
+  document.getElementById('agenda-lista').innerHTML=html||'<div class="p2-vacio">No hay entregas para este día.</div>';
+  let ag=0;for(let i=1;i<(datosInv||[]).length;i++){if(datosInv[i][0]&&Number(datosInv[i][1])<=0)ag++;}
+  document.getElementById('agenda-alerta').innerHTML=ag?`<div class="agenda-alerta"><span class="mi">warning</span><span>${ag} producto${ag===1?'':'s'} agotado${ag===1?'':'s'}</span><button onclick="mostrarTab('stock')">Ver stock</button></div>`:'';
+}
 </script>
 </body>
 </html>
