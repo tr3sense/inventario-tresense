@@ -8,11 +8,14 @@
 <link rel="apple-touch-icon" href="favicon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tr3sense">
-<meta name="theme-color" content="#5c6d5d">
+<meta name="theme-color" content="#f9f6f3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0&icon_names=arrow_back,arrow_forward,auto_awesome,backspace,bar_chart,block,call,check,check_circle,close,construction,delete,eco,edit,emoji_events,event,inventory_2,local_florist,local_shipping,location_on,map,paid,payments,person,photo_camera,refresh,save,send,settings,spa,sticky_note_2,storefront,undo,visibility,visibility_off,warning&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..400,0..1,0&icon_names=arrow_back,arrow_forward,auto_awesome,backspace,bar_chart,block,call,check,check_circle,close,construction,delete,eco,edit,emoji_events,event,inventory_2,local_florist,local_shipping,location_on,map,paid,payments,person,photo_camera,refresh,save,send,settings,spa,sticky_note_2,storefront,undo,visibility,visibility_off,warning&display=block">
 <style>
-.mi{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:1.2em;line-height:1;display:inline-block;vertical-align:-0.22em;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-feature-settings:'liga';font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20;user-select:none;}
+input,select,textarea,button{color:inherit;}
+input,select,textarea{color:var(--texto);}
+.mi{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:1.2em;line-height:1;display:inline-block;vertical-align:-0.22em;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-feature-settings:'liga';font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 20;user-select:none;}
 .usuario-avatar .mi,.producto-foto-placeholder .mi,.success-icon .mi{font-size:1em;vertical-align:middle;}
 .pin-key.delete .mi{font-size:1.1em;vertical-align:middle;}
 </style>
@@ -28,13 +31,13 @@
   --fondo: #e8e4d4;
   --blanco: #fff;
   --borde: #dbe3e2;
-  --texto: #333;
-  --texto-suave: #888;
-  --texto-mini: #bbb;
+  --texto: #4a5a4b;
+  --texto-suave: #87938a;
+  --texto-mini: #b5bdb6;
   --crema: #f9f6e7;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--fondo); min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 16px; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--texto); background: var(--fondo); min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 16px; }
 
 /* SPLASH */
 #splash { position:fixed; inset:0; background:var(--fondo); z-index:1000; display:flex; align-items:center; justify-content:center; }
@@ -166,7 +169,7 @@ textarea { resize:none; height:70px; font-size:14px; }
 
 /* RESUMEN VENTA */
 .resumen-venta { background:var(--crema); border-radius:12px; padding:14px; display:none; }
-.rv-row { display:flex; justify-content:space-between; font-size:13px; color:#555; padding:3px 0; }
+.rv-row { display:flex; justify-content:space-between; font-size:13px; color:var(--texto-suave); padding:3px 0; }
 .rv-row.total { font-weight:700; color:var(--verde); border-top:1px solid var(--borde); margin-top:6px; padding-top:8px; font-size:15px; }
 
 /* BTNS */
@@ -215,7 +218,7 @@ textarea { resize:none; height:70px; font-size:14px; }
 
 /* RESUMEN COSTEO */
 .res-costeo { background:var(--verde-light); border-radius:14px; padding:14px; margin-top:12px; }
-.res-costeo-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; color:#555; }
+.res-costeo-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; color:var(--texto-suave); }
 .res-costeo-row.h { font-weight:700; color:var(--verde); border-top:1px solid rgba(92,109,93,0.15); margin-top:4px; padding-top:8px; font-size:15px; }
 
 /* PRODUCTO ACTIVO BANNER */
@@ -292,6 +295,95 @@ textarea { resize:none; height:70px; font-size:14px; }
 .spinner-text { font-size:13px; color:var(--texto-suave); }
 .info-box { background:var(--crema); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--verde); margin-bottom:12px; }
 .info-box strong { font-weight:700; }
+</style>
+<style>
+/* ===== Tema B3 · Pastel — solo visual ===== */
+:root{
+  --verde:#5c6d5d; --verde-dark:#4a5a4b; --verde-light:#dbe3e2;
+  --azul:#dbe3e2; --azul-light:#eef2f1;
+  --rosado:#dbc0bd; --rosado-light:#f6ecea;
+  --amarillo:#dbc0bd; --amarillo-light:#f6ecea;
+  --fondo:#f9f6f3; --crema:#f6f3f0; --borde:#ece6e2;
+  --texto:#3f4d40; --texto-suave:#6b776d; --texto-mini:#9aa39c;
+}
+body{font-family:'Karla',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size-adjust:0.5;background:var(--fondo);}
+button,input,select,textarea{font-family:inherit;}
+/* Encabezados claros */
+.header,.header-conta{background:transparent!important;border:none;}
+.logo-header{filter:none!important;}
+.header-btn{color:var(--texto)!important;background:#fff;border:1px solid var(--borde);border-radius:999px;padding:8px 14px;}
+.header-btn img{filter:none!important;opacity:1;}
+#inv-usuario,.inv-usuario-label{color:var(--texto-suave)!important;}
+/* Tarjetas */
+.card{border:none;border-radius:22px;box-shadow:0 1px 3px rgba(63,77,64,.05);}
+.card-title{font-size:18px;font-weight:800;color:var(--texto);text-transform:none;letter-spacing:-.2px;}
+.card-title::before{display:none;}
+/* Pestañas tipo píldora */
+.tabs{background:#efebe7;border-radius:16px;padding:4px;gap:4px;}
+.tab-btn{font-size:13px;font-weight:600;border-radius:12px;padding:10px 4px;}
+.tab-btn.active{color:var(--texto);font-weight:800;box-shadow:0 1px 3px rgba(63,77,64,.10);}
+.acceso-tabs{border-radius:16px;}
+.acceso-tab{border-radius:12px;}
+/* Formularios */
+input[type=text],input[type=number],input[type=tel],input[type=date],input[type=email],input[type=password],textarea,select,.login-input{background-color:#fff;border:1px solid var(--borde);border-radius:14px;}
+.form-label,.login-label{color:var(--texto-suave);font-weight:700;}
+.toggle-btn{background:#fff;border:1px solid var(--borde);border-radius:14px;color:var(--texto);}
+.toggle-btn.active{background:var(--verde);border-color:var(--verde);color:#fff;}
+/* Botones */
+.btn{border-radius:999px;font-weight:800;}
+.btn-crema{background:#fff;color:var(--texto);border:1px solid var(--borde);}
+.btn-amarillo{background:var(--rosado);color:var(--texto);}
+.btn-danger{background:var(--rosado-light);border-color:var(--rosado);}
+.icon-btn{border-radius:999px;border:1px solid var(--borde);background:#fff;color:var(--texto);padding:7px 13px;}
+.icon-btn:active{background:var(--azul);}
+.login-btn{background:var(--verde);color:#fff;border-radius:999px;}
+/* Productos */
+.producto-item{border-bottom-color:#f1ece8;}
+.producto-foto,.producto-foto-placeholder{border-radius:14px;background:var(--rosado-light);}
+.producto-precio{color:var(--texto-suave);}
+.stock-ring-ok{background:var(--azul);}
+.stock-num-ok{color:var(--texto);font-weight:800;}
+.stock-ring-bajo{background:var(--rosado-light);}
+.stock-num-bajo{color:#8a5550;font-weight:800;}
+.badge-bajo{background:var(--rosado-light);color:#8a5550;}
+.alerta-banner{background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;}
+/* Etiquetas */
+.badge-verde{background:var(--azul);color:var(--texto);}
+.badge-amarillo{background:var(--rosado-light);color:#8a5550;}
+.badge-rosado{background:var(--rosado-light);color:#8a5550;}
+.badge-mp{background:var(--rosado-light);color:#6b4f4c;}
+.badge-cif{background:var(--azul);color:var(--texto);}
+/* Bloques internos */
+.resumen-dia-box,.res-costeo{background:var(--azul-light);color:var(--texto);}
+.res-costeo-row.h,.rv-row.total{color:var(--texto);}
+.h-financiero,.info-box{color:var(--texto);}
+.insumo-card,.ing-card,.des-card,.activo-card{border-radius:18px;}
+.h-item,.skeleton-item{border-bottom-color:#f1ece8;}
+.prod-activo-banner{border-radius:18px;}
+/* Acceso */
+#splash,#acceso-screen{background:var(--fondo);}
+.pin-key{border:none;border-radius:999px;box-shadow:0 1px 3px rgba(63,77,64,.06);}
+.pin-key.empty{box-shadow:none;}
+.pin-dot{border-color:var(--verde);}
+.usuario-btn{border:none;border-radius:18px;box-shadow:0 1px 3px rgba(63,77,64,.05);}
+.usuario-avatar{background:var(--rosado-light);}
+/* Modales y avisos */
+.modal-card{border-radius:28px 28px 0 0;}
+@media (min-width:600px){.modal-card{border-radius:28px;}}
+.modal-title{color:var(--texto);font-weight:800;font-size:19px;}
+.success-sub{color:var(--azul);}
+.sk-circle,.sk-line{background:linear-gradient(90deg,#efebe7 25%,#e6e1dc 50%,#efebe7 75%);background-size:200% 100%;}
+.spinner{border-color:var(--azul);border-top-color:var(--verde);}
+.resumen-stock{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px;}
+.rs-ventas{grid-row:span 2;background:var(--rosado);border-radius:20px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;min-height:124px;color:var(--texto);}
+.rs-ventas>.mi{font-size:22px;}
+.rs-mini{border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;color:var(--texto);}
+.rs-azul{background:var(--azul);}
+.rs-crema{background:var(--crema);}
+.rs-label{font-size:14px;}
+.rs-sub{font-size:13px;margin-top:2px;}
+.rs-num{font-size:22px;font-weight:800;}
+.rs-num-grande{font-size:28px;font-weight:800;letter-spacing:-.5px;line-height:1.1;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -537,6 +629,7 @@ textarea { resize:none; height:70px; font-size:14px; }
       <button class="tab-btn" id="tab-domicilios-inv" onclick="mostrarTab('domicilios-inv')">Domicilios</button>
     </div>
     <div id="panel-stock">
+      <div id="resumen-stock" class="resumen-stock" style="display:none;"></div>
       <div id="alerta-banner" class="alerta-banner"></div>
       <div class="scroll-box" id="lista-productos"><div class="loading" style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
       <p class="ultimo-update" id="ultimo-update"></p>
@@ -1614,7 +1707,7 @@ textarea { resize:none; height:70px; font-size:14px; }
   function montarUI() {
     const badge = document.createElement("div");
     badge.textContent = "Versión de prueba · Firebase";
-    badge.style.cssText = "position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:9999;background:#f1d688;color:#4a5a4b;font:600 11px/1 system-ui,sans-serif;padding:6px 12px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.12);pointer-events:none;";
+    badge.style.cssText = "position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:9999;background:#dbe3e2;color:#3f4d40;font:700 11px/1 Karla,system-ui,sans-serif;padding:6px 12px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.12);pointer-events:none;";
     document.body.appendChild(badge);
     if (location.search.indexOf("admin") === -1) return;
     const btn = document.createElement("button");
@@ -1875,6 +1968,32 @@ function renderProductos(datos){
   if(alertas.length){banner.innerHTML='<span class="mi">warning</span> Stock bajo: '+alertas.join(', ');banner.style.display='block';}
   else banner.style.display='none';
   document.getElementById('ultimo-update').textContent='Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  actualizarResumenStock(datos);
+}
+
+// Tarjetas de resumen (solo lectura: usan los mismos datos y reglas que Ventas y Producción)
+async function actualizarResumenStock(inv){
+  const box=document.getElementById('resumen-stock');
+  if(!box)return;
+  try{
+    let agotados=0;
+    for(let i=1;i<inv.length;i++){if(inv[i][0]&&(Number(inv[i][1])||0)<=0)agotados++;}
+    const r=await fetch(API+'?accion=ventas',{redirect:'follow'});
+    const v=await r.json();
+    const hoy=new Date().toDateString();
+    let totHoy=0,numHoy=0,porProducir=0;
+    for(let i=1;i<v.length;i++){
+      const d=v[i];
+      if(!d[0]||!d[1]||!d[2])continue;
+      if(new Date(d[0]).toDateString()===hoy){totHoy+=(Number(d[9])||0)*(Number(d[2])||0);numHoy++;}
+      const estado=(d[11]&&typeof d[11]==='string'&&d[11].indexOf('T')===-1)?d[11]:'Pendiente';
+      if(estado!=='Entregado'&&estado!=='En camino'&&estado!=='Producido'&&estado!=='Listo para enviar')porProducir++;
+    }
+    box.innerHTML=`<div class="rs-ventas"><span class="mi">payments</span><div><div class="rs-label">Ventas hoy</div><div class="rs-num-grande">${fmt(totHoy)}</div><div class="rs-sub">${numHoy} venta${numHoy===1?'':'s'}</div></div></div>
+      <div class="rs-mini rs-azul"><span class="rs-label">Por producir</span><span class="rs-num">${porProducir}</span></div>
+      <div class="rs-mini rs-crema"><span class="rs-label">Agotados</span><span class="rs-num">${agotados}</span></div>`;
+    box.style.display='grid';
+  }catch(e){box.style.display='none';}
 }
 
 let filtroHistorial='hoy';
@@ -2630,7 +2749,7 @@ function renderProduccion(datos){
           ${badgeListo}
           <button class="icon-btn" style="font-size:12px;color:var(--texto-suave);" onclick="regresarAProducir(${p.idx},this)"><span class="mi">undo</span> Regresar</button>
         </div>`
-      :`<button class="icon-btn" style="background:var(--amarillo);color:var(--verde);border-color:var(--amarillo);transition:all 0.2s;" onclick="marcarProducido(${p.idx},this)"><span class="mi">check_circle</span> Listo</button>`;
+      :`<button class="icon-btn" style="background:var(--verde);color:#fff;border-color:var(--verde);transition:all 0.2s;" onclick="marcarProducido(${p.idx},this)"><span class="mi">check_circle</span> Listo</button>`;
     return `<div class="h-item">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
         <div>
@@ -3166,7 +3285,7 @@ function renderPendientes(datos){
     const tieneEntregas=dia.fecha.entregas>0||dia.entregas.length>0;
     const label=esHoy?'Hoy':dia.fecha.toLocaleDateString('es-CO',{weekday:'long',day:'2-digit',month:'long'});
     const bgColor=esHoy?'var(--verde)':tieneEntregas?'var(--amarillo-light)':'var(--crema)';
-    const textColor=esHoy?'#fff':tieneEntregas?'#9a7d1a':'var(--texto-suave)';
+    const textColor=esHoy?'#fff':tieneEntregas?'#8a5550':'var(--texto-suave)';
     const borderColor=esHoy?'var(--verde)':tieneEntregas?'var(--amarillo)':'var(--borde)';
     const count=dia.entregas.length;
 
