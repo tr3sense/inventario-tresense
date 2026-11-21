@@ -2141,7 +2141,8 @@ window.iniciarSesionConta=async()=>{
   const err=document.getElementById('login-error');
   if(!u||!p){err.textContent='Escribe usuario y contraseña.';return;}
   let ok=false,msgAuth='';
-  if(u.toLowerCase()===CU){ try{ await tr3Auth.login(CORREO_CONTA, p); ok=true; }catch(e){ msgAuth=msgAuthP2(e); } }
+  const ul=u.toLowerCase();
+  if(ul===CU||ul===CORREO_CONTA){ try{ await tr3Auth.login(CORREO_CONTA, p); ok=true; }catch(e){ msgAuth=msgAuthP2(e); } }
   if(ok){
     err.textContent='';
     document.getElementById('acceso-screen').style.display='none';
