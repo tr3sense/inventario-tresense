@@ -1348,13 +1348,17 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     activos: "Activos Fijos"
   };
 
-  // ---------- Autenticación anónima ----------
-  const authReady = new Promise(function (res, rej) {
-    const un = firebase.auth().onAuthStateChanged(function (u) {
-      if (u) { un(); res(u); }
-      else firebase.auth().signInAnonymously().catch(rej);
-    });
+  // ---------- Autenticación con cuenta (correo y contraseña) ----------
+  let _authRes;
+  const authReady = new Promise(function (res) { _authRes = res; });
+  firebase.auth().onAuthStateChanged(function (u) {
+    if (u && u.isAnonymous) { firebase.auth().signOut(); return; }
+    if (u) _authRes(u);
   });
+  window.tr3Auth = {
+    login: function (email, pass) { return firebase.auth().signInWithEmailAndPassword(email, pass); },
+    clave: function (pin) { return "Tr3" + pin + "s"; }
+  };
 
   // ---------- Utilidades ----------
   let seq = 0;
@@ -1998,12 +2002,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 const API = "https://script.google.com/macros/s/AKfycbxcWbJZBWvHS9AsDyUo_RtdfRFppQSkSpDAwGsXDTv54LFNmIbIzMlKlGIcQrCbq7xN/exec";
 const MAX_INT = 3, INACT = 300000;
 const USUARIOS = [
-  { nombre: "Natacha Vergara", pin: "0825", rol: "admin" },
-  { nombre: "Sara Martínez", pin: "3947", rol: "admin" },
-  { nombre: "Juliana Martínez", pin: "7162", rol: "inventario" }
+  { nombre: "Natacha Vergara", email: "natacha@tr3sense.app", rol: "admin" },
+  { nombre: "Sara Martínez", email: "sara@tr3sense.app", rol: "admin" },
+  { nombre: "Juliana Martínez", email: "juliana@tr3sense.app", rol: "inventario" }
 ];
-const DOMICILIARIO = { nombre: "Julian Builes", pin: "5283" };
-const CU = "contadora", CP = "Conta#Tr3s2025!";
+const DOMICILIARIO = { nombre: "Julian Builes", email: "julian@tr3sense.app" };
+const CU = "contadora", CORREO_CONTA = "contadora@tr3sense.app";
 const ZONAS = {medellin:13000,area1:15000,otras:18000};
 const ZONAS_N = {medellin:'Medellín',area1:'Bello/Envigado/Itagüí/Sabaneta',otras:'Otras zonas'};
 const HORA_BASE = 7959;
@@ -2088,9 +2092,12 @@ window.pinDelete=()=>{
   document.getElementById('pin-error').textContent='';
 };
 function updDots(){for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.toggle('filled',i<pinVal.length);}
-function checkPin(){
+function msgAuthP2(e){const c=(e&&e.code)||'';if(c==='auth/too-many-requests')return 'Demasiados intentos. Espera un momento e intenta de nuevo.';if(c==='auth/network-request-failed')return 'Sin conexión. Revisa tu internet.';return '';}
+async function checkPin(){
   const usuario=usuarioSeleccionado;
-  if(usuario&&pinVal===usuario.pin){
+  let ok=false,msgAuth='';
+  try{ if(usuario){ await tr3Auth.login(usuario.email, tr3Auth.clave(pinVal)); ok=true; } }catch(e){ msgAuth=msgAuthP2(e); }
+  if(usuario&&ok){
     intentos=0;
     usuarioActual=usuario;
     document.getElementById('acceso-screen').style.display='none';
@@ -2114,6 +2121,7 @@ function checkPin(){
     } else {
       document.getElementById('pin-error').textContent='PIN incorrecto. '+(MAX_INT-intentos)+' intento(s) restante(s).';
     }
+    if(msgAuth)document.getElementById('pin-error').textContent=msgAuth;
   }
 }
 window.cerrarInventario=()=>{
@@ -2127,18 +2135,20 @@ window.cerrarInventario=()=>{
   volverUsuarios();
   clearTimeout(timerInact);
 };
-window.iniciarSesionConta=()=>{
+window.iniciarSesionConta=async()=>{
   const u=document.getElementById('login-usuario').value.trim();
   const p=document.getElementById('login-password').value;
   const err=document.getElementById('login-error');
   if(!u||!p){err.textContent='Escribe usuario y contraseña.';return;}
-  if(u===CU&&p===CP){
+  let ok=false,msgAuth='';
+  if(u.toLowerCase()===CU){ try{ await tr3Auth.login(CORREO_CONTA, p); ok=true; }catch(e){ msgAuth=msgAuthP2(e); } }
+  if(ok){
     err.textContent='';
     document.getElementById('acceso-screen').style.display='none';
     document.getElementById('app-contabilidad').style.display='block';
     document.getElementById('conta-user').textContent='Contadora'; usuarioActual={nombre:'Sara Martínez',rol:'admin'};
     mostrarTabConta('insumos');
-  } else {err.textContent='Usuario o contraseña incorrectos.';}
+  } else {err.textContent=msgAuth||'Usuario o contraseña incorrectos.';}
 };
 window.cerrarContabilidad=()=>{
   document.getElementById('app-contabilidad').style.display='none';
@@ -3478,8 +3488,10 @@ window.domPinDelete=()=>{
 function updDomDots(){
   for(let i=0;i<4;i++)document.getElementById('dom-dot-'+i).classList.toggle('filled',i<domPinVal.length);
 }
-function checkDomPin(){
-  if(domPinVal===DOMICILIARIO.pin){
+async function checkDomPin(){
+  let ok=false,msgAuth='';
+  try{ await tr3Auth.login(DOMICILIARIO.email, tr3Auth.clave(domPinVal)); ok=true; }catch(e){ msgAuth=msgAuthP2(e); }
+  if(ok){
     domIntentos=0; domPinVal=''; updDomDots();
     document.getElementById('acceso-screen').style.display='none';
     document.getElementById('app-domicilios').style.display='block';
@@ -3489,7 +3501,7 @@ function checkDomPin(){
     for(let i=0;i<4;i++)document.getElementById('dom-dot-'+i).classList.add('error');
     setTimeout(()=>{for(let i=0;i<4;i++)document.getElementById('dom-dot-'+i).classList.remove('error','filled');},500);
     domPinVal='';
-    document.getElementById('dom-pin-error').textContent='PIN incorrecto. Intenta de nuevo.';
+    document.getElementById('dom-pin-error').textContent=msgAuth||'PIN incorrecto. Intenta de nuevo.';
   }
 }
 window.cerrarDomicilios=()=>{
