@@ -921,7 +921,6 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
   <div class="p2-top">
     <img src="logo.png" alt="Tr3sense" class="p2-logo">
     <div class="p2-top-acciones">
-      <button class="p2-iconbtn" onclick="cargarInventario()" aria-label="Actualizar"><span class="mi">refresh</span></button>
       <button class="p2-avatar" id="inv-avatar" onclick="abrirCuenta('inv')" aria-label="Mi cuenta" title="Mi cuenta"></button>
     </div>
     <span id="inv-usuario" class="p2-oculto"></span>
@@ -969,7 +968,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 
     <div id="panel-produccion" style="display:none;">
       <div class="p2-head"><h1 class="p2-h1">Producción</h1><span class="p2-spot"><svg viewBox="0 0 36 36" width="48" height="48" aria-hidden="true"><path fill="#5c6d5d" d="M20 21.5a1.5 1.5 0 0 1-3 0v-3a1.5 1.5 0 1 1 3 0z"/><path fill="#f3ebe9" d="M27.138 33.817C27.183 35.022 26.206 36 25 36H12.183A2.183 2.183 0 0 1 10 33.817V21c0-1.205.115-2.183 2.183-2.183S15 23 25 21c1.091 0 2.183.978 2.138 2.183z"/><path fill="#dbc0bd" d="M18.687 18.538c-2.595 0-6.962-1.934-6.962-5.898c0-3.988 4.351-5.414 7.005-11.401c.751-1.693.999-1.107 1.86-.076c2.06 2.463 5.058 7.483 5.058 11.574c-.001 4.641-4.64 5.801-6.961 5.801"/><path fill="#fff" d="M18.687 17.447c-4.184 0-3.482-5.802 0-9.283c2.321 1.16 5.801 9.283 0 9.283"/><path fill="#dbc0bd" d="M11 29a1 1 0 1 1-2 0v-7a1 1 0 1 1 2 0zm4 3a1 1 0 1 1-2 0v-7a1 1 0 1 1 2 0zm0-11a1 1 0 1 1-2 0v-1a1 1 0 1 1 2 0z"/></svg></span></div>
-      <div style="display:flex;justify-content:flex-end;margin:-4px 0 6px;"><button class="icon-btn" onclick="cargarProduccion(true)"><span class="mi">refresh</span> Actualizar</button></div>
+
       <!-- Por producir -->
       <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-left:2px;"><span class="mi">construction</span> Por producir</div>
       <div id="lista-por-producir"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
@@ -1076,7 +1075,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <div class="card-title" style="margin-bottom:0;">Compras</div>
         <div style="display:flex;gap:8px;">
-          <button class="icon-btn" onclick="cargarInsumos(true)"><span class="mi">refresh</span> Actualizar</button>
+
           <button class="icon-btn p2-agregar" onclick="abrirModalInsumo()"><span class="mi">add</span> Agregar</button>
         </div>
       </div>
@@ -1151,7 +1150,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <div class="card-title" style="margin-bottom:0;">Precio Unitario de Venta</div>
-        <button class="icon-btn" onclick="cargarDesarrolloPUV(true)"><span class="mi">refresh</span> Actualizar</button>
+
       </div>
       <div class="scroll-box" id="lista-puv-productos"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
     </div>
@@ -1200,7 +1199,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <div class="card-title" style="margin-bottom:0;">Productos en desarrollo</div>
-        <button class="icon-btn" onclick="cargarDesarrollo(true)"><span class="mi">refresh</span> Actualizar</button>
+
       </div>
       <div class="scroll-box" id="lista-desarrollo"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
     </div>
@@ -1212,7 +1211,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <div class="card-title" style="margin-bottom:0;">Activos Fijos</div>
         <div style="display:flex;gap:8px;">
-          <button class="icon-btn" onclick="cargarActivos(true)"><span class="mi">refresh</span> Actualizar</button>
+
           <button class="icon-btn p2-agregar" onclick="abrirModalActivo()"><span class="mi">add</span> Agregar</button>
         </div>
       </div>
@@ -1249,7 +1248,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div class="card-title" style="margin-bottom:0;">Entregas pendientes</div>
-        <button class="icon-btn" onclick="cargarDomicilios(true)"><span class="mi">refresh</span> Actualizar</button>
+
       </div>
       <div id="lista-pendientes"><div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Cargando...</div></div></div>
     </div>
@@ -1460,7 +1459,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
           rowsOk = true; listo();
           if (m.primera) { m.primera = false; return; }
           // Cambios hechos desde otro dispositivo → datos frescos al próximo render
-          if (!s.metadata.hasPendingWrites) limpiarCachesUI();
+          if (!s.metadata.hasPendingWrites) { limpiarCachesUI(); try { window.dispatchEvent(new CustomEvent('tr3db-cambio', { detail: nombre })); } catch (e) {} }
         }, rej);
       });
     });
@@ -4087,6 +4086,27 @@ window.guardarPVU=async()=>{
 /* ===== P2 · ayudas de interfaz (solo presentación; no cambian datos ni reglas) ===== */
 function inicialesP2(n){return (n||'').split(' ').filter(Boolean).slice(0,2).map(p=>p[0].toUpperCase()).join('');}
 window.abrirNuevaVenta=()=>{abrirModal('modal-nueva-venta');};
+let refrescoP2=null;
+window.addEventListener('tr3db-cambio',()=>{clearTimeout(refrescoP2);refrescoP2=setTimeout(refrescarVistaP2,800);});
+function visibleP2(id){const e=document.getElementById(id);return !!(e&&e.style.display!=='none'&&e.offsetParent!==null);}
+function refrescarVistaP2(){
+  if([...document.querySelectorAll('.modal-overlay')].some(m=>m.style.display==='flex'))return;
+  const ok=document.getElementById('success-overlay'); if(ok&&ok.style.display==='flex')return;
+  try{
+    if(visibleP2('app-inventario')){
+      cargarInventario();
+      if(visibleP2('panel-ventas')){ if(visibleP2('vpanel-agenda'))cargarAgenda(); else if(visibleP2('vpanel-recientes'))cargarVentas(); else if(visibleP2('vpanel-historial'))cargarVentasHistorial(); }
+      else if(visibleP2('panel-produccion'))cargarProduccion(true);
+      else if(visibleP2('panel-domicilios-inv'))cargarDomiciliosInv();
+    } else if(visibleP2('app-domicilios')){ cargarDomicilios(true); }
+    else if(visibleP2('app-contabilidad')){
+      if(visibleP2('cpanel-insumos'))cargarInsumos(true);
+      else if(visibleP2('cpanel-desarrollo'))cargarDesarrollo(true);
+      else if(visibleP2('cpanel-puv'))cargarDesarrolloPUV(true);
+      else if(visibleP2('cpanel-activos'))cargarActivos(true);
+    }
+  }catch(e){}
+}
 let cuentaModo='inv';
 window.abrirCuenta=modo=>{
   cuentaModo=modo; const pin=modo!=='conta';
