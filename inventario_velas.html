@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tr3sense · prueba</title>
 <link rel="icon" type="image/png" href="favicon.png">
@@ -1539,7 +1540,13 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
   const token = "", chatIDs = [];
   function relay(body) {
     if (!TELEGRAM_ACTIVO) return;
-    _fetch(OLD_API, { method: "POST", body: JSON.stringify(body) }).catch(function () {});
+    authReady.then(function () {
+      const u = firebase.auth().currentUser;
+      return u ? u.getIdToken() : "";
+    }).then(function (t) {
+      body.idToken = t;
+      return _fetch(OLD_API, { method: "POST", body: JSON.stringify(body) });
+    }).catch(function () {});
   }
   function enviarTelegram(_t, _c, mensaje) { relay({ accion: "enviarTelegram", mensaje: mensaje }); }
   function enviarTelegramFoto(mensaje, fotoBase64) { relay({ accion: "enviarTelegramFoto", mensaje: mensaje, fotoBase64: fotoBase64 }); }
