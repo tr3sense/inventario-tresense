@@ -1349,7 +1349,6 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
 <script>
 /* ============================================================
    Tr3DB — capa de datos Firebase para Tr3sense (v2)
@@ -1376,9 +1375,6 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
   };
 
   firebase.initializeApp(firebaseConfig);
-  // App Check: clave pública del sitio reCAPTCHA v3 (no es secreta)
-  const APP_CHECK_KEY = "";
-  if (APP_CHECK_KEY && firebase.appCheck) { try { firebase.appCheck().activate(APP_CHECK_KEY, true); } catch (e) {} }
   const db = firebase.firestore();
   db.enablePersistence({ synchronizeTabs: true }).catch(function () {});
 
@@ -2014,67 +2010,6 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
   // Precarga en segundo plano para que todo abra al instante
   todasListas().catch(function (e) { console.error("[Tr3DB] carga inicial", e); });
 
-  // ---------- Importar desde el Sheet (copia, el Sheet no se toca) ----------
-  async function importarDesdeSheet(onPaso) {
-    await authReady;
-    const acciones = { inventario: "inventario", ventas: "ventas", insumos: "insumos", costeoporproducto: "costeo", desarrollo: "desarrollo", activos: "activos" };
-    const resumen = [];
-    for (const acc of Object.keys(acciones)) {
-      const slug = acciones[acc];
-      if (onPaso) onPaso("Copiando " + acc + "...");
-      const r = await _fetch(OLD_API + "?accion=" + acc, { redirect: "follow" });
-      const datos = await r.json();
-      if (!Array.isArray(datos) || !datos.length) throw new Error("Respuesta vacía en " + acc);
-      const header = (datos[0] || []).map(norm);
-      const filas = datos.slice(1).filter(function (f) {
-        return f.some(function (v) { return v !== "" && v !== null && v !== 0; });
-      });
-      const ref = db.collection("hojas").doc(slug);
-      const prev = await ref.collection("filas").get();
-      const ops = [function (b) { b.set(ref, { header: header, importado: new Date().toISOString() }); }];
-      prev.forEach(function (d) { ops.push(function (b) { b.delete(d.ref); }); });
-      filas.forEach(function (f, i) {
-        const doc = ref.collection("filas").doc();
-        ops.push(function (b) { b.set(doc, { c: f.map(norm), o: i + 1 }); });
-      });
-      for (let i = 0; i < ops.length; i += 450) {
-        const b = db.batch();
-        ops.slice(i, i + 450).forEach(function (fn) { fn(b); });
-        await b.commit();
-      }
-      resumen.push(acc + ": " + filas.length);
-    }
-    limpiarCachesUI();
-    return resumen;
-  }
-
-  // ---------- Indicador de versión de prueba + importador (?admin) ----------
-  function montarUI() {
-    const badge = document.createElement("div");
-    badge.textContent = "Versión de prueba · Firebase";
-    badge.style.cssText = "position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:9999;background:#dbe3e2;color:#3f4d40;font:700 11px/1 Karla,system-ui,sans-serif;padding:6px 12px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.12);pointer-events:none;";
-    document.body.appendChild(badge);
-    if (location.search.indexOf("admin") === -1) return;
-    const btn = document.createElement("button");
-    btn.textContent = "⇩ Importar datos del Sheet";
-    btn.style.cssText = "position:fixed;bottom:96px;left:16px;z-index:9999;background:#5c6d5d;color:#fff;border:none;border-radius:12px;padding:12px 16px;font:600 13px system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.2);cursor:pointer;";
-    btn.onclick = async function () {
-      if (!confirm("Esto copia los datos actuales del Sheet a Firebase y reemplaza lo que haya en la versión de prueba. El Sheet no se modifica. ¿Continuar?")) return;
-      btn.disabled = true;
-      try {
-        const res = await importarDesdeSheet(function (t) { btn.textContent = t; });
-        btn.textContent = "✓ Importado";
-        alert("Datos copiados:\n" + res.join("\n"));
-        location.reload();
-      } catch (e) {
-        btn.textContent = "Error — reintentar";
-        btn.disabled = false;
-        alert("No se pudo importar: " + (e && e.message || e));
-      }
-    };
-    document.body.appendChild(btn);
-  }
-  // Versión oficial: sin insignia de prueba ni botón de importar (el Sheet ahora es copia de Firebase).
 })();
 </script>
 <script>
