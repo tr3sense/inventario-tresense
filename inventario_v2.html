@@ -621,6 +621,59 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 #panel-pin .pin-keypad,#panel-domicilios .pin-keypad{justify-content:center!important;column-gap:30px!important;}
 .p2-top{padding:26px 20px 30px!important;}
 
+.agenda-dia{position:relative;}
+.agenda-punto{display:block;width:5px;height:5px;border-radius:50%;background:transparent;margin-top:2px;}
+.agenda-punto.si{background:var(--rosado);}
+.agenda-dia.activo .agenda-punto.si{background:#fff;}
+#app-domicilios .card:not(.p2-card-seg){border:none;border-radius:0;margin:6px auto 0;padding:0 20px;max-width:680px;box-sizing:border-box;}
+.agenda-card .badge{white-space:nowrap;flex-shrink:0;}
+.agenda-card .btn{white-space:nowrap;}
+
+/* Contabilidad: contenido */
+#app-contabilidad .card{border:none;border-radius:0;margin:14px auto 0;padding:0 20px;max-width:680px;box-sizing:border-box;}
+#app-contabilidad .card-title{font-size:18px;}
+.p2-agregar{background:var(--verde)!important;color:#fff!important;border-color:var(--verde)!important;font-weight:800;}
+.p2-roundbtn{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--borde);background:#fff;color:var(--verde);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.p2-roundbtn .mi{font-size:20px;vertical-align:middle;}
+.cont-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0ede9;}
+.cont-row-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
+.cont-row-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cont-nombre{font-size:15px;font-weight:800;color:var(--verde);}
+.cont-det{font-size:13px;color:var(--texto-suave);}
+.cont-total{font-size:15px;font-weight:800;white-space:nowrap;}
+.cont-disp{font-size:13px;color:var(--verde);display:flex;align-items:center;gap:4px;}
+.cont-disp.no{color:#8a5550;}
+.badge-tipo{font-size:12px;padding:4px 9px;border-radius:10px;}
+.cont-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0;}
+.cont-tiles.dos{grid-template-columns:repeat(2,minmax(0,1fr));}
+.cont-tile{background:var(--crema);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0;}
+.cont-tile span{font-size:11px;color:var(--texto-suave);}
+.cont-tile b{font-size:16px;font-weight:800;color:var(--verde);overflow-wrap:anywhere;}
+.cont-tile.rosa{background:var(--rosado);}
+.cont-tile.rosa span{color:var(--verde);font-weight:700;}
+.cont-tile.blanco{background:#fff;}
+.puv-card{background:var(--rosado-light);border-radius:24px;padding:16px;margin-bottom:12px;}
+.puv-card .des-card-header{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.puv-num{background:var(--verde);color:#fff;border-radius:18px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.puv-num span{font-size:14px;}
+.puv-num b{font-size:22px;font-weight:800;}
+.puv-card .btn,.p2des .btn{min-height:48px;margin-top:0;}
+.des-card.p2des{border:1.5px solid var(--borde);border-radius:24px;padding:16px;margin-bottom:12px;background:#fff;}
+.p2des .des-card-header{display:flex;align-items:center;gap:12px;}
+.p2des>.btn-verde{margin-bottom:8px;}
+.p2des .p2-btn-row{margin-top:0;}
+#total-activos{background:var(--rosado);border-radius:22px;padding:14px 16px;display:flex!important;align-items:center;gap:12px;margin:0 0 6px!important;}
+#total-activos:empty{display:none!important;}
+#total-activos .mi{font-size:26px!important;}
+#total-activos span{font-size:12px;font-weight:700;display:block;}
+#total-activos b{font-size:22px;font-weight:800;}
+.prod-activo-banner{background:var(--verde);border-radius:22px;}
+#res-costeo-final,.info-box{background:var(--rosado-light);border:none;border-radius:18px;color:var(--verde);}
+.cont-tile b{white-space:nowrap;overflow-wrap:normal;font-size:clamp(13px,3.7vw,16px);}
+.p2des .btn{white-space:nowrap;font-size:14px;}
+#prod-activo-wrap>.prod-activo-banner{margin:14px 20px 0;max-width:640px;}
+@media (min-width:681px){#prod-activo-wrap>.prod-activo-banner{margin:14px auto 0;}}
+
 </style>
 </head>
 <body>
@@ -1027,7 +1080,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
         <div class="card-title" style="margin-bottom:0;">Compras</div>
         <div style="display:flex;gap:8px;">
           <button class="icon-btn" onclick="cargarInsumos(true)"><span class="mi">refresh</span> Actualizar</button>
-          <button class="icon-btn" onclick="abrirModalInsumo()">+ Agregar</button>
+          <button class="icon-btn p2-agregar" onclick="abrirModalInsumo()"><span class="mi">add</span> Agregar</button>
         </div>
       </div>
       <div class="scroll-box" id="lista-insumos"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
@@ -1040,7 +1093,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
       <div class="card-title">Nuevo producto</div>
       <div style="display:flex;gap:8px;">
         <input type="text" id="nuevo-prod-nombre" placeholder="Nombre del producto" style="flex:1;">
-        <button class="icon-btn" onclick="crearProducto()">+ Crear</button>
+        <button class="icon-btn p2-agregar" onclick="crearProducto()"><span class="mi">add</span> Crear</button>
       </div>
     </div>
 
@@ -1061,7 +1114,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <div class="card-title" style="margin-bottom:0;">MP & CIF</div>
-          <button class="icon-btn" onclick="abrirModalIngrediente()">+ Agregar</button>
+          <button class="icon-btn p2-agregar" onclick="abrirModalIngrediente()"><span class="mi">add</span> Agregar</button>
         </div>
         <div id="lista-ingredientes"><div style="text-align:center;padding:16px;color:var(--texto-mini);font-size:13px;">Agrega el primer ingrediente</div></div>
         <div id="res-ingredientes" style="display:none;"></div>
@@ -1163,7 +1216,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
         <div class="card-title" style="margin-bottom:0;">Activos Fijos</div>
         <div style="display:flex;gap:8px;">
           <button class="icon-btn" onclick="cargarActivos(true)"><span class="mi">refresh</span> Actualizar</button>
-          <button class="icon-btn" onclick="abrirModalActivo()">+ Agregar</button>
+          <button class="icon-btn p2-agregar" onclick="abrirModalActivo()"><span class="mi">add</span> Agregar</button>
         </div>
       </div>
       <div class="scroll-box" id="lista-activos"><div style="text-align:center;padding:24px;color:var(--texto-mini);">Cargando...</div></div>
@@ -2465,18 +2518,14 @@ function renderInsumos(d){
     if(!d[i][0])continue;
     const disp=d[i][6]||'existente';
     const inexistente=disp==='inexistente';
-    html+=`<div class="insumo-card" style="${inexistente?'opacity:0.55;':''}">
-      <div class="insumo-card-top">
-        <div style="flex:1;min-width:0;">
-          <div class="insumo-nombre">${d[i][0]}${d[i][7]?` <span style="font-size:11px;color:var(--texto-suave);font-weight:400;">· ${d[i][7]}</span>`:''}</div>
-          <div class="insumo-detalle">Q: ${d[i][1]} ${d[i][3]} · Total: ${fmt(d[i][2]||0)} · Unit: ${fmt(d[i][5]||0)}/${d[i][3]}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-          <span class="badge-tipo ${d[i][4]==='MP'?'badge-mp':'badge-cif'}">${d[i][4]}</span>
-          <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;${inexistente?'background:var(--rosado-light);color:#8a5550;':'background:var(--verde-light);color:var(--verde);'}">${inexistente?'Inexistente':'Existente'}</span>
-          <button class="icon-btn" onclick="abrirModalInsumo(${i})"><span class="mi">edit</span></button>
-        </div>
+    html+=`<div class="cont-row" style="${inexistente?'opacity:0.55;':''}">
+      <div class="cont-row-info">
+        <div class="cont-row-top"><span class="cont-nombre">${d[i][0]}</span><span class="badge-tipo ${d[i][4]==='MP'?'badge-mp':'badge-cif'}">${d[i][4]}</span></div>
+        <div class="cont-det">${d[i][1]} ${d[i][3]} · Total ${fmt(d[i][2]||0)} · ${fmt(d[i][5]||0)}/${d[i][3]}</div>
+        ${d[i][7]?`<div class="cont-det">Proveedor: ${d[i][7]}</div>`:''}
+        <div class="cont-disp${inexistente?' no':''}"><span class="mi">${inexistente?'block':'check_circle'}</span> ${inexistente?'Inexistente':'Existente'}</div>
       </div>
+      <button class="p2-roundbtn" onclick="abrirModalInsumo(${i})" aria-label="Editar"><span class="mi">edit</span></button>
     </div>`;
   }
   document.getElementById('lista-insumos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin compras registradas.</div>';
@@ -2637,15 +2686,11 @@ function renderIngredientesProducto(d){
       let tipo='CIF';
       for(let j=1;j<insumosG.length;j++){if(insumosG[j][0]===d[i][1]){tipo=insumosG[j][4];break;}}
       if(tipo==='MP')mpTotal+=total;else cifTotal+=total;
-      html+=`<div class="ing-card">
-        <div class="ing-info">
-          <div class="ing-nombre">${d[i][1]}</div>
-          <div class="ing-detalle">${d[i][2]} ${d[i][3]} · <span class="badge-tipo ${tipo==='MP'?'badge-mp':'badge-cif'}">${tipo}</span></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="ing-total">${fmt(total)}</div>
-          <button class="icon-btn" onclick="abrirModalIngrediente(${i})"><span class="mi">edit</span></button>
-        </div>
+      html+=`<div class="cont-row">
+        <span class="badge-tipo ${tipo==='MP'?'badge-mp':'badge-cif'}">${tipo}</span>
+        <div class="cont-row-info"><span class="cont-nombre">${d[i][1]}</span><div class="cont-det">${d[i][2]} ${d[i][3]}</div></div>
+        <span class="cont-total">${fmt(total)}</span>
+        <button class="p2-roundbtn" onclick="abrirModalIngrediente(${i})" aria-label="Editar"><span class="mi">edit</span></button>
       </div>`;
     }
     document.getElementById('lista-ingredientes').innerHTML=html||'<div style="text-align:center;padding:16px;color:var(--texto-mini);font-size:13px;">Agrega el primer ingrediente</div>';
@@ -2653,9 +2698,10 @@ function renderIngredientesProducto(d){
     calcCosteoResumen();
     if(mpTotal>0||cifTotal>0){
       document.getElementById('res-ingredientes').style.display='block';
-      document.getElementById('res-ingredientes').innerHTML=`<div class="res-costeo" style="margin-top:8px;">
-        <div class="res-costeo-row"><span>M.P</span><span>${fmt(mpTotal)}</span></div>
-        <div class="res-costeo-row"><span>CIF</span><span>${fmt(cifTotal)}</span></div>
+      document.getElementById('res-ingredientes').innerHTML=`<div class="cont-tiles">
+        <div class="cont-tile"><span>M.P</span><b>${fmt(mpTotal)}</b></div>
+        <div class="cont-tile"><span>CIF</span><b>${fmt(cifTotal)}</b></div>
+        <div class="cont-tile rosa"><span>M.P + CIF</span><b>${fmt(mpTotal+cifTotal)}</b></div>
       </div>`;
     }
 }
@@ -2815,23 +2861,20 @@ function renderDesarrollo(d){
       const fc=new Date(d_i[7]);
       if(isNaN(fc.getTime())||(ahora-fc)/(1000*60*60*24)>7)continue;
     }
-    html+=`<div class="des-card">
-      <div class="des-card-header">
-        <div class="des-card-nombre">${d_i[0]}</div>
-        <span class="badge ${aprobado?'badge-verde':'badge-amarillo'}">${estado}</span>
+    html+=`<div class="des-card p2des">
+      <div class="des-card-header"><span class="p2-spot p2-spot-sm" style="background:var(--rosado-light);"><span class="mi">local_florist</span></span><div class="des-card-nombre" style="flex:1;">${d_i[0]}</div><span class="badge ${aprobado?'badge-verde':'badge-amarillo'}">${estado}</span></div>
+      <div class="cont-tiles">
+        <div class="cont-tile"><span>M.P</span><b>${fmt(mp)}</b></div>
+        <div class="cont-tile"><span>CIF</span><b>${fmt(cif)}</b></div>
+        <div class="cont-tile"><span>M.O + Energía</span><b>${fmt(moe)}</b></div>
+        <div class="cont-tile"><span>CMV Total</span><b>${fmt(cmv)}</b></div>
+        <div class="cont-tile rosa"><span>PVU</span><b>${fmt(pvu)}</b></div>
+        <div class="cont-tile"><span>Margen</span><b>${pvu>0?margen+'%':'—'}</b></div>
       </div>
-      <div class="res-costeo">
-        <div class="res-costeo-row"><span>M.P</span><span>${fmt(mp)}</span></div>
-        <div class="res-costeo-row"><span>CIF</span><span>${fmt(cif)}</span></div>
-        <div class="res-costeo-row"><span>M.O + Energía</span><span>${fmt(moe)}</span></div>
-        <div class="res-costeo-row h"><span>CMV Total</span><span>${fmt(cmv)}</span></div>
-        <div class="res-costeo-row" style="margin-top:6px;"><span>PVU</span><span>${fmt(pvu)}</span></div>
-        ${pvu>0?`<div class="res-costeo-row"><span>Margen</span><span>${margen}%</span></div>`:''}
-      </div>
-      <div class="des-card-acciones">
-        ${!aprobado?`<button class="icon-btn" onclick="aprobarProducto('${d_i[0]}',this)"><span class="mi">check_circle</span> Aprobar a inventario</button>`:''}
-        <button class="icon-btn" style="color:var(--texto-suave);" onclick="continuarCosteo('${d_i[0]}')"><span class="mi">edit</span> Editar costeo</button>
-        ${!aprobado?'<button class="icon-btn" style="background:var(--rosado-light);border-color:var(--rosado);color:#8a5550;" onclick="eliminarDesarrollo(\''+d_i[0]+'\',this)"><span class="mi">delete</span> Eliminar</button>':''}
+      ${!aprobado?`<button class="btn btn-verde" onclick="aprobarProducto('${d_i[0]}',this)"><span class="mi">check_circle</span> Aprobar a inventario</button>`:''}
+      <div class="p2-btn-row">
+        <button class="btn btn-crema" onclick="continuarCosteo('${d_i[0]}')"><span class="mi">edit</span> Editar costeo</button>
+        ${!aprobado?'<button class="btn btn-crema" style="color:#8a5550;" onclick="eliminarDesarrollo(\''+d_i[0]+'\',this)"><span class="mi">delete</span> Eliminar</button>':''}
       </div>
     </div>`;
   }
@@ -2892,17 +2935,18 @@ function renderActivos(d){
     const prov=d[i][4]||'';
     const inexistente=disp==='inexistente';
     if(!inexistente)total+=val*cant;
-    html+=`<div class="activo-card" style="${inexistente?'opacity:0.55;':''}">
-      <div class="activo-info">
-        <div class="activo-nombre">${d[i][0]}${prov?` <span style="font-size:11px;color:var(--texto-suave);font-weight:400;">· ${prov}</span>`:''}</div>
-        <div class="activo-detalle">Cant: ${cant} · ${fmt(val)} · <span class="mi">event</span> ${fecha}</div>
-        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:4px;display:inline-block;${inexistente?'background:var(--rosado-light);color:#8a5550;':'background:var(--verde-light);color:var(--verde);'}">${inexistente?'Inexistente':'Existente'}</span>
+    html+=`<div class="cont-row" style="${inexistente?'opacity:0.55;':''}">
+      <div class="cont-row-info">
+        <span class="cont-nombre">${d[i][0]}</span>
+        <div class="cont-det">${fmt(val)} · Cant: ${cant}${prov?' · '+prov:''}</div>
+        <div class="cont-det"><span class="mi">event</span> ${fecha}</div>
+        <div class="cont-disp${inexistente?' no':''}"><span class="mi">${inexistente?'block':'check_circle'}</span> ${inexistente?'Inexistente':'Existente'}</div>
       </div>
-      <button class="icon-btn" onclick="abrirModalActivo(${i},'${d[i][0].replace(/'/g,"\\'")}','${d[i][1]||''}',${val},${cant},'${prov.replace(/'/g,"\\'")}','${disp}')"><span class="mi">edit</span></button>
+      <button class="p2-roundbtn" onclick="abrirModalActivo(${i},'${d[i][0].replace(/'/g,"\\'")}','${d[i][1]||''}',${val},${cant},'${prov.replace(/'/g,"\\'")}','${disp}')" aria-label="Editar"><span class="mi">edit</span></button>
     </div>`;
   }
   document.getElementById('lista-activos').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin activos.</div>';
-  document.getElementById('total-activos').innerHTML='<span class="mi">payments</span> Total inversión (activos existentes): '+fmt(total);
+  document.getElementById('total-activos').innerHTML='<span class="mi">payments</span><div><span>Total inversión (activos existentes)</span><b>'+fmt(total)+'</b></div>';
 }
 window.setActivoDisp=disp=>{
   document.getElementById('activo-disponibilidad').value=disp;
@@ -3532,15 +3576,14 @@ window.cargarDomicilios=async(force)=>{
   }catch(e){document.getElementById('lista-pendientes').innerHTML='<div style="text-align:center;padding:16px;color:#c9908a;">Error cargando.</div>';}
 };
 
-function renderPendientes(datos){
-  const hoy=new Date();
-  // Organizar por días de la semana (hoy + 6 días)
-  const dias=[];
-  for(let d=0;d<7;d++){
-    const fecha=new Date(hoy);
-    fecha.setDate(hoy.getDate()+d);
-    dias.push({fecha, entregas:[]});
-  }
+let domDatosP2=[],domInicio=0,domDia=0;
+function renderPendientes(datos){ domDatosP2=datos||[]; renderPendientesP2(); }
+window.moverDom=d=>{domInicio+=d*7;domDia=0;renderPendientesP2();};
+window.setDomDia=k=>{domDia=k;renderPendientesP2();};
+function renderPendientesP2(){
+  const datos=domDatosP2; const hoy=new Date(); hoy.setHours(12,0,0,0);
+  const dias=[]; for(let k=0;k<7;k++){const f=new Date(hoy);f.setDate(hoy.getDate()+domInicio+k);dias.push(f);}
+  const porDia=dias.map(()=>[]);
   for(let i=1;i<datos.length;i++){
     if(!datos[i][0]||datos[i][5]!=='domicilio')continue;
     const estado=(datos[i][11]&&typeof datos[i][11]==='string'&&datos[i][11].indexOf('T')===-1)?datos[i][11]:'';
@@ -3548,54 +3591,26 @@ function renderPendientes(datos){
     const fechaRawJ=datos[i][8]?datos[i][8].toString():'';
     const fechaEnt=fechaRawJ?new Date(fechaRawJ.substring(0,10)+'T12:00:00'):null;
     if(!fechaEnt)continue;
-    const diaIdx=dias.findIndex(d=>d.fecha.toDateString()===fechaEnt.toDateString());
-    if(diaIdx>=0) dias[diaIdx].entregas.push({i,d:datos[i]});
+    const idx=dias.findIndex(f=>f.toDateString()===fechaEnt.toDateString());
+    if(idx>=0) porDia[idx].push({i,d:datos[i]});
   }
-
-  let html='';
-  dias.forEach((dia,idx)=>{
-    const esHoy=idx===0;
-    const tieneEntregas=dia.fecha.entregas>0||dia.entregas.length>0;
-    const label=esHoy?'Hoy':dia.fecha.toLocaleDateString('es-CO',{weekday:'long',day:'2-digit',month:'long'});
-    const bgColor=esHoy?'var(--verde)':tieneEntregas?'var(--amarillo-light)':'var(--crema)';
-    const textColor=esHoy?'#fff':tieneEntregas?'#8a5550':'var(--texto-suave)';
-    const borderColor=esHoy?'var(--verde)':tieneEntregas?'var(--amarillo)':'var(--borde)';
-    const count=dia.entregas.length;
-
-    html+=`<div style="margin-bottom:8px;border:1.5px solid ${borderColor};border-radius:14px;overflow:hidden;">
-      <div onclick="toggleDia('dia-${idx}')" style="background:${bgColor};padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <span style="font-size:14px;font-weight:700;color:${textColor};">${label}</span>
-          ${count>0?`<span style="font-size:12px;color:${textColor};margin-left:8px;">${count} entrega${count>1?'s':''}</span>`:'<span style="font-size:12px;color:'+textColor+';margin-left:8px;">Sin entregas</span>'}
-        </div>
-        <span class="mi" style="color:${textColor};font-size:24px;" id="arrow-dia-${idx}">${count>0&&esHoy?'expand_more':'chevron_right'}</span>
-      </div>
-      <div id="dia-${idx}" style="display:${count>0&&esHoy?'block':'none'};">
-        ${dia.entregas.map(({i,d})=>`
-        <div style="padding:14px 16px;border-top:1px solid var(--borde);">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <div>
-              <div style="font-size:14px;font-weight:700;color:var(--texto);">${d[3]||'Cliente'}</div>
-              <div style="font-size:11px;color:var(--texto-mini);margin-top:2px;">Creación: ${(function(){try{return new Date(d[0]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){return '';}})()}</div>
-          <div style="font-size:12px;color:var(--texto-suave);margin-top:2px;"><span class="mi">call</span> ${d[4]||''}</div>
-            </div>
-            <span class="badge ${d[11]==='En camino'?'badge-amarillo':'badge-rosado'}">${d[11]||'Listo para enviar'}</span>
-          </div>
-          <div style="font-size:13px;color:var(--texto);margin:6px 0;"><span class="mi">spa</span> ${d[1]} · ${d[2]} uds</div>
-          <div style="font-size:12px;color:var(--texto-suave);"><span class="mi">location_on</span> ${d[6]||''}</div>
-          <div style="font-size:12px;color:var(--verde);margin-top:4px;"><span class="mi">local_shipping</span> ${d[7]||''} · <span class="mi">payments</span> $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>
-          ${d[15]?`<div style="font-size:12px;color:var(--texto-suave);margin-top:4px;font-style:italic;"><span class="mi">sticky_note_2</span> ${d[15]}</div>`:''}
-          <button class="icon-btn" style="margin-top:8px;background:var(--verde);color:#fff;border-color:var(--verde);width:100%;padding:10px;" onclick="abrirModalEntregar(${i})">Actualizar estado</button>
-        </div>`).join('')}
-        ${dia.entregas.length===0?'<div style="padding:12px 16px;color:var(--texto-mini);font-size:13px;text-align:center;">Sin entregas este día</div>':''}
-      </div>
-    </div>`;
-  });
-
-
-
-  if(!html) html='<div style="text-align:center;padding:24px;color:var(--texto-mini);">Sin entregas pendientes.</div>';
-  document.getElementById('lista-pendientes').innerHTML=html;
+  const L=['D','L','M','M','J','V','S'];
+  const tira=`<div class="agenda-dias"><button class="agenda-flecha" onclick="moverDom(-1)" aria-label="Semana anterior"><span class="mi">chevron_left</span></button><div class="agenda-dias-grid">`+
+    dias.map((f,k)=>`<button class="agenda-dia${k===domDia?' activo':''}${f.toDateString()===hoy.toDateString()?' hoy':''}" onclick="setDomDia(${k})"><span>${L[f.getDay()]}</span><b>${f.getDate()}</b><i class="agenda-punto${porDia[k].length?' si':''}"></i></button>`).join('')+
+    `</div><button class="agenda-flecha" onclick="moverDom(1)" aria-label="Semana siguiente"><span class="mi">chevron_right</span></button></div>`;
+  const sel=dias[domDia], arr=porDia[domDia];
+  const etq=sel.toDateString()===hoy.toDateString()?'Hoy':sel.toLocaleDateString('es-CO',{day:'numeric',month:'short'});
+  const tarjetas=arr.map(({i,d},k)=>`<div class="agenda-card${k===0?' destacada':''}">
+      <div class="agenda-card-top"><div><div class="agenda-cliente">${d[3]||'Cliente'}</div><div class="agenda-prod">${d[1]} · ${d[2]} uds</div></div><span class="badge ${d[11]==='En camino'?'badge-amarillo':'badge-rosado'}" style="margin-top:0;">${d[11]||'Listo para enviar'}</span></div>
+      <div class="agenda-meta"><span class="mi">call</span> ${d[4]||''}</div>
+      <div class="agenda-meta"><span class="mi">location_on</span> ${d[6]||''}</div>
+      <div class="agenda-meta"><span class="mi">local_shipping</span> ${d[7]||''} · <span class="mi">payments</span> $${Math.round(d[10]||0).toLocaleString('es-CO')}</div>
+      ${d[15]?`<div class="agenda-meta"><span class="mi">sticky_note_2</span> ${d[15]}</div>`:''}
+      <div class="agenda-meta" style="font-size:11px;">Creación: ${(function(){try{return new Date(d[0]).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){return '';}})()}</div>
+      <button class="btn btn-verde" style="min-height:46px;margin-top:4px;" onclick="abrirModalEntregar(${i})"><span class="mi">local_shipping</span> Actualizar estado</button>
+    </div>`).join('');
+  const cuerpo=arr.length?`<div class="agenda-grupo"><div class="agenda-etq">${etq}</div><div class="agenda-items">${tarjetas}</div></div>`:'<div class="p2-vacio">Sin entregas este día</div>';
+  document.getElementById('lista-pendientes').innerHTML=tira+cuerpo;
 }
 
 window.toggleDia=id=>{
@@ -3996,21 +4011,16 @@ function renderPUV(d){
     if(cuv>0||pvu>0){
       const margenPesos=pvu>0?pvu-cuv:0;
       const margenMostrar=margenPct>0?margenPct:(pvu>0?Math.round(((pvu-cuv)/pvu)*100):0);
-      html+=`<div class="des-card">
-        <div class="des-card-header">
-          <div class="des-card-nombre">${d[i][0]}</div>
-          <span class="badge ${aprobado?'badge-verde':'badge-amarillo'}">${estado}</span>
+      html+=`<div class="puv-card">
+        <div class="des-card-header"><div class="des-card-nombre">${d[i][0]}</div><span class="badge ${aprobado?'badge-verde':'badge-amarillo'}">${estado}</span></div>
+        <div class="cont-tiles dos">
+          <div class="cont-tile blanco"><span>CUV</span><b>${fmt(cuv)}</b></div>
+          ${margenMostrar>0?`<div class="cont-tile blanco"><span>Margen</span><b>${margenMostrar}%</b></div>`:''}
+          ${pvu>0?`<div class="cont-tile blanco"><span>PUV producción</span><b>${fmt(pvu)}</b></div>`:''}
+          ${pvu>0?`<div class="cont-tile blanco"><span>Margen en $</span><b>${fmt(margenPesos)}</b></div>`:''}
         </div>
-        <div class="res-costeo">
-          <div class="res-costeo-row"><span>CUV</span><span>${fmt(cuv)}</span></div>
-          ${margenMostrar>0?`<div class="res-costeo-row"><span>Margen</span><span>${margenMostrar}%</span></div>`:''}
-          ${pvu>0?`<div class="res-costeo-row h"><span>PUV producción</span><span>${fmt(pvu)}</span></div>`:''}
-          ${pvu>0?`<div class="res-costeo-row"><span>Margen en $</span><span>${fmt(margenPesos)}</span></div>`:''}
-          ${numPuv>0?`<div class="res-costeo-row" style="margin-top:6px;border-top:1px dashed var(--borde);padding-top:8px;"><span>PUV numerología</span><span style="font-weight:700;color:var(--verde);">${fmt(numPuv)}</span></div>`:''}
-        </div>
-        <div class="des-card-acciones">
-          <button class="icon-btn" onclick="cargarProdEnPUV(${i})"><span class="mi">edit</span> Editar PUV</button>
-        </div>
+        ${numPuv>0?`<div class="puv-num"><span>PUV numerología</span><b>${fmt(numPuv)}</b></div>`:''}
+        <button class="btn btn-crema" onclick="cargarProdEnPUV(${i})"><span class="mi">edit</span> Editar PUV</button>
       </div>`;
     }
   }
