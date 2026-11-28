@@ -597,6 +597,9 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 .agenda-card-bot{display:flex;justify-content:space-between;align-items:center;}
 .agenda-estado{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;background:var(--crema);padding:6px 10px;border-radius:12px;}
 .agenda-card.destacada .agenda-estado{background:var(--rosado-light);}
+.agenda-acc{display:flex;align-items:center;gap:8px;}
+.agenda-edit{width:40px;height:40px;border-radius:50%;border:none;background:#f3ebe9;color:#5c6d5d;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.agenda-edit .mi{font-size:20px;vertical-align:middle;}
 .agenda-check{width:40px;height:40px;border-radius:50%;border:none;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .agenda-alerta{margin:6px 0 0;padding:14px 16px;border-radius:20px;background:var(--rosado-light);display:flex;align-items:center;gap:12px;font-size:14px;font-weight:700;}
 .agenda-alerta span:nth-child(2){flex:1;}
@@ -1681,9 +1684,24 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     if (params.accion === "editarVenta") {
       var hV = ss.getSheetByName("Ventas");
       var dV = hV.getDataRange().getValues();
-      for (var e = 1; e < dV.length; e++) {
+      var filaE = Number(params.filaInv);
+      var ordenE = [];
+      if (filaE > 0 && filaE < dV.length) ordenE.push(filaE);
+      for (var e0 = 1; e0 < dV.length; e0++) if (e0 !== filaE) ordenE.push(e0);
+      for (var ei = 0; ei < ordenE.length; ei++) {
+        var e = ordenE[ei];
         if (dV[e][1] === params.producto && dV[e][3] === params.clienteOriginal) {
-          if (params.cantidad) hV.getRange(e + 1, 3).setValue(params.cantidad);
+          if (params.cantidad) {
+            var cantNueva = Number(params.cantidad) || 0, cantVieja = Number(dV[e][2]) || 0;
+            if (cantNueva > 0 && cantNueva !== cantVieja) {
+              var hInvEd = ss.getSheetByName("InventarioTresense");
+              var invEd = hInvEd.getDataRange().getValues();
+              for (var q = 1; q < invEd.length; q++) {
+                if (invEd[q][0] === params.producto) { hInvEd.getRange(q + 1, 2).setValue((Number(invEd[q][1]) || 0) - (cantNueva - cantVieja)); break; }
+              }
+              hV.getRange(e + 1, 3).setValue(cantNueva);
+            }
+          }
           if (params.cliente) hV.getRange(e + 1, 4).setValue(params.cliente);
           if (params.telefono !== undefined) hV.getRange(e + 1, 5).setValue(params.telefono);
           if (params.tipoEntrega) hV.getRange(e + 1, 6).setValue(params.tipoEntrega);
@@ -1691,7 +1709,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
           if (params.zonaEntrega !== undefined) hV.getRange(e + 1, 8).setValue(params.zonaEntrega);
           if (params.fechaEntrega !== undefined) hV.getRange(e + 1, 9).setValue(params.fechaEntrega);
           if (params.costoDomicilio !== undefined) hV.getRange(e + 1, 11).setValue(params.costoDomicilio);
-          if (params.nota !== undefined && params.nota !== "") hV.getRange(e + 1, 15).setValue(params.nota);
+          if (params.nota !== undefined) hV.getRange(e + 1, 15).setValue(params.nota);
           if (params.notaDomicilio !== undefined) hV.getRange(e + 1, 16).setValue(params.notaDomicilio);
           registrarActividad(params.registradoPor, "Venta editada", params.producto, "Cliente: " + (params.cliente || params.clienteOriginal));
           return jsonResponse({ ok: true });
@@ -1704,7 +1722,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     if (params.accion === "eliminarVenta") {
       var hVe = ss.getSheetByName("Ventas");
       var dVe = hVe.getDataRange().getValues();
-      for (var x = 1; x < dVe.length; x++) {
+      var filaX = Number(params.filaInv);
+      var ordenX = [];
+      if (filaX > 0 && filaX < dVe.length) ordenX.push(filaX);
+      for (var x0 = 1; x0 < dVe.length; x0++) if (x0 !== filaX) ordenX.push(x0);
+      for (var xi = 0; xi < ordenX.length; xi++) {
+        var x = ordenX[xi];
         if (dVe[x][1] === params.producto && dVe[x][3] === params.cliente) {
           var hInvE = ss.getSheetByName("InventarioTresense");
           var invE = hInvE.getDataRange().getValues();
@@ -3446,10 +3469,10 @@ window.guardarEdicionVenta=async()=>{
   const btn=document.querySelector('#modal-editar-venta .btn-verde');
   btnLoading(btn,'Guardando...');
   try{
-    await fetch(API,{method:'POST',body:JSON.stringify({
+    const resEdRaw=await fetch(API,{method:'POST',body:JSON.stringify({
       accion:'editarVenta',
-      producto:d[0],
-      cantidad:parseInt(document.getElementById('edit-venta-cantidad').value)||d[4],
+      producto:d[1],
+      cantidad:parseInt(document.getElementById('edit-venta-cantidad').value)||d[2],
       clienteOriginal:d[3],
       cliente:document.getElementById('edit-venta-cliente').value.trim(),
       telefono:document.getElementById('edit-venta-telefono').value.trim(),
@@ -3462,11 +3485,14 @@ window.guardarEdicionVenta=async()=>{
       registradoPor:usuarioActual?usuarioActual.nombre:'',
       filaInv:idx
     })});
+    const resEd=await resEdRaw.json().catch(()=>({}));
+    if(!resEd.ok){toast('No se encontró la venta','error');btnReset(btn);return;}
     cerrarModal('modal-editar-venta');
     clearCacheC('ventas'); clearCacheC('domicilios'); clearCacheC('domicilios_inv');
     sessionStorage.removeItem('inv_cache');
     await cargarInventario();
     cargarVentas(true);
+    if(document.getElementById('agenda-lista'))cargarAgenda();
     toast('Venta actualizada','success');
   }catch(e){toast('Error al guardar','error');}
   btnReset(btn);
@@ -4175,6 +4201,7 @@ window.cargarAgenda=async()=>{
 };
 window.setAgendaDia=k=>{agendaDia=k;renderAgenda();};
 window.moverAgenda=d=>{agendaInicio+=d*7;agendaDia=(agendaInicio===0)?0:0;renderAgenda();};
+window.agendaEditar=i=>{datosVentas=agendaDatos;abrirEditarVenta(i);};
 window.agendaListo=async(i,btn)=>{prodDatos=agendaDatos;await marcarProducido(i,btn);cargarAgenda();};
 function renderAgenda(){
   const hoy=new Date();hoy.setHours(12,0,0,0);
@@ -4201,7 +4228,7 @@ function renderAgenda(){
     return `<div class="agenda-card${destacada?' destacada':''}">
       <div class="agenda-card-top"><div><div class="agenda-cliente">${r[3]||'Cliente'}</div><div class="agenda-prod">${r[1]} · ${r[2]}</div></div>${tot>0?`<div class="agenda-total">${fmt(tot)}</div>`:''}</div>
       <div class="agenda-meta">${tipo}${r[14]?` · <span class="mi">sticky_note_2</span> ${r[14]}`:''}</div>
-      <div class="agenda-card-bot"><span class="agenda-estado">${est}</span>${hecho?'':`<button class="agenda-check" onclick="agendaListo(${it.i},this)" aria-label="Marcar listo"><span class="mi">check</span></button>`}</div>
+      <div class="agenda-card-bot"><span class="agenda-estado">${est}</span><span class="agenda-acc"><button class="agenda-edit" onclick="agendaEditar(${it.i})" aria-label="Editar venta"><span class="mi">edit</span></button>${hecho?'':`<button class="agenda-check" onclick="agendaListo(${it.i},this)" aria-label="Marcar listo"><span class="mi">check</span></button>`}</span></div>
     </div>`;
   };
   const grupo=(et,arr,dest)=>arr.length?`<div class="agenda-grupo"><div class="agenda-etq">${et}</div><div class="agenda-items">${arr.map((x,k)=>card(x,dest&&k===0)).join('')}</div></div>`:'';
