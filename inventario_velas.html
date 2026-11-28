@@ -7,6 +7,7 @@
 <title>Tr3sense · Inventario</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
+<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tr3sense">
 <meta name="theme-color" content="#f9f6f3">
@@ -597,6 +598,13 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 .agenda-card-bot{display:flex;justify-content:space-between;align-items:center;}
 .agenda-estado{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;background:var(--crema);padding:6px 10px;border-radius:12px;}
 .agenda-card.destacada .agenda-estado{background:var(--rosado-light);}
+.cuenta-avisos{display:flex;align-items:center;gap:12px;background:#f3ebe9;border-radius:16px;padding:12px 14px;margin:0 0 20px;}
+.cuenta-avisos-ico{font-size:22px;color:#5c6d5d;}
+.cuenta-avisos-txt{flex:1;display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--texto-suave);line-height:1.35;}
+.cuenta-avisos-txt b{font-size:14px;color:var(--texto);}
+.cuenta-avisos-btn{border:none;border-radius:999px;background:#5c6d5d;color:#fff;font:700 13px Karla,sans-serif;padding:9px 16px;cursor:pointer;white-space:nowrap;}
+.cuenta-avisos-btn.suave{background:#fff;color:#5c6d5d;}
+.cuenta-avisos-btn:disabled{opacity:.6;}
 .agenda-acc{display:flex;align-items:center;gap:8px;}
 .agenda-edit{width:40px;height:40px;border-radius:50%;border:none;background:#f3ebe9;color:#5c6d5d;display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .agenda-edit .mi{font-size:20px;vertical-align:middle;}
@@ -744,6 +752,11 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     <div class="modal-handle"></div>
     <div class="p2-sheet-head"><div class="modal-title">Mi cuenta</div><button class="p2-close" onclick="cerrarModal('modal-cuenta')" aria-label="Cerrar"><span class="mi">close</span></button></div>
     <p class="p2-sub" id="cuenta-nombre" style="margin:-4px 0 16px;"></p>
+    <div class="cuenta-avisos" id="cuenta-avisos" style="display:none;">
+      <span class="mi cuenta-avisos-ico">notifications</span>
+      <div class="cuenta-avisos-txt"><b>Notificaciones</b><span id="avisos-estado"></span></div>
+      <button class="cuenta-avisos-btn" id="btn-avisos" onclick="activarAvisos()">Activar</button>
+    </div>
     <div class="card-title" style="font-size:16px;margin-bottom:10px;" id="cuenta-titulo">Cambiar mi PIN</div>
     <div class="form-group"><label class="form-label" for="cuenta-actual" id="lbl-cuenta-actual">PIN actual</label><input type="password" id="cuenta-actual" autocomplete="current-password"></div>
     <div class="form-group"><label class="form-label" for="cuenta-nueva" id="lbl-cuenta-nueva">PIN nuevo</label><input type="password" id="cuenta-nueva" autocomplete="new-password"></div>
@@ -1351,6 +1364,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script>
 /* ============================================================
    Tr3DB — capa de datos Firebase para Tr3sense (v2)
@@ -1415,6 +1429,51 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
     },
     clave: function (pin) { return "Tr3" + pin + "s"; }
   };
+
+  // ---------- Notificaciones en el celular (Firebase Cloud Messaging) ----------
+  // Clave pública "Web Push" de Firebase (Configuración del proyecto → Cloud Messaging). No es secreta.
+  const VAPID_KEY = "BPeg1GAfCV7KOKqPw4KlTG80zP0vdwbHx0R-XWmmrT-1uSkFkZWcQodNg2iC_AdBWPyCWZdnwVBI84LHDStcVvo";
+  let _msg = null, _swReg = null;
+  function pushPosible() { return !!(firebase.messaging && "serviceWorker" in navigator && "Notification" in window && "PushManager" in window); }
+  function pushMensajeria() {
+    if (!_msg) {
+      _msg = firebase.messaging();
+      _msg.onMessage(function (p) {
+        const n = (p && p.notification) || {};
+        if (window.toast) window.toast((n.title ? n.title + " · " : "") + (n.body || ""), "success");
+      });
+    }
+    return _msg;
+  }
+  async function pushGuardarToken() {
+    if (!_swReg) _swReg = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+    const t = await pushMensajeria().getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: _swReg });
+    if (!t) throw new Error("sin-token");
+    const u = await authReady;
+    await db.collection("hojas").doc("avisos").collection("filas").doc(t).set({
+      email: String(u.email || "").toLowerCase(), token: t, ts: new Date().toISOString(),
+      equipo: String(navigator.userAgent || "").slice(0, 140)
+    });
+    return t;
+  }
+  window.tr3Push = {
+    estado: function () {
+      if (!VAPID_KEY) return "pendiente";
+      if (!pushPosible()) return "no";
+      if (Notification.permission === "denied") return "bloqueado";
+      return Notification.permission === "granted" ? "activo" : "inactivo";
+    },
+    activar: async function () {
+      const p = await Notification.requestPermission();
+      if (p !== "granted") throw new Error(p);
+      return pushGuardarToken();
+    },
+    probar: function () { relay({ accion: "enviarPush", destino: "yo", titulo: "Tr3sense", cuerpo: "Las notificaciones funcionan en este celular." }); }
+  };
+  // Al entrar, se renueva el registro de este celular con la cuenta que entró
+  firebase.auth().onAuthStateChanged(function (u) {
+    if (u && !u.isAnonymous && window.tr3Push.estado() === "activo") setTimeout(function () { pushGuardarToken().catch(function () {}); }, 2500);
+  });
 
   // ---------- Utilidades ----------
   let seq = 0;
@@ -1571,6 +1630,14 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
   }
   function enviarTelegram(_t, _c, mensaje) { relay({ accion: "enviarTelegram", mensaje: mensaje }); }
   function enviarTelegramFoto(mensaje, fotoBase64) { relay({ accion: "enviarTelegramFoto", mensaje: mensaje, fotoBase64: fotoBase64 }); }
+  // destino: "socias" | "julian" | "todos". A quien hizo la acción no le llega.
+  function avisar(destino, titulo, cuerpo) { relay({ accion: "enviarPush", destino: destino, titulo: titulo, cuerpo: cuerpo }); }
+  function fechaCorta(v) {
+    if (!v) return "";
+    const iso = v instanceof Date ? v.toISOString().substring(0, 10) : String(v).substring(0, 10);
+    const d = new Date(iso + "T12:00:00");
+    return isNaN(d) ? iso : d.toLocaleDateString("es-CO", { weekday: "short", day: "numeric", month: "short" });
+  }
   function registrarActividad(usuario, accion, item, detalle) {
     authReady.then(function () {
       return db.collection("hojas").doc("actividad").collection("filas").add({
@@ -1654,6 +1721,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
           if (params.nota) mensaje += "\n📝 " + params.nota;
           if (nuevoStock <= minimo) mensaje += "\n\n⚠️ *Stock bajo* — reponer pronto";
           enviarTelegram(token, chatIDs, mensaje);
+          avisar("socias", "Nueva venta", cantidad + " × " + params.producto + (params.nombre ? " · " + params.nombre : "") + (total > 0 ? " · $" + Math.round(total).toLocaleString("es-CO") : "") + (params.fechaEntrega ? "\nEntrega: " + fechaCorta(params.fechaEntrega) : ""));
+          if (nuevoStock <= minimo) avisar("socias", "Stock bajo", params.producto + ": " + (nuevoStock <= 0 ? "agotado" : "quedan " + nuevoStock));
           registrarActividad(params.registradoPor, "Venta registrada", params.producto, "Cant: " + cantidad + " · Cliente: " + (params.nombre || "") + " · Total: $" + Math.round(total).toLocaleString("es-CO"));
           return jsonResponse({ ok: true, nuevoStock: nuevoStock, precio: precio, subtotal: subtotal, total: total });
         }
@@ -1707,7 +1776,16 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
           if (params.tipoEntrega) hV.getRange(e + 1, 6).setValue(params.tipoEntrega);
           if (params.direccion !== undefined) hV.getRange(e + 1, 7).setValue(params.direccion);
           if (params.zonaEntrega !== undefined) hV.getRange(e + 1, 8).setValue(params.zonaEntrega);
-          if (params.fechaEntrega !== undefined) hV.getRange(e + 1, 9).setValue(params.fechaEntrega);
+          if (params.fechaEntrega !== undefined) {
+            var fAntes = dV[e][8] instanceof Date ? dV[e][8].toISOString().substring(0, 10) : String(dV[e][8] || "").substring(0, 10);
+            var fNueva = String(params.fechaEntrega || "").substring(0, 10);
+            hV.getRange(e + 1, 9).setValue(params.fechaEntrega);
+            if (fNueva && fNueva !== fAntes) {
+              var tipoEd = params.tipoEntrega || dV[e][5];
+              avisar(tipoEd === "domicilio" ? "todos" : "socias", "Cambio de fecha de entrega",
+                (params.cliente || params.clienteOriginal || "Cliente") + " · " + params.producto + "\nAhora: " + fechaCorta(fNueva) + (fAntes ? " (antes " + fechaCorta(fAntes) + ")" : ""));
+            }
+          }
           if (params.costoDomicilio !== undefined) hV.getRange(e + 1, 11).setValue(params.costoDomicilio);
           if (params.nota !== undefined) hV.getRange(e + 1, 15).setValue(params.nota);
           if (params.notaDomicilio !== undefined) hV.getRange(e + 1, 16).setValue(params.notaDomicilio);
@@ -1766,6 +1844,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--rosado);outline-
         if (params.direccion) m2 += "📍 " + params.direccion + "\n";
         if (params.zona) m2 += "🗺 " + params.zona + "\n";
         m2 += "\n✍️ " + (params.registradoPor || "Julian Builes");
+        avisar("socias", params.estado === "En camino" ? "Domicilio en camino" : "Pedido entregado",
+          (params.cliente || "Cliente") + " · " + params.producto + (params.estado === "En camino" && params.direccion ? "\n" + params.direccion : ""));
         if (params.estado === "Entregado" && params.fotoBase64 && params.fotoBase64.length > 50) {
           enviarTelegramFoto(m2, params.fotoBase64);
         } else {
@@ -4142,7 +4222,34 @@ window.abrirCuenta=modo=>{
     inp.value=''; inp.inputMode=pin?'numeric':'text'; inp.maxLength=pin?4:64;
   });
   document.getElementById('cuenta-error').textContent='';
+  pintarAvisos();
   abrirModal('modal-cuenta');
+};
+function pintarAvisos(){
+  const box=document.getElementById('cuenta-avisos');
+  if(cuentaModo==='conta'||!window.tr3Push){box.style.display='none';return;}
+  box.style.display='';
+  const e=tr3Push.estado(), btn=document.getElementById('btn-avisos');
+  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent), standalone=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  const txt={
+    pendiente:'Falta terminar la configuración.',
+    no:ios&&!standalone?'En iPhone: agrega la app a la pantalla de inicio y ábrela desde ese ícono.':'Este navegador no permite notificaciones.',
+    bloqueado:'Están bloqueadas. Permítelas en los ajustes del navegador para esta página.',
+    inactivo:'Recibe en este celular los avisos de ventas, stock y entregas.',
+    activo:'Activadas en este celular.'
+  };
+  document.getElementById('avisos-estado').textContent=txt[e]||'';
+  btn.style.display=(e==='inactivo'||e==='activo')?'':'none';
+  btn.textContent=e==='activo'?'Probar':'Activar';
+  btn.classList.toggle('suave',e==='activo');
+}
+window.activarAvisos=async()=>{
+  const btn=document.getElementById('btn-avisos');
+  if(tr3Push.estado()==='activo'){tr3Push.probar();toast('Prueba enviada. Te llega en unos segundos.','success');return;}
+  btn.disabled=true;
+  try{await tr3Push.activar();toast('Notificaciones activadas','success');}
+  catch(err){toast(String(err&&err.message)==='denied'?'No diste permiso para las notificaciones':'No se pudieron activar. Intenta de nuevo.','error');}
+  btn.disabled=false; pintarAvisos();
 };
 window.salirCuenta=()=>{cerrarModal('modal-cuenta');if(cuentaModo==='inv')cerrarInventario();else if(cuentaModo==='dom')cerrarDomicilios();else cerrarContabilidad();};
 window.guardarClaveCuenta=async()=>{

@@ -1,0 +1,10 @@
+{
+  "name": "Tr3sense · Inventario",
+  "short_name": "Tr3sense",
+  "start_url": "inventario_velas.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#5c6d5d",
+  "icons": [{ "src": "favicon.png", "sizes": "192x192 512x512", "type": "image/png", "purpose": "any" }]
+}
